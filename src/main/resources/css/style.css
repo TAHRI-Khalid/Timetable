@@ -1,0 +1,39 @@
+.btn-save{
+    -fx-pref-width: 30px;
+    -fx-background-color: #f0ad4e;
+    -fx-padding: 5px;
+}
+.btn-save:hover{
+    -fx-background-color: #c1873c;
+}
+.btn-delete{
+    -fx-pref-width: 30px;
+    -fx-background-color: #d9534f;
+    -fx-padding: 5px;
+}
+.btn-delete:hover{
+    -fx-background-color: #9e3a37;
+}
+
+
+.groupe-title-main{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-color: #1C588C;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
+.formateur-title-sub{
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: #038C4C;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
+.espace-title-sub{
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: #8D9AA6;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
