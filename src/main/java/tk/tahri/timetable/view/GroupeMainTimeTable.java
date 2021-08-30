@@ -16,7 +16,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         this.formateurTimetable = formateurTimetable;
         this.espaceTimetable = espaceTimetable;
         this.groupe=groupe;
-        loadSeances(true);
+        loadSeances(true,"groupe-seance-view");
     }
 
     @Override
@@ -36,9 +36,9 @@ public class GroupeMainTimeTable extends MainTimeTableView {
                 .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
                         s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
 
-        loadSeances(true);
-        formateurTimetable.loadSeances(false);
-        espaceTimetable.loadSeances(false);
+        loadSeances(true,"groupe-seance-view");
+        formateurTimetable.loadSeances(false,"formateur-seance-view");
+        espaceTimetable.loadSeances(false,"espace-seance-view");
     }
 
     public Groupe getGroupe() {

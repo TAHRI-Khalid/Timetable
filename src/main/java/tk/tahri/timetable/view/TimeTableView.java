@@ -93,12 +93,13 @@ public abstract class TimeTableView extends Pane {
         }
     }
 
-    public void loadSeances(boolean draggable) {
+    public void loadSeances(boolean draggable, String style) {
         seances.clear();
         this.getChildren().removeIf(node -> node instanceof SeanceView);
         loadData();
         for (var s : seances) {
             var sv = new SeanceView(s, colWidth, rowHeight, draggable);
+            sv.getStyleClass().add(style);
             this.getChildren().add(sv);
             sv.setTranslateX((((s.getDebut().toSecondOfDay() - LocalTime.of(8, 30).toSecondOfDay()) / (60 * 15)) * colWidth) + tableX);
             sv.setTranslateY(((s.getJour().getValue() - 1) * rowHeight) + tableY);

@@ -11,14 +11,13 @@ import tk.tahri.timetable.Entities.Seance;
 
 public class SeanceView extends VBox {
 
-    private Seance seance;
+    private final Seance seance;
     private double firstClickX;
     private double firstClickY;
 
     public SeanceView(Seance seance, double width, double height, boolean draggable) {
         this.seance = seance;
         this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace().toString()));
-
         this.setPrefSize(seance.getDuree()/15 * width, height);
 
         if (draggable) {
@@ -57,20 +56,6 @@ public class SeanceView extends VBox {
                 ((MainTimeTableView) this.getParent()).placeSeance(this);
             });
         }
-
-        addStyle();
-    }
-
-    private void addStyle() {
-        this.setStyle("""
-                -fx-border-color: #407311;
-                -fx-border-width: 3px;
-                -fx-background-color: #84c4b1;
-                -fx-background-radius: 10.0;
-                -fx-alignment:center;
-                -fx-text-fill: #fff;
-                -fx-text-alignment: center;
-                """);
     }
 
     public Seance getSeance() {

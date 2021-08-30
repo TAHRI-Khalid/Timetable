@@ -2,7 +2,6 @@ package tk.tahri.timetable.view;
 
 import javafx.scene.input.TransferMode;
 import tk.tahri.timetable.Entities.Seance;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -16,12 +15,13 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     private void addDragAndDropEvents() {
         this.setOnDragEntered(mouseDragEvent -> {
-
             seanceView = new SeanceView(getDraggedSeance(), colWidth, rowHeight, true);
+
+            seanceView.getStyleClass().add("groupe-seance-view");
+
             this.getChildren().add(seanceView);
             seanceView.setTranslateX(mouseDragEvent.getX() - colWidth * 5);
             seanceView.setTranslateY(mouseDragEvent.getY() - rowHeight / 2);
-
             mouseDragEvent.consume();
         });
 
@@ -32,11 +32,11 @@ public abstract class MainTimeTableView extends TimeTableView {
             mouseEvent.consume();
 
         });
+
         this.setOnDragExited(dragEvent -> {
             if (dragEvent.isDropCompleted()) {
                 return;
             }
-
             this.getChildren().remove(seanceView);
             dragEvent.consume();
         });

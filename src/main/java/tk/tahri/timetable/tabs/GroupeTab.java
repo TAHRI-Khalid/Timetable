@@ -8,6 +8,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Groupe;
@@ -41,6 +42,7 @@ public class GroupeTab extends Tab {
         var grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
+
         grid.setAlignment(Pos.CENTER);
 
         groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
@@ -64,10 +66,9 @@ public class GroupeTab extends Tab {
         grid.add(espaceTitle, 1, 2);
         grid.add(espaceTimeTable, 1, 3);
 
-        var stack = new StackPane(grid);
-        stack.setAlignment(Pos.CENTER);
-        parent.setCenter(stack);
+        parent.setCenter(grid);
         setContent(parent);
+
     }
 
     private void drawRigthSidebar() {
@@ -75,33 +76,7 @@ public class GroupeTab extends Tab {
         acc.setPrefWidth(250);
         // Groupe --------------------
         var formateurs = new TitledPane();
-        var btnAdd = new Button();
-        btnAdd.setOnMouseClicked(actionEvent -> {
-            ContextMenu contextMenu = new ContextMenu();
-
-            contextMenu.getItems().clear();
-            var list = Database.getInstance().getFormateurs();
-            list.stream().map(Formateur::getType).distinct().forEach(type -> {
-                var menu = new Menu(type);
-                contextMenu.getItems().add(menu);
-                list.stream().filter(groupe -> groupe.getType().equals(type)).forEach(formateur -> {
-                    var submenu = new MenuItem(formateur.toString());
-                    menu.getItems().add(submenu);
-                });
-            });
-            contextMenu.show(btnAdd, actionEvent.getScreenX() - 20, actionEvent.getScreenY());
-        });
-        btnAdd.setPadding(new Insets(2));
-        btnAdd.setGraphic(fontAwesome.create(FontAwesome.Glyph.PLUS_CIRCLE).size(13));
-        var lblTitle = new Label("Formateurs ");
-
-        var header = new BorderPane();
-        header.setLeft(lblTitle);
-        header.setRight(btnAdd);
-        header.prefWidthProperty().bind(formateurs.widthProperty().subtract(25));
-        formateurs.setGraphic(header);
-        formateurs.setExpanded(true);
-        formateurs.setCollapsible(false);
+        formateurs.setText("Formateurs");
 
         var scrolPane = new ScrollPane();
         scrolPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -111,26 +86,29 @@ public class GroupeTab extends Tab {
         scrolPane.setPadding(new Insets(10));
         var vFrm = new VBox(5);
         Database.getInstance().getFormateurs().forEach(f -> {
-            var lbl = new FormateurView(f);
-            lbl.setOnMousePressed(mouseEvent -> {
-                formateurTitle.setText("Fromateur : " + lbl.getFormateur());
-                formateurTimeTable.setFormateur(lbl.getFormateur());
-                formateurTimeTable.loadSeances(false);
+            var formateurView = new FormateurView(f);
+            formateurView.setOnMousePressed(mouseEvent -> {
+                formateurTitle.setText("Fromateur : " + formateurView.getFormateur());
+                formateurTimeTable.setFormateur(formateurView.getFormateur());
+                formateurTimeTable.loadSeances(false, "formateur-seance-view");
 
                 if (espaceTimeTable.getEspace() != null) {
-                    lbl.setOnDragDetected(event -> {
-                        Dragboard db = lbl.startDragAndDrop(TransferMode.ANY);
+                    formateurView.setOnDragDetected(event -> {
+                        Dragboard db = formateurView.startDragAndDrop(TransferMode.ANY);
                         ClipboardContent content = new ClipboardContent();
                         content.putString("FORMATEUR");
                         db.setContent(content);
                         event.consume();
                     });
                 }
+                vFrm.getChildren().forEach(node -> {
+                    ((FormateurView) node).setSelectedStyle(false);
+                });
+                formateurView.setSelectedStyle(true);
 
             });
-            lbl.setMaxWidth(Double.MAX_VALUE);
-
-            vFrm.getChildren().addAll(lbl);
+            formateurView.setMaxWidth(Double.MAX_VALUE);
+            vFrm.getChildren().addAll(formateurView);
         });
         scrolPane.setContent(vFrm);
         formateurs.setContent(scrolPane);
@@ -138,7 +116,6 @@ public class GroupeTab extends Tab {
         // Espace --------------------
         var espaces = new TitledPane();
         espaces.setText("Espaces");
-        espaces.setCollapsible(false);
         var scrolPane2 = new ScrollPane();
         scrolPane2.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrolPane2.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -147,24 +124,29 @@ public class GroupeTab extends Tab {
         scrolPane2.setPadding(new Insets(10));
         var vEsp = new VBox(5);
         Database.getInstance().getEspaces().forEach(e -> {
-            var lbl = new EspaceView(e);
-            lbl.setOnMousePressed(mouseEvent -> {
-                espaceTitle.setText("Espace : " + lbl.getEspace());
-                espaceTimeTable.setEspace(lbl.getEspace());
-                espaceTimeTable.loadSeances(false);
+            var espaceView = new EspaceView(e);
+            espaceView.setOnMousePressed(mouseEvent -> {
+                espaceTitle.setText("Espace : " + espaceView.getEspace());
+                espaceTimeTable.setEspace(espaceView.getEspace());
+                espaceTimeTable.loadSeances(false, "espace-seance-view");
 
                 if (formateurTimeTable.getFormateur() != null) {
-                    lbl.setOnDragDetected(event -> {
-                        Dragboard db = lbl.startDragAndDrop(TransferMode.ANY);
+                    espaceView.setOnDragDetected(event -> {
+                        Dragboard db = espaceView.startDragAndDrop(TransferMode.ANY);
                         ClipboardContent content = new ClipboardContent();
                         content.putString("FORMATEUR");
                         db.setContent(content);
                         event.consume();
                     });
                 }
+
+                vEsp.getChildren().forEach(node -> {
+                    ((EspaceView) node).setSelectedStyle(false);
+                });
+                espaceView.setSelectedStyle(true);
             });
-            lbl.setMaxWidth(Double.MAX_VALUE);
-            vEsp.getChildren().addAll(lbl);
+            espaceView.setMaxWidth(Double.MAX_VALUE);
+            vEsp.getChildren().addAll(espaceView);
         });
         scrolPane2.setContent(vEsp);
         espaces.setContent(scrolPane2);
