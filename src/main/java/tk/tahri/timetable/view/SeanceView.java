@@ -8,6 +8,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.dao.Database;
 
 public class SeanceView extends VBox {
 
@@ -18,7 +19,7 @@ public class SeanceView extends VBox {
     public SeanceView(Seance seance, double width, double height, boolean draggable) {
         this.seance = seance;
         this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace().toString()));
-        this.setPrefSize(seance.getDuree()/15 * width, height);
+        this.setPrefSize(seance.getDuree() / 15 * width, height);
 
         if (draggable) {
             ContextMenu contextMenu = new ContextMenu();
@@ -54,6 +55,7 @@ public class SeanceView extends VBox {
 
             this.setOnMouseReleased(mouseEvent -> {
                 ((MainTimeTableView) this.getParent()).placeSeance(this);
+                ((MainTimeTableView) this.getParent()).updateSeance(this);
             });
         }
     }

@@ -79,6 +79,7 @@ public class Database {
                 """;
         String sql_create_seance = """
                 CREATE TABLE IF NOT EXISTS seance (
+                id integer PRIMARY KEY AUTOINCREMENT,
                 debut integer,
                 fin integer,
                 jour integer,
@@ -151,7 +152,7 @@ public class Database {
     public List<Seance> getSeances(Formateur formateur) {
         String sql = """
                 SELECT
-                s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
@@ -167,7 +168,7 @@ public class Database {
     public List<Seance> getSeances(Groupe groupe) {
         String sql = """
                 SELECT
-                s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
@@ -182,7 +183,7 @@ public class Database {
     public List<Seance> getSeances(Espace espace) {
         String sql = """
                 SELECT
-                s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
@@ -202,6 +203,7 @@ public class Database {
 
             while (rs.next()) {
                 var seance = new Seance();
+                seance.setId(rs.getLong("id"));
                 seance.setDebut(LocalTime.ofSecondOfDay(rs.getLong("debut")));
                 seance.setFin(LocalTime.ofSecondOfDay(rs.getLong("fin")));
                 seance.setJour(DayOfWeek.of(rs.getInt("jour")));

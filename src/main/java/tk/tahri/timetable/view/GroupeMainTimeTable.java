@@ -3,6 +3,7 @@ package tk.tahri.timetable.view;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.dao.Database;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -15,8 +16,8 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     public GroupeMainTimeTable(Groupe groupe, FormateurSubTimetableView formateurTimetable, EspaceSubTimetableView espaceTimetable) {
         this.formateurTimetable = formateurTimetable;
         this.espaceTimetable = espaceTimetable;
-        this.groupe=groupe;
-        loadSeances(true,"groupe-seance-view");
+        this.groupe = groupe;
+        loadSeances(true, "groupe-seance-view");
     }
 
     @Override
@@ -32,13 +33,27 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     @Override
     protected void saveSeance() {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("INSERT INTO seance VALUES(%d,%d,%d,%d,%d,%d)"
+        Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,%d,%d,%d)"
                 .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
                         s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
 
-        loadSeances(true,"groupe-seance-view");
-        formateurTimetable.loadSeances(false,"formateur-seance-view");
-        espaceTimetable.loadSeances(false,"espace-seance-view");
+        loadSeances(true, "groupe-seance-view");
+        formateurTimetable.loadSeances(false, "formateur-seance-view");
+        espaceTimetable.loadSeances(false, "espace-seance-view");
+    }
+
+    @Override
+    protected void updateSeance(SeanceView seanceView) {
+        var s = seanceView.getSeance();
+        Database.getInstance().execute("UPDATE seance set debut=%d, fin=%d, jour=%d WHERE id=%d"
+                .formatted(s.getDebut().toSecondOfDay(),
+                        s.getFin().toSecondOfDay(),
+                        s.getJour().getValue(),
+                        s.getId()));
+
+        loadSeances(true, "groupe-seance-view");
+        formateurTimetable.loadSeances(false, "formateur-seance-view");
+        espaceTimetable.loadSeances(false, "espace-seance-view");
     }
 
     public Groupe getGroupe() {

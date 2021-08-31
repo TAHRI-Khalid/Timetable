@@ -57,7 +57,7 @@
     -fx-font-weight: bold;
     -fx-border-radius: 5;
 }
-.formateur-seance-view, .espace-seance-view, .groupe-seance-view {
+.formateur-seance-view, .espace-seance-view, .groupe-seance-view ,.chevauchement-seance-view{
     -fx-background-radius: 5.0;
     -fx-alignment: center;
 }
@@ -65,16 +65,16 @@
 .formateur-seance-view {
     -fx-background-color: #038C4C;
 }
-
 .espace-seance-view {
     -fx-background-color: #8D9AA6;
 }
-
 .groupe-seance-view {
     -fx-background-color: #1C588C;
 }
-
-.formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label {
+.chevauchement-seance-view {
+    -fx-background-color: #b71c1c;
+}
+.formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label, .chevauchement-seance-view Label {
     -fx-text-fill: #fff;
     -fx-font-weight: bold;
 }

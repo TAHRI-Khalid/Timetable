@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 public class Seance {
+    private long id;
     private LocalTime debut;
     private LocalTime fin;
     private DayOfWeek jour;
@@ -23,10 +24,19 @@ public class Seance {
         this.formateur = formateur;
         this.espace = espace;
     }
+
     public Seance(Groupe groupe, Formateur formateur, Espace espace) {
         this.groupe = groupe;
         this.formateur = formateur;
         this.espace = espace;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public LocalTime getDebut() {
@@ -92,4 +102,6 @@ public class Seance {
     public long getDuree() {
         return ChronoUnit.MINUTES.between(this.getDebut(), this.getFin());
     }
+
+
 }
