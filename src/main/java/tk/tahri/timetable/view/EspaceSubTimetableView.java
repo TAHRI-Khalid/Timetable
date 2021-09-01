@@ -12,7 +12,9 @@ public class EspaceSubTimetableView extends SubTimeTableView {
 
     @Override
     public void loadData() {
-        seances.addAll(Database.getInstance().getSeances(espace));
+        if(espace!=null ){
+            seances.addAll(Database.getInstance().getSeances(espace));
+        }
     }
 
     public Espace getEspace() {

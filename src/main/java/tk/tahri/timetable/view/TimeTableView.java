@@ -1,6 +1,5 @@
 package tk.tahri.timetable.view;
 
-import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -12,7 +11,6 @@ import tk.tahri.timetable.Entities.Seance;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class TimeTableView extends Pane {
 
@@ -95,7 +93,7 @@ public abstract class TimeTableView extends Pane {
         }
     }
 
-    public void loadSeances(boolean draggable, String style) {
+    public void loadSeanceViews(boolean draggable, String style) {
         seances.clear();
         this.getChildren().removeIf(node -> node instanceof SeanceView);
         loadData();
@@ -118,13 +116,13 @@ public abstract class TimeTableView extends Pane {
     private boolean chevauchement(Seance s1, Seance s2) {
         if (s1 == s2) {
             return false;
-        } else if (s1.getJour().getValue() != s1.getJour().getValue()) {
+        } else if (s1.getJour().getValue() != s2.getJour().getValue()) {
             return false;
         } else if (s2.getDebut().toSecondOfDay() < s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getDebut().toSecondOfDay()) {
             return true;
         } else if (s2.getDebut().toSecondOfDay() < s1.getFin().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getFin().toSecondOfDay()) {
             return true;
-        } else if (s2.getDebut().toSecondOfDay() > s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() < s1.getFin().toSecondOfDay()) {
+        } else if (s2.getDebut().toSecondOfDay() >= s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() <= s1.getFin().toSecondOfDay()) {
             return true;
         }
         return false;

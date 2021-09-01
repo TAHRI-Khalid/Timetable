@@ -8,7 +8,9 @@ public class GroupeSubTimetableView extends SubTimeTableView {
 
     @Override
     public void loadData() {
-        seances.addAll(Database.getInstance().getSeances(groupe));
+        if(groupe!=null){
+            seances.addAll(Database.getInstance().getSeances(groupe));
+        }
     }
 
     public Groupe getGroupe() {

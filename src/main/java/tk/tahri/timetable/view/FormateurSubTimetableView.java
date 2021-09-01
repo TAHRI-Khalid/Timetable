@@ -12,7 +12,9 @@ public class FormateurSubTimetableView extends SubTimeTableView {
 
     @Override
     public void loadData() {
-        seances.addAll(Database.getInstance().getSeances(formateur));
+        if(formateur!=null ){
+            seances.addAll(Database.getInstance().getSeances(formateur));
+        }
     }
 
     public Formateur getFormateur() {

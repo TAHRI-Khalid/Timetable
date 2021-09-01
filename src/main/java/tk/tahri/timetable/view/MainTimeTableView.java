@@ -6,7 +6,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public abstract class MainTimeTableView extends TimeTableView {
-    protected SeanceView seanceView;
+    private SeanceView seanceView;
 
     public MainTimeTableView() {
         draw();
@@ -16,9 +16,7 @@ public abstract class MainTimeTableView extends TimeTableView {
     private void addDragAndDropEvents() {
         this.setOnDragEntered(mouseDragEvent -> {
             seanceView = new SeanceView(getDraggedSeance(), colWidth, rowHeight, true);
-
             seanceView.getStyleClass().add("groupe-seance-view");
-
             this.getChildren().add(seanceView);
             seanceView.setTranslateX(mouseDragEvent.getX() - colWidth * 5);
             seanceView.setTranslateY(mouseDragEvent.getY() - rowHeight / 2);
@@ -43,7 +41,7 @@ public abstract class MainTimeTableView extends TimeTableView {
 
         this.setOnDragDropped(event -> {
             placeSeance(seanceView);
-            saveSeance();
+            saveSeance(seanceView);
             event.setDropCompleted(true);
             event.consume();
         });
@@ -55,13 +53,16 @@ public abstract class MainTimeTableView extends TimeTableView {
         seanceView.setTranslateX((x * colWidth) + tableX);
         seanceView.setTranslateY((y * rowHeight) + tableY);
 
-        var duree=seanceView.getSeance().getDuree();
-        seanceView.getSeance().setJour(DayOfWeek.of(y+1));
-        seanceView.getSeance().setDebut(LocalTime.of(8,30).plusMinutes(x*15));
+        var duree = seanceView.getSeance().getDuree();
+        seanceView.getSeance().setJour(DayOfWeek.of(y + 1));
+        seanceView.getSeance().setDebut(LocalTime.of(8, 30).plusMinutes(x * 15));
         seanceView.getSeance().setFin(seanceView.getSeance().getDebut().plusMinutes(duree));
     }
 
     protected abstract Seance getDraggedSeance();
-    protected abstract void saveSeance();
+    protected abstract void saveSeance(SeanceView seanceView);
     protected abstract void updateSeance(SeanceView seanceView);
+    protected abstract void deleteSeance(SeanceView seanceView);
+    protected abstract void refreshView();
+
 }

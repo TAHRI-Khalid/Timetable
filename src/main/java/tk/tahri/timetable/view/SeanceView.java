@@ -5,10 +5,12 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.Pane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
-import tk.tahri.timetable.dao.Database;
+
+import java.time.Duration;
+import java.time.Instant;
 
 public class SeanceView extends VBox {
 
@@ -32,35 +34,48 @@ public class SeanceView extends VBox {
             var h5 = new MenuItem("05 H 00 Min");
             mHeurs.getItems().addAll(h2, h25, h3, h4, h5);
 
-            h2.setOnAction(event -> this.setPrefWidth(width * 8));
-            h25.setOnAction(event -> this.setPrefWidth(width * 10));
-            h3.setOnAction(event -> this.setPrefWidth(width * 12));
-            h4.setOnAction(event -> this.setPrefWidth(width * 16));
-            h5.setOnAction(event -> this.setPrefWidth(width * 20));
+            h2.setOnAction(event -> this.updateTime(Duration.ofMinutes(120)));
+            h25.setOnAction(event -> this.updateTime(Duration.ofMinutes(150)));
+            h3.setOnAction(event -> this.updateTime(Duration.ofMinutes(180)));
+            h4.setOnAction(event -> this.updateTime(Duration.ofMinutes(240)));
+            h5.setOnAction(event -> this.updateTime(Duration.ofMinutes(300)));
 
             var mSuppr = new MenuItem("Suuprimer");
-            mSuppr.setOnAction(event -> ((Pane) this.getParent()).getChildren().remove(this));
-
+            mSuppr.setOnAction(event -> {
+                ((MainTimeTableView) this.getParent()).deleteSeance(this);
+            });
             contextMenu.getItems().addAll(mHeurs, mSuppr);
-            this.setOnContextMenuRequested(event1 -> contextMenu.show(this, event1.getScreenX(), event1.getScreenY()));
 
-            this.setOnMousePressed(mouseEvent -> {
-                this.firstClickX = mouseEvent.getX();
-                this.firstClickY = mouseEvent.getY();
+            this.setOnMousePressed(event -> {
+                this.firstClickX = event.getX();
+                this.firstClickY = event.getY();
+
             });
+
             this.setOnMouseDragged(event -> {
-                this.setTranslateX(this.getTranslateX() - firstClickX + event.getX());
-                this.setTranslateY(this.getTranslateY() - firstClickY + event.getY());
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    this.setTranslateX(this.getTranslateX() - firstClickX + event.getX());
+                    this.setTranslateY(this.getTranslateY() - firstClickY + event.getY());
+                }
             });
 
-            this.setOnMouseReleased(mouseEvent -> {
-                ((MainTimeTableView) this.getParent()).placeSeance(this);
-                ((MainTimeTableView) this.getParent()).updateSeance(this);
+            this.setOnMouseReleased(event -> {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    ((MainTimeTableView) this.getParent()).placeSeance(this);
+                    ((MainTimeTableView) this.getParent()).updateSeance(this);
+                } else {
+                    contextMenu.show(this, event.getScreenX(), event.getScreenY());
+                }
             });
         }
     }
 
     public Seance getSeance() {
         return seance;
+    }
+
+    private void updateTime(Duration duration) {
+        this.seance.setFin(this.seance.getDebut().plusMinutes(duration.toMinutes()));
+        ((MainTimeTableView) this.getParent()).updateSeance(this);
     }
 }

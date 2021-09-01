@@ -88,7 +88,7 @@ public class GroupeTab extends Tab {
             formateurView.setOnMousePressed(mouseEvent -> {
                 formateurTitle.setText("Fromateur : " + formateurView.getFormateur());
                 formateurTimeTable.setFormateur(formateurView.getFormateur());
-                formateurTimeTable.loadSeances(false, "formateur-seance-view");
+                formateurTimeTable.loadSeanceViews(false, "formateur-seance-view");
 
                 if (espaceTimeTable.getEspace() != null) {
                     formateurView.setOnDragDetected(event -> {
@@ -126,7 +126,7 @@ public class GroupeTab extends Tab {
             espaceView.setOnMousePressed(mouseEvent -> {
                 espaceTitle.setText("Espace : " + espaceView.getEspace());
                 espaceTimeTable.setEspace(espaceView.getEspace());
-                espaceTimeTable.loadSeances(false, "espace-seance-view");
+                espaceTimeTable.loadSeanceViews(false, "espace-seance-view");
 
                 if (formateurTimeTable.getFormateur() != null) {
                     espaceView.setOnDragDetected(event -> {

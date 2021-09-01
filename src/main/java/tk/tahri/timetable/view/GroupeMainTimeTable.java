@@ -17,7 +17,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         this.formateurTimetable = formateurTimetable;
         this.espaceTimetable = espaceTimetable;
         this.groupe = groupe;
-        loadSeances(true, "groupe-seance-view");
+        loadSeanceViews(true, "groupe-seance-view");
     }
 
     @Override
@@ -31,15 +31,13 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     }
 
     @Override
-    protected void saveSeance() {
+    protected void saveSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
         Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,%d,%d,%d)"
                 .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
                         s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
 
-        loadSeances(true, "groupe-seance-view");
-        formateurTimetable.loadSeances(false, "formateur-seance-view");
-        espaceTimetable.loadSeances(false, "espace-seance-view");
+        refreshView();
     }
 
     @Override
@@ -51,9 +49,21 @@ public class GroupeMainTimeTable extends MainTimeTableView {
                         s.getJour().getValue(),
                         s.getId()));
 
-        loadSeances(true, "groupe-seance-view");
-        formateurTimetable.loadSeances(false, "formateur-seance-view");
-        espaceTimetable.loadSeances(false, "espace-seance-view");
+        refreshView();
+    }
+
+    @Override
+    protected void deleteSeance(SeanceView seanceView) {
+        var s = seanceView.getSeance();
+        Database.getInstance().execute("DELETE FROM seance WHERE id=%d".formatted(s.getId()));
+        refreshView();
+    }
+
+    @Override
+    protected void refreshView() {
+        loadSeanceViews(true, "groupe-seance-view");
+        formateurTimetable.loadSeanceViews(false, "formateur-seance-view");
+        espaceTimetable.loadSeanceViews(false, "espace-seance-view");
     }
 
     public Groupe getGroupe() {
