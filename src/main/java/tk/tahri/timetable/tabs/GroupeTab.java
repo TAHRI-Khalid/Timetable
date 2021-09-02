@@ -99,11 +99,12 @@ public class GroupeTab extends Tab {
                         event.consume();
                     });
                 }
+                /*
                 vFrm.getChildren().forEach(node -> {
                     ((FormateurView) node).setSelectedStyle(false);
                 });
                 formateurView.setSelectedStyle(true);
-
+                 */
             });
             formateurView.setMaxWidth(Double.MAX_VALUE);
             vFrm.getChildren().addAll(formateurView);
@@ -137,11 +138,13 @@ public class GroupeTab extends Tab {
                         event.consume();
                     });
                 }
-
+                /*
                 vEsp.getChildren().forEach(node -> {
                     ((EspaceView) node).setSelectedStyle(false);
                 });
                 espaceView.setSelectedStyle(true);
+
+                 */
             });
             espaceView.setMaxWidth(Double.MAX_VALUE);
             vEsp.getChildren().addAll(espaceView);

@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
 
 import java.time.Duration;
-import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SeanceView extends VBox {
 
@@ -24,6 +24,7 @@ public class SeanceView extends VBox {
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
         if (draggable) {
+            AtomicBoolean isDragging = new AtomicBoolean(false);
             ContextMenu contextMenu = new ContextMenu();
 
             var mHeurs = new Menu("Heurs");
@@ -49,21 +50,23 @@ public class SeanceView extends VBox {
             this.setOnMousePressed(event -> {
                 this.firstClickX = event.getX();
                 this.firstClickY = event.getY();
-
+                ((MainTimeTableView) this.getParent()).refreshView(this);
             });
 
             this.setOnMouseDragged(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {
                     this.setTranslateX(this.getTranslateX() - firstClickX + event.getX());
                     this.setTranslateY(this.getTranslateY() - firstClickY + event.getY());
+                    isDragging.set(true);
                 }
             });
 
             this.setOnMouseReleased(event -> {
-                if (event.getButton() == MouseButton.PRIMARY) {
+                if (event.getButton() == MouseButton.PRIMARY && isDragging.get() ){
                     ((MainTimeTableView) this.getParent()).placeSeance(this);
                     ((MainTimeTableView) this.getParent()).updateSeance(this);
-                } else {
+                    isDragging.set(false);
+                } else if (event.getButton() == MouseButton.SECONDARY){
                     contextMenu.show(this, event.getScreenX(), event.getScreenY());
                 }
             });

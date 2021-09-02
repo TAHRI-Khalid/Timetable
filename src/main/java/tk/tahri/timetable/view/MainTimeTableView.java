@@ -63,6 +63,6 @@ public abstract class MainTimeTableView extends TimeTableView {
     protected abstract void saveSeance(SeanceView seanceView);
     protected abstract void updateSeance(SeanceView seanceView);
     protected abstract void deleteSeance(SeanceView seanceView);
-    protected abstract void refreshView();
+    protected abstract void refreshView(SeanceView seanceView);
 
 }

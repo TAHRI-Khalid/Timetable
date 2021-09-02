@@ -65,11 +65,20 @@
 .formateur-seance-view {
     -fx-background-color: #038C4C;
 }
+.formateur-seance-view:hover {
+    -fx-background-color: #025d31;
+}
 .espace-seance-view {
     -fx-background-color: #8D9AA6;
 }
+.espace-seance-view:hover {
+    -fx-background-color: #666e78;
+}
 .groupe-seance-view {
     -fx-background-color: #1C588C;
+}
+.groupe-seance-view:hover {
+    -fx-background-color: #144164;
 }
 .chevauchement-seance-view {
     -fx-background-color: #b71c1c;

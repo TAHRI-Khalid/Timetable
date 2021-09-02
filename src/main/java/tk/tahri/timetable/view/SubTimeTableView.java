@@ -11,7 +11,7 @@ public abstract class SubTimeTableView extends TimeTableView{
         tableY = super.rowHeight / 2;
         super.colHeader = new Font(8);
         super.rowHeader = new Font(11);
-        super.thickStroke = 1;
+        super.thickStroke = 2;
         super.dashedLine = false;
         draw();
     }
