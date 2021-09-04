@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Groupe {
-    public static final List<String> Niveaux = Arrays.asList("Technicien Spécialisé", "Technicien", "Qualification");
-    public static final List<String> Secteurs = Arrays.asList("Industriel", "Tertiaire", "Agroalimentaire");
+    public static final List<String> Niveaux = Arrays.asList("Technicien Spécialisé", "Technicien", "Qualification","Spécialisation","Bac Pro","Parcours Collégial");
+    public static final List<String> Secteurs = Arrays.asList("Bâtiment et Travaux Publics", "Digital& IA & Offshoring", "Hôtellerie et Tourisme","Industriel","Tertiaire","Transport et Logistique");
+    public static final List<String> typeFormation = Arrays.asList("Diplômante","Parcours Professionnalisant","Qualifiante");
 
     private Long id;
     private String nom;
@@ -13,25 +14,28 @@ public class Groupe {
     private String filiere;
     private String niveau;
     private String secteur;
+    private String type;
 
     public Groupe() {
     }
 
-    public Groupe(String nom, int annee, String filiere, String niveau, String secteur) {
+    public Groupe(String nom, int annee, String filiere, String niveau, String secteur,String type) {
         this.nom = nom;
         this.annee = annee;
         this.filiere = filiere;
         this.niveau = niveau;
         this.secteur = secteur;
+        this.type =type;
     }
 
-    public Groupe(Long id, String nom, int annee, String filiere, String niveau, String secteur) {
+    public Groupe(Long id, String nom, int annee, String filiere, String niveau, String secteur,String type) {
         this.id = id;
         this.nom = nom;
         this.annee = annee;
         this.filiere = filiere;
         this.niveau = niveau;
         this.secteur = secteur;
+        this.type =type;
     }
 
     public Long getId() {
@@ -80,6 +84,14 @@ public class Groupe {
 
     public void setSecteur(String secteur) {
         this.secteur = secteur;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

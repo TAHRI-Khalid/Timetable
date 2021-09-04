@@ -9,11 +9,7 @@ import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
-import tk.tahri.timetable.tabs.EspaceConfig;
-import tk.tahri.timetable.tabs.FormateurConfig;
-import tk.tahri.timetable.tabs.GroupeConfig;
-import tk.tahri.timetable.tabs.GroupeTab;
-
+import tk.tahri.timetable.tabs.*;
 
 public class Editor extends VBox {
 
@@ -44,8 +40,10 @@ public class Editor extends VBox {
         var mOuvrir = new MenuItem("Ouvrir");
         mOuvrir.setOnAction(actionEvent -> save());
         var mEnregister = new MenuItem("Enregister");
+        var mPrint = new MenuItem("Imprimer");
+        mPrint.setOnAction(event -> print());
         var mQuitter = new MenuItem("Quitter");
-        mFichier.getItems().addAll(mOuvrir, mEnregister, mQuitter);
+        mFichier.getItems().addAll(mOuvrir, mEnregister, mPrint, new SeparatorMenuItem(), mQuitter);
 
         loadMenuGroupe();
         loadMenuFormateur();
@@ -80,7 +78,7 @@ public class Editor extends VBox {
             mGroupe.getItems().add(menu);
             list.stream().filter(groupe -> groupe.getNiveau().equals(niveau)).forEach(groupe -> {
                 var submenu = new MenuItem(groupe.getNom());
-                submenu.setOnAction(event->{
+                submenu.setOnAction(event -> {
                     loadTab(new GroupeTab(groupe));
                 });
                 menu.getItems().add(submenu);
@@ -138,5 +136,9 @@ public class Editor extends VBox {
                             tabpane.getTabs().add(tab);
                             tabpane.getSelectionModel().select(tab);
                         });
+    }
+
+    public void print() {
+        ((EditorTab) tabpane.getSelectionModel().getSelectedItem()).print();
     }
 }

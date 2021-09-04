@@ -2,6 +2,10 @@ package tk.tahri.timetable.tabs;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.print.PageLayout;
+import javafx.print.PageOrientation;
+import javafx.print.Paper;
+import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -11,9 +15,10 @@ import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.print.GroupeTimeTablePrint;
 import tk.tahri.timetable.view.*;
 
-public class GroupeTab extends Tab {
+public class GroupeTab extends EditorTab {
 
     private final BorderPane parent = new BorderPane();
     private final FontAwesome fontAwesome = new FontAwesome();
@@ -158,4 +163,26 @@ public class GroupeTab extends Tab {
         parent.setRight(acc);
     }
 
+    @Override
+    public void print() {
+        var groupeTT = new GroupeTimeTablePrint(this.groupeTimeTable.getGroupe());
+        PrinterJob job = PrinterJob.createPrinterJob();
+        PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
+        job.getJobSettings().setPageLayout(pageLayout);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+
+        if (job != null) {
+            if (job.showPrintDialog(groupeTimeTable.getScene().getWindow())) {
+                boolean success = job.printPage(groupeTT);
+                if (success) {
+                    job.endJob();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void refreshTabView() {
+
+    }
 }

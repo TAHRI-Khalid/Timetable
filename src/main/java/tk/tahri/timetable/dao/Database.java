@@ -67,7 +67,8 @@ public class Database {
                 annee text NOT NULL,
                 filiere text NOT NULL,
                 niveau text NOT NULL,
-                secteur text NOT NULL);
+                secteur text NOT NULL,
+                type text NOT NULL);
                 """;
         String sql_create_formateur = """
                 CREATE TABLE IF NOT EXISTS formateur (
@@ -141,6 +142,7 @@ public class Database {
                 groupe.setFiliere(rs.getString("filiere"));
                 groupe.setNiveau(rs.getString("niveau"));
                 groupe.setSecteur(rs.getString("secteur"));
+                groupe.setType(rs.getString("type"));
                 list.add(groupe);
             }
         } catch (SQLException e) {
@@ -155,12 +157,12 @@ public class Database {
                 s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
+                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
                 FROM seance s
                 INNER JOIN formateur f on  f.id=s.idFormateur
                 INNER JOIN espace e on e.id = s.idEspace
                 INNER JOIN groupe g on g.id = s.idGroupe
-                WHERE idFormateur='%s';       
+                WHERE idFormateur='%s';
                 """.formatted(formateur.getId());
         return getSeances(sql);
     }
@@ -171,30 +173,32 @@ public class Database {
                 s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
+                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
                 FROM seance s
                 INNER JOIN formateur f on  f.id=s.idFormateur
                 INNER JOIN espace e on e.id = s.idEspace
                 INNER JOIN groupe g on g.id = s.idGroupe
-                WHERE idGroupe='%s';       
+                WHERE idGroupe='%s';
                 """.formatted(groupe.getId());
         return getSeances(sql);
     }
+
     public List<Seance> getSeances(Espace espace) {
         String sql = """
                 SELECT
                 s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur
+                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
                 FROM seance s
                 INNER JOIN formateur f on  f.id=s.idFormateur
                 INNER JOIN espace e on e.id = s.idEspace
                 INNER JOIN groupe g on g.id = s.idGroupe
-                WHERE idEspace='%s';       
+                WHERE idEspace='%s';
                 """.formatted(espace.getId());
         return getSeances(sql);
     }
+
     private List<Seance> getSeances(String sql) {
         var list = new ArrayList<Seance>();
         try (Connection conn = DriverManager.getConnection(url);
@@ -229,6 +233,7 @@ public class Database {
                 g.setFiliere(rs.getString("filiere"));
                 g.setNiveau(rs.getString("niveau"));
                 g.setSecteur(rs.getString("secteur"));
+                g.setType(rs.getString("type"));
                 seance.setGroupe(g);
 
                 list.add(seance);

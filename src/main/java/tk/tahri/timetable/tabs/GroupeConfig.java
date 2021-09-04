@@ -24,6 +24,7 @@ public class GroupeConfig extends Tab {
     private final TextField txtFiliere;
     private final ComboBox<String> comboNiveau;
     private final ComboBox<String> comboSecteur;
+    private final ComboBox<String> comboType;
 
     public GroupeConfig(Editor editor) {
         super("Groupes");
@@ -63,6 +64,13 @@ public class GroupeConfig extends Tab {
         grid.add(comboSecteur, 1, 4);
 
 
+        grid.add(new Label("Type de formation : "), 0, 5);
+        comboType = new ComboBox<>();
+        GridPane.setHgrow(comboType, Priority.ALWAYS);
+        comboType.getItems().addAll(Groupe.typeFormation);
+        comboType.getSelectionModel().select(0);
+        grid.add(comboType, 1, 5);
+
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
         var hBox = new HBox(10);
@@ -93,6 +101,9 @@ public class GroupeConfig extends Tab {
 
         var colSecteur = new TableColumn<Groupe, String>("Secteur");
         colSecteur.setCellValueFactory(new PropertyValueFactory<>("secteur"));
+
+        var colType = new TableColumn<Groupe, String>("Type");
+        colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
         var colUpdate = new TableColumn<Groupe, Long>("Modifier");
         colUpdate.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -159,10 +170,11 @@ public class GroupeConfig extends Tab {
                         Integer.parseInt(txtAnnee.getText()),
                         txtFiliere.getText(),
                         comboNiveau.getSelectionModel().getSelectedItem(),
-                        comboSecteur.getSelectionModel().getSelectedItem()
+                        comboSecteur.getSelectionModel().getSelectedItem(),
+                        comboType.getSelectionModel().getSelectedItem()
                 );
-                Database.getInstance().execute("INSERT INTO groupe VALUES(null,'%s','%d','%s','%s','%s')"
-                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur()));
+                Database.getInstance().execute("INSERT INTO groupe VALUES(null,'%s','%d','%s','%s','%s','%s')"
+                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(),groupe.getType()));
             } else {
                 groupe = new Groupe(
                         groupe.getId(),
@@ -170,10 +182,11 @@ public class GroupeConfig extends Tab {
                         Integer.parseInt(txtAnnee.getText()),
                         txtFiliere.getText(),
                         comboNiveau.getSelectionModel().getSelectedItem(),
-                        comboSecteur.getSelectionModel().getSelectedItem()
+                        comboSecteur.getSelectionModel().getSelectedItem(),
+                        comboType.getSelectionModel().getSelectedItem()
                 );
-                Database.getInstance().execute("UPDATE groupe SET nom='%s' ,annee='%d',filiere='%s' ,niveau='%s' ,secteur='%s' WHERE id=%d"
-                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(), groupe.getId()));
+                Database.getInstance().execute("UPDATE groupe SET nom='%s' ,annee='%d',filiere='%s' ,niveau='%s' ,secteur='%s',type='%s' WHERE id=%d"
+                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(),groupe.getType(), groupe.getId()));
             }
             loadData();
             clearForm();
@@ -195,6 +208,7 @@ public class GroupeConfig extends Tab {
                     txtAnnee.setText(String.valueOf(e.getAnnee()));
                     comboNiveau.getSelectionModel().select(e.getNiveau());
                     comboSecteur.getSelectionModel().select(e.getSecteur());
+                    comboType.getSelectionModel().select(e.getType());
                 });
     }
 }

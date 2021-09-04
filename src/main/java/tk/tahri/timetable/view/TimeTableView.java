@@ -16,8 +16,8 @@ public abstract class TimeTableView extends Pane {
 
     protected final List<Seance> seances = new ArrayList<>();
 
-    private final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
-    private final LocalTime beginTime = LocalTime.of(8, 30);
+    protected final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
+    protected final LocalTime beginTime = LocalTime.of(8, 30);
     protected double colWidth = 24.5;
     protected double rowHeight = 50;
     protected double tableX = colWidth * 4;

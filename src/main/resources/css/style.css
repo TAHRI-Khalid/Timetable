@@ -58,7 +58,7 @@
     -fx-border-radius: 5;
 }
 .formateur-seance-view, .espace-seance-view, .groupe-seance-view ,.chevauchement-seance-view{
-    -fx-background-radius: 5.0;
+    -fx-background-radius: 7.0;
     -fx-alignment: center;
 }
 
