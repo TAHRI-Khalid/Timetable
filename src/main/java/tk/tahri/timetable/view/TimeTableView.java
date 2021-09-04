@@ -1,5 +1,6 @@
 package tk.tahri.timetable.view;
 
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -7,6 +8,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.Entities.SeanceType;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -27,6 +29,12 @@ public abstract class TimeTableView extends Pane {
     protected int thickStroke = 3;
     protected int thinStroke = 1;
     protected boolean dashedLine = true;
+    protected Label Titre;
+    protected final SeanceType type;
+
+    protected TimeTableView(SeanceType type) {
+        this.type = type;
+    }
 
     protected void draw() {
         getChildren().clear();
@@ -98,7 +106,7 @@ public abstract class TimeTableView extends Pane {
         this.getChildren().removeIf(node -> node instanceof SeanceView);
         loadData();
         for (var s1 : seances) {
-            var sv = new SeanceView(s1, colWidth, rowHeight, draggable);
+            var sv = new SeanceView(s1, colWidth, rowHeight, draggable,type);
             var ch = false;
             for (var s2 : seances) {
                 if (chevauchement(s1, s2)) {
@@ -126,6 +134,10 @@ public abstract class TimeTableView extends Pane {
             return true;
         }
         return false;
+    }
+
+    public void setTitre(Label titre) {
+        Titre = titre;
     }
 
     protected abstract void loadData();

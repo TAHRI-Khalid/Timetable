@@ -1,7 +1,11 @@
 package tk.tahri.timetable;
 
+import javafx.application.Platform;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -40,9 +44,17 @@ public class Editor extends VBox {
         var mOuvrir = new MenuItem("Ouvrir");
         mOuvrir.setOnAction(actionEvent -> save());
         var mEnregister = new MenuItem("Enregister");
+
         var mPrint = new MenuItem("Imprimer");
+        var pkeyCombination = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
+        mPrint.setAccelerator(pkeyCombination);
         mPrint.setOnAction(event -> print());
+
         var mQuitter = new MenuItem("Quitter");
+        var qkeyCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
+        mQuitter.setAccelerator(qkeyCombination);
+        mQuitter.setOnAction(event-> Platform.exit());
+
         mFichier.getItems().addAll(mOuvrir, mEnregister, mPrint, new SeparatorMenuItem(), mQuitter);
 
         loadMenuGroupe();
@@ -85,6 +97,8 @@ public class Editor extends VBox {
             });
         });
         var menuConfig = new MenuItem("Parametres");
+        var gkeyCombination = new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN);
+        menuConfig.setAccelerator(gkeyCombination);
         mGroupe.getItems().addAll(new SeparatorMenuItem(), menuConfig);
         menuConfig.setOnAction(event -> {
             loadTab(new GroupeConfig(this));
@@ -103,6 +117,8 @@ public class Editor extends VBox {
             });
         });
         var menuConfig = new MenuItem("Parametres");
+        var fkeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+        menuConfig.setAccelerator(fkeyCombination);
         mFormateur.getItems().addAll(new SeparatorMenuItem(), menuConfig);
         menuConfig.setOnAction(event -> {
             loadTab(new FormateurConfig(this));
@@ -121,6 +137,8 @@ public class Editor extends VBox {
             });
         });
         var menuConfig = new MenuItem("Parametres");
+        var ekeyCombination = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
+        menuConfig.setAccelerator(ekeyCombination);
         mEspace.getItems().addAll(new SeparatorMenuItem(), menuConfig);
         menuConfig.setOnAction(event -> {
             loadTab(new EspaceConfig(this));

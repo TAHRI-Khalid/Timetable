@@ -2,6 +2,7 @@ package tk.tahri.timetable.view;
 
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -13,6 +14,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     private final EspaceSubTimetableView espaceTimetable;
 
     public GroupeMainTimeTable(Groupe groupe, FormateurSubTimetableView formateurTimetable, EspaceSubTimetableView espaceTimetable) {
+        super(SeanceType.GROUPE);
         this.formateurTimetable = formateurTimetable;
         this.espaceTimetable = espaceTimetable;
         this.groupe = groupe;

@@ -1,10 +1,12 @@
 package tk.tahri.timetable.view;
 
 import javafx.scene.text.Font;
+import tk.tahri.timetable.Entities.SeanceType;
 
 public abstract class SubTimeTableView extends TimeTableView{
 
-    public SubTimeTableView() {
+    public SubTimeTableView(SeanceType type) {
+        super(type);
         super.colWidth = 12.2;
         super.rowHeight = 38;
         super.tableX = super.colWidth * 4;
@@ -15,4 +17,5 @@ public abstract class SubTimeTableView extends TimeTableView{
         super.dashedLine = false;
         draw();
     }
+
 }

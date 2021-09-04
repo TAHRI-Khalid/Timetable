@@ -25,9 +25,6 @@ public class GroupeTab extends EditorTab {
     private final GroupeMainTimeTable groupeTimeTable;
     private final FormateurSubTimetableView formateurTimeTable;
     private final EspaceSubTimetableView espaceTimeTable;
-    private Label groupeTitle;
-    private Label formateurTitle;
-    private Label espaceTitle;
 
     public GroupeTab(Groupe groupe) {
         super(groupe.getNom());
@@ -48,21 +45,23 @@ public class GroupeTab extends EditorTab {
 
         grid.setAlignment(Pos.CENTER);
 
-        groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
+        Label groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
         groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
         groupeTitle.getStyleClass().add("groupe-title-main");
         grid.add(groupeTitle, 0, 0, 2, 1);
         grid.add(groupeTimeTable, 0, 1, 2, 1);
 
-        formateurTitle = new Label("Fromateur : ");
+        Label formateurTitle = new Label("Fromateur : ");
+        formateurTimeTable.setTitre(formateurTitle);
         formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(18));
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
         formateurTitle.getStyleClass().add("formateur-title-sub");
         grid.add(formateurTitle, 0, 2);
         grid.add(formateurTimeTable, 0, 3);
 
-        espaceTitle = new Label("Espace : ");
+        Label espaceTitle = new Label("Espace : ");
+        espaceTimeTable.setTitre(espaceTitle);
         espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(18));
         espaceTitle.setMaxWidth(Double.MAX_VALUE);
         espaceTitle.getStyleClass().add("espace-title-sub");
@@ -91,7 +90,6 @@ public class GroupeTab extends EditorTab {
         Database.getInstance().getFormateurs().forEach(f -> {
             var formateurView = new FormateurView(f);
             formateurView.setOnMousePressed(mouseEvent -> {
-                formateurTitle.setText("Fromateur : " + formateurView.getFormateur());
                 formateurTimeTable.setFormateur(formateurView.getFormateur());
                 formateurTimeTable.loadSeanceViews(false, "formateur-seance-view");
 
@@ -104,12 +102,6 @@ public class GroupeTab extends EditorTab {
                         event.consume();
                     });
                 }
-                /*
-                vFrm.getChildren().forEach(node -> {
-                    ((FormateurView) node).setSelectedStyle(false);
-                });
-                formateurView.setSelectedStyle(true);
-                 */
             });
             formateurView.setMaxWidth(Double.MAX_VALUE);
             vFrm.getChildren().addAll(formateurView);
@@ -130,7 +122,6 @@ public class GroupeTab extends EditorTab {
         Database.getInstance().getEspaces().forEach(e -> {
             var espaceView = new EspaceView(e);
             espaceView.setOnMousePressed(mouseEvent -> {
-                espaceTitle.setText("Espace : " + espaceView.getEspace());
                 espaceTimeTable.setEspace(espaceView.getEspace());
                 espaceTimeTable.loadSeanceViews(false, "espace-seance-view");
 
@@ -143,13 +134,6 @@ public class GroupeTab extends EditorTab {
                         event.consume();
                     });
                 }
-                /*
-                vEsp.getChildren().forEach(node -> {
-                    ((EspaceView) node).setSelectedStyle(false);
-                });
-                espaceView.setSelectedStyle(true);
-
-                 */
             });
             espaceView.setMaxWidth(Double.MAX_VALUE);
             vEsp.getChildren().addAll(espaceView);

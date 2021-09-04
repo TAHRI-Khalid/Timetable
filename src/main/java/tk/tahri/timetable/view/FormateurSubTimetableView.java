@@ -1,13 +1,13 @@
 package tk.tahri.timetable.view;
 
 import tk.tahri.timetable.Entities.Formateur;
+import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
 
 public class FormateurSubTimetableView extends SubTimeTableView {
     private Formateur formateur;
-
     public FormateurSubTimetableView( ) {
-       super();
+       super(SeanceType.FORMATEUR);
     }
 
     @Override
@@ -23,5 +23,7 @@ public class FormateurSubTimetableView extends SubTimeTableView {
 
     public void setFormateur(Formateur formateur) {
         this.formateur = formateur;
+        super.Titre.setText("Fromateur : "+formateur.toString());
     }
+
 }

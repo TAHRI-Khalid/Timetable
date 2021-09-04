@@ -5,10 +5,12 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import tk.tahri.timetable.Entities.SeanceType;
 
 public abstract class PrintTimeTableView extends TimeTableView {
 
-    public PrintTimeTableView() {
+    public PrintTimeTableView(SeanceType type) {
+        super(type);
         super.colWidth = 15.5;
         super.rowHeight = 42;
         super.tableX = colWidth * 4;

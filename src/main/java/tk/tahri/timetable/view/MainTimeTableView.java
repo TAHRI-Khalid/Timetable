@@ -2,20 +2,23 @@ package tk.tahri.timetable.view;
 
 import javafx.scene.input.TransferMode;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.Entities.SeanceType;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public abstract class MainTimeTableView extends TimeTableView {
     private SeanceView seanceView;
 
-    public MainTimeTableView() {
+    public MainTimeTableView(SeanceType type) {
+        super(type);
         draw();
-        addDragAndDropEvents();
+        addDragAndDropEvents(type);
     }
 
-    private void addDragAndDropEvents() {
+    private void addDragAndDropEvents(SeanceType type) {
         this.setOnDragEntered(mouseDragEvent -> {
-            seanceView = new SeanceView(getDraggedSeance(), colWidth, rowHeight, true);
+            seanceView = new SeanceView(getDraggedSeance(), colWidth, rowHeight, true, type);
             seanceView.getStyleClass().add("groupe-seance-view");
             this.getChildren().add(seanceView);
             seanceView.setTranslateX(mouseDragEvent.getX() - colWidth * 5);
@@ -60,9 +63,13 @@ public abstract class MainTimeTableView extends TimeTableView {
     }
 
     protected abstract Seance getDraggedSeance();
+
     protected abstract void saveSeance(SeanceView seanceView);
+
     protected abstract void updateSeance(SeanceView seanceView);
+
     protected abstract void deleteSeance(SeanceView seanceView);
+
     protected abstract void refreshView(SeanceView seanceView);
 
 }

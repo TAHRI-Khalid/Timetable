@@ -8,6 +8,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.Entities.SeanceType;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,9 +19,13 @@ public class SeanceView extends VBox {
     private double firstClickX;
     private double firstClickY;
 
-    public SeanceView(Seance seance, double width, double height, boolean draggable) {
+    public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
-        this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace().toString()));
+        switch (type) {
+            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupe().toString()), new Label(seance.getEspace().toString()));
+            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace().toString()));
+            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupe().toString()));
+        }
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
         if (draggable) {
@@ -62,11 +67,11 @@ public class SeanceView extends VBox {
             });
 
             this.setOnMouseReleased(event -> {
-                if (event.getButton() == MouseButton.PRIMARY && isDragging.get() ){
+                if (event.getButton() == MouseButton.PRIMARY && isDragging.get()) {
                     ((MainTimeTableView) this.getParent()).placeSeance(this);
                     ((MainTimeTableView) this.getParent()).updateSeance(this);
                     isDragging.set(false);
-                } else if (event.getButton() == MouseButton.SECONDARY){
+                } else if (event.getButton() == MouseButton.SECONDARY) {
                     contextMenu.show(this, event.getScreenX(), event.getScreenY());
                 }
             });
