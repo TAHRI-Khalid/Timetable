@@ -30,6 +30,7 @@ public class GroupeConfig extends Tab {
         super("Groupes");
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
+
         var grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
@@ -105,6 +106,25 @@ public class GroupeConfig extends Tab {
         var colType = new TableColumn<Groupe, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
+        var colPrint = new TableColumn<Groupe, Long>("Imprimer");
+        colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colPrint.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                var btn = new Button();
+                btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.PRINT).color(Color.WHITE).size(16));
+                btn.getStyleClass().add("btn-print");
+                setGraphic(btn);
+                btn.setOnAction(event -> updateForm(item));
+            }
+        });
+
+
         var colUpdate = new TableColumn<Groupe, Long>("Modifier");
         colUpdate.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUpdate.setCellFactory(param -> new TableCell<>() {
@@ -141,7 +161,7 @@ public class GroupeConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colAnnee, colFiliere, colNiveau, colSecteur, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colAnnee, colFiliere, colNiveau, colSecteur,colType,colPrint, colUpdate, colDelete);
         loadData();
         vBox.getChildren().addAll(grid, hBox, table);
         setContent(vBox);

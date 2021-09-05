@@ -3,11 +3,17 @@
     -fx-background-color: #f0ad4e;
     -fx-padding: 5px;
 }
-
+.btn-print {
+    -fx-pref-width: 30px;
+    -fx-background-color: #12b243;
+    -fx-padding: 5px;
+}
 .btn-save:hover {
     -fx-background-color: #c1873c;
 }
-
+.btn-print:hover {
+    -fx-background-color: #0f8733;
+}
 .btn-delete {
     -fx-pref-width: 30px;
     -fx-background-color: #d9534f;

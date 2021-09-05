@@ -148,6 +148,13 @@ public class GroupeTab extends EditorTab {
     }
 
     @Override
+    protected void selectionChanged() {
+        if(this.isSelected()){
+           groupeTimeTable.loadSeanceViews(true, "groupe-seance-view");
+        }
+    }
+
+    @Override
     public void print() {
         var groupeTT = new GroupeTimeTablePrint(this.groupeTimeTable.getGroupe());
         PrinterJob job = PrinterJob.createPrinterJob();
@@ -165,8 +172,4 @@ public class GroupeTab extends EditorTab {
         }
     }
 
-    @Override
-    public void refreshTabView() {
-
-    }
 }
