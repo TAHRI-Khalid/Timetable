@@ -24,6 +24,16 @@
     -fx-background-color: #9e3a37;
 }
 
+.groupe-view {
+    -fx-background-color: #1C588C;
+    -fx-font-size: 14;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
+.groupe-view:hover {
+    -fx-background-color: #144164;
+}
+
 .formateur-view {
     -fx-background-color: #038C4C;
     -fx-font-size: 14;
@@ -33,16 +43,7 @@
 .formateur-view:hover {
     -fx-background-color: #02542d;
 }
-.formateur-view-selected{
-    -fx-background-color: #ffffff;
-    -fx-font-size: 14;
-    -fx-text-fill: #038C4C;
-    -fx-padding: 5px;
-    -fx-border-width: 2;
-    -fx-border-color: #038C4C;
-    -fx-font-weight: bold;
-    -fx-border-radius: 5;
-}
+
 .espace-view {
     -fx-background-color: #8D9AA6;
     -fx-font-size: 14;
@@ -53,16 +54,7 @@
 .espace-view:hover {
     -fx-background-color: #545961;
 }
-.espace-view-selected{
-    -fx-background-color: #ffffff;
-    -fx-font-size: 14;
-    -fx-text-fill: #8D9AA6;
-    -fx-padding: 5px;
-    -fx-border-width: 2;
-    -fx-border-color: #8D9AA6;
-    -fx-font-weight: bold;
-    -fx-border-radius: 5;
-}
+
 .formateur-seance-view, .espace-seance-view, .groupe-seance-view ,.chevauchement-seance-view{
     -fx-background-radius: 7.0;
     -fx-alignment: center;
@@ -101,7 +93,13 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
-
+.formateur-title-main {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-color: #038C4C;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
 .formateur-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -109,7 +107,13 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
-
+.groupe-title-sub {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: #1C588C;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
 .espace-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;

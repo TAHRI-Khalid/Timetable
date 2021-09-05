@@ -13,7 +13,7 @@ public class GroupeSubTimetableView extends SubTimeTableView {
 
     @Override
     public void loadData() {
-        if(groupe!=null){
+        if (groupe != null) {
             seances.addAll(Database.getInstance().getSeances(groupe));
         }
     }
@@ -24,5 +24,7 @@ public class GroupeSubTimetableView extends SubTimeTableView {
 
     public void setGroupe(Groupe groupe) {
         this.groupe = groupe;
+        super.Titre.setText("Groupe : " + groupe.getNom());
+
     }
 }

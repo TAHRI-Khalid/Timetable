@@ -18,7 +18,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         this.formateurTimetable = formateurTimetable;
         this.espaceTimetable = espaceTimetable;
         this.groupe = groupe;
-        loadSeanceViews(true, "groupe-seance-view");
+        loadSeanceViews(true);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,%d,%d,%d)"
                 .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
                         s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
-        loadSeanceViews(true, "groupe-seance-view");
+        loadSeanceViews(true);
         refreshView(seanceView);
     }
 
@@ -49,7 +49,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
                         s.getFin().toSecondOfDay(),
                         s.getJour().getValue(),
                         s.getId()));
-        loadSeanceViews(true, "groupe-seance-view");
+        loadSeanceViews(true);
         refreshView(seanceView);
     }
 
@@ -57,16 +57,16 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     protected void deleteSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
         Database.getInstance().execute("DELETE FROM seance WHERE id=%d".formatted(s.getId()));
-        loadSeanceViews(true, "groupe-seance-view");
+        loadSeanceViews(true);
         refreshView(seanceView);
     }
 
     @Override
     protected void refreshView(SeanceView seanceView) {
         formateurTimetable.setFormateur(seanceView.getSeance().getFormateur());
-        formateurTimetable.loadSeanceViews(false, "formateur-seance-view");
+        formateurTimetable.loadSeanceViews(false);
         espaceTimetable.setEspace(seanceView.getSeance().getEspace());
-        espaceTimetable.loadSeanceViews(false, "espace-seance-view");
+        espaceTimetable.loadSeanceViews(false);
     }
 
     public Groupe getGroupe() {

@@ -1,4 +1,4 @@
-.print-seance-view {
+.groupe-seance-view, .formateur-seance-view,.espace-seance-view {
     -fx-alignment: center;
     -fx-background-color: #fff;
     -fx-background-radius:7.0 ;
@@ -6,7 +6,7 @@
     -fx-border-color: black;
     -fx-border-radius: 7.0;
 }
-.print-seance-view Label {
+.groupe-seance-view Label, .formateur-seance-view Label,.espace-seance-view Label {
     -fx-font-size: 11;
     -fx-font-weight: bold;
 }

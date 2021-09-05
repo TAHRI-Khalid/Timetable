@@ -101,12 +101,17 @@ public abstract class TimeTableView extends Pane {
         }
     }
 
-    public void loadSeanceViews(boolean draggable, String style) {
+    public void loadSeanceViews(boolean draggable) {
         seances.clear();
         this.getChildren().removeIf(node -> node instanceof SeanceView);
+        var style = switch (type) {
+            case GROUPE -> "groupe-seance-view";
+            case FORMATEUR -> "formateur-seance-view";
+            case ESPACE -> "espace-seance-view";
+        };
         loadData();
         for (var s1 : seances) {
-            var sv = new SeanceView(s1, colWidth, rowHeight, draggable,type);
+            var sv = new SeanceView(s1, colWidth, rowHeight, draggable, type);
             var ch = false;
             for (var s2 : seances) {
                 if (chevauchement(s1, s2)) {

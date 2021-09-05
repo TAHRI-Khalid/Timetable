@@ -4,17 +4,23 @@ import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Color;
+import org.controlsfx.glyphfont.FontAwesome;
+import tk.tahri.timetable.Entities.Espace;
+import tk.tahri.timetable.Entities.Groupe;
 
 public class GroupeView extends Label {
-    public GroupeView(String s) {
-        super(s);
+    private final FontAwesome fontAwesome;
+    private Groupe groupe;
+    public GroupeView(Groupe groupe) {
+        super(groupe.getNom());
+        this.groupe = groupe;
+        fontAwesome = new FontAwesome();
+        this.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(16));
+        this.getStyleClass().add("groupe-view");
+    }
 
-
-        this.setStyle("""
-                        -fx-background-color: #8D9AA6;
-                        -fx-font-size: 14;
-                        -fx-text-fill: #fff;
-                        -fx-padding: 5px;
-                        """);
+    public Groupe getGroupe() {
+        return groupe;
     }
 }

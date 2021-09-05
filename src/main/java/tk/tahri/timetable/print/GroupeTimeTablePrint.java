@@ -18,7 +18,7 @@ public class GroupeTimeTablePrint extends VBox {
         this.groupe = groupe;
         this.setAlignment(Pos.TOP_CENTER);
         var groupeTT=new GroupePrintTimeTableView(groupe);
-        groupeTT.loadSeanceViews(false,"print-seance-view");
+        groupeTT.loadSeanceViews(false);
         groupeTT.setTranslateX(30);
         this.getChildren().addAll(header(), titre(), info(), groupeTT);
     }

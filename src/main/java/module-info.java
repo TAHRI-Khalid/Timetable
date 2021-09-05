@@ -2,6 +2,7 @@ module tk.tahri.TimeTable {
     requires javafx.controls;
     requires java.sql;
     requires org.controlsfx.controls;
+    requires org.xerial.sqlitejdbc;
 
     exports tk.tahri.timetable;
     exports tk.tahri.timetable.dao;

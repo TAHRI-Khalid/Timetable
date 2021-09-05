@@ -111,8 +111,11 @@ public class Editor extends VBox {
         list.stream().map(Formateur::getType).distinct().forEach(type -> {
             var menu = new Menu(type);
             mFormateur.getItems().add(menu);
-            list.stream().filter(groupe -> groupe.getType().equals(type)).forEach(formateur -> {
+            list.stream().filter(formateur -> formateur.getType().equals(type)).forEach(formateur -> {
                 var submenu = new MenuItem(formateur.toString());
+                submenu.setOnAction(event -> {
+                    loadTab(new FormateurTab(formateur));
+                });
                 menu.getItems().add(submenu);
             });
         });

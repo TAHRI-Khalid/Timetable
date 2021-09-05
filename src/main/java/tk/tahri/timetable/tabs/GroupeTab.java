@@ -91,7 +91,7 @@ public class GroupeTab extends EditorTab {
             var formateurView = new FormateurView(f);
             formateurView.setOnMousePressed(mouseEvent -> {
                 formateurTimeTable.setFormateur(formateurView.getFormateur());
-                formateurTimeTable.loadSeanceViews(false, "formateur-seance-view");
+                formateurTimeTable.loadSeanceViews(false);
 
                 if (espaceTimeTable.getEspace() != null) {
                     formateurView.setOnDragDetected(event -> {
@@ -123,7 +123,7 @@ public class GroupeTab extends EditorTab {
             var espaceView = new EspaceView(e);
             espaceView.setOnMousePressed(mouseEvent -> {
                 espaceTimeTable.setEspace(espaceView.getEspace());
-                espaceTimeTable.loadSeanceViews(false, "espace-seance-view");
+                espaceTimeTable.loadSeanceViews(false);
 
                 if (formateurTimeTable.getFormateur() != null) {
                     espaceView.setOnDragDetected(event -> {
@@ -150,7 +150,7 @@ public class GroupeTab extends EditorTab {
     @Override
     protected void selectionChanged() {
         if(this.isSelected()){
-           groupeTimeTable.loadSeanceViews(true, "groupe-seance-view");
+           groupeTimeTable.loadSeanceViews(true);
         }
     }
 
@@ -162,12 +162,10 @@ public class GroupeTab extends EditorTab {
         job.getJobSettings().setPageLayout(pageLayout);
         groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
 
-        if (job != null) {
-            if (job.showPrintDialog(groupeTimeTable.getScene().getWindow())) {
-                boolean success = job.printPage(groupeTT);
-                if (success) {
-                    job.endJob();
-                }
+        if (job.showPrintDialog(groupeTimeTable.getScene().getWindow())) {
+            boolean success = job.printPage(groupeTT);
+            if (success) {
+                job.endJob();
             }
         }
     }
