@@ -136,6 +136,9 @@ public class Editor extends VBox {
             mEspace.getItems().add(menu);
             list.stream().filter(groupe -> groupe.getType().equals(type)).forEach(espace -> {
                 var submenu = new MenuItem(espace.getNom());
+                submenu.setOnAction(event -> {
+                    loadTab(new EspaceTab(espace));
+                });
                 menu.getItems().add(submenu);
             });
         });

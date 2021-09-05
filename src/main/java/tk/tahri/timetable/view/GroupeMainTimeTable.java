@@ -31,35 +31,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         seances.addAll(Database.getInstance().getSeances(groupe));
     }
 
-    @Override
-    protected void saveSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
-        Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,%d,%d,%d)"
-                .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
-                        s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
-        loadSeanceViews(true);
-        refreshView(seanceView);
-    }
 
-    @Override
-    protected void updateSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
-        Database.getInstance().execute("UPDATE seance set debut=%d, fin=%d, jour=%d WHERE id=%d"
-                .formatted(s.getDebut().toSecondOfDay(),
-                        s.getFin().toSecondOfDay(),
-                        s.getJour().getValue(),
-                        s.getId()));
-        loadSeanceViews(true);
-        refreshView(seanceView);
-    }
-
-    @Override
-    protected void deleteSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
-        Database.getInstance().execute("DELETE FROM seance WHERE id=%d".formatted(s.getId()));
-        loadSeanceViews(true);
-        refreshView(seanceView);
-    }
 
     @Override
     protected void refreshView(SeanceView seanceView) {

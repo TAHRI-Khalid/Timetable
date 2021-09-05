@@ -2,6 +2,10 @@ package tk.tahri.timetable.tabs;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.print.PageLayout;
+import javafx.print.PageOrientation;
+import javafx.print.Paper;
+import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
@@ -13,6 +17,10 @@ import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.print.FormateurTimeTablePrint;
+import tk.tahri.timetable.print.GroupeTimeTablePrint;
+
+import java.util.Objects;
 
 public class FormateurConfig extends Tab {
 
@@ -82,6 +90,25 @@ public class FormateurConfig extends Tab {
         var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
+
+        var colPrint = new TableColumn<Formateur, Long>("Imprimer");
+        colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colPrint.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                var btn = new Button();
+                btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.PRINT).color(Color.WHITE).size(16));
+                btn.getStyleClass().add("btn-print");
+                setGraphic(btn);
+                btn.setOnAction(event -> printFormateurTimetable(item));
+            }
+        });
+
         var colUpdate = new TableColumn<Formateur, Long>("Modifier");
         colUpdate.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUpdate.setCellFactory(param -> new TableCell<>() {
@@ -118,11 +145,26 @@ public class FormateurConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType,colPrint, colUpdate, colDelete);
         loadData();
         vBox.getChildren().addAll(grid, hBox, table);
         setContent(vBox);
 
+    }
+
+    private void printFormateurTimetable(Long item) {
+        var groupeTT = new FormateurTimeTablePrint(table.getItems().stream().filter(g-> Objects.equals(g.getId(), item)).findFirst().get());
+        PrinterJob job = PrinterJob.createPrinterJob();
+        PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
+        job.getJobSettings().setPageLayout(pageLayout);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+
+        if (job.showPrintDialog(table.getScene().getWindow())) {
+            boolean success = job.printPage(groupeTT);
+            if (success) {
+                job.endJob();
+            }
+        }
     }
 
     private void loadData() {
