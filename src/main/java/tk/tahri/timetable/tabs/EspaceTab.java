@@ -20,7 +20,6 @@ import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.EspaceTimeTablePrint;
-import tk.tahri.timetable.print.FormateurTimeTablePrint;
 import tk.tahri.timetable.view.*;
 
 public class EspaceTab extends EditorTab {
@@ -51,9 +50,9 @@ public class EspaceTab extends EditorTab {
         grid.setAlignment(Pos.CENTER);
 
         Label espaceTitle = new Label("Espace : " + espaceTimeTable.getEspace());
-        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
+        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
         espaceTitle.setMaxWidth(Double.MAX_VALUE);
-        espaceTitle.getStyleClass().add("formateur-title-main");
+        espaceTitle.getStyleClass().add("espace-title-main");
         grid.add(espaceTitle, 0, 0, 2, 1);
         grid.add(espaceTimeTable, 0, 1, 2, 1);
 
@@ -67,9 +66,9 @@ public class EspaceTab extends EditorTab {
 
         Label formateurTitle = new Label("Formateur : ");
         formateurTimetable.setTitre(formateurTitle);
-        formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(18));
+        formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(18));
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
-        formateurTitle.getStyleClass().add("espace-title-sub");
+        formateurTitle.getStyleClass().add("formateur-title-sub");
         grid.add(formateurTitle, 1, 2);
         grid.add(formateurTimetable, 1, 3);
 

@@ -85,7 +85,13 @@
     -fx-text-fill: #fff;
     -fx-font-weight: bold;
 }
-
+.espace-title-main{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-color: #8D9AA6;
+    -fx-text-fill: #fff;
+    -fx-padding: 5px;
+}
 .groupe-title-main {
     -fx-font-size: 24px;
     -fx-font-weight: bold;

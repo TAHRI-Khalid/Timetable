@@ -15,7 +15,6 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.EspaceTimeTablePrint;
-import tk.tahri.timetable.print.FormateurTimeTablePrint;
 
 import java.util.Objects;
 

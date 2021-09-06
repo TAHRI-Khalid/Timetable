@@ -9,11 +9,16 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tabs.*;
+import tk.tahri.timetable.tools.Config;
+
+import java.io.IOException;
+import java.nio.file.*;
 
 public class Editor extends VBox {
 
@@ -25,7 +30,6 @@ public class Editor extends VBox {
     private final Menu mEspace = new Menu("Espace");
 
     public Editor() {
-        //Database.getInstance().createDatabase();
         createMenu();
         createTabpane();
     }
@@ -41,9 +45,25 @@ public class Editor extends VBox {
         menu = new MenuBar();
         menu.getMenus().addAll(mFichier, mGroupe, mFormateur, mEspace);
 
+        var mNouveau = new MenuItem("Nouveau");
+        var nkeyCombination = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
+        mNouveau.setAccelerator(nkeyCombination);
+        mNouveau.setOnAction(actionEvent -> onMenuNew());
+
         var mOuvrir = new MenuItem("Ouvrir");
-        mOuvrir.setOnAction(actionEvent -> save());
+        var okeyCombination = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
+        mOuvrir.setAccelerator(okeyCombination);
+        mOuvrir.setOnAction(actionEvent -> onMenuOpen());
+
         var mEnregister = new MenuItem("Enregister");
+        var skeyCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+        mEnregister.setAccelerator(skeyCombination);
+        mEnregister.setOnAction(actionEvent -> onMenuSave());
+
+        var mEnregisterSous = new MenuItem("Enregister sous ...");
+        var smkeyCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        mEnregisterSous.setAccelerator(smkeyCombination);
+        mEnregisterSous.setOnAction(actionEvent -> onMenuSaveAS());
 
         var mPrint = new MenuItem("Imprimer");
         var pkeyCombination = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
@@ -53,18 +73,64 @@ public class Editor extends VBox {
         var mQuitter = new MenuItem("Quitter");
         var qkeyCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
         mQuitter.setAccelerator(qkeyCombination);
-        mQuitter.setOnAction(event-> Platform.exit());
+        mQuitter.setOnAction(event -> ((Stage) this.getScene().getWindow()).close());
 
-        mFichier.getItems().addAll(mOuvrir, mEnregister, mPrint, new SeparatorMenuItem(), mQuitter);
+        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, mPrint, new SeparatorMenuItem(), mQuitter);
 
-        loadMenuGroupe();
-        loadMenuFormateur();
-        loadMenuEspace();
+        if (!(Config.getProperty("file")==null || Config.getProperty("file").trim().isEmpty())) {
+            try {
+                var source = Path.of(Config.getProperty("file"));
+                Path dest = Files.createTempFile("temp", ".tk");
+                Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+                Config.setProperty("temp", dest.toString());
+                Config.setProperty("modified", Boolean.FALSE.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            loadMenuGroupe();
+            loadMenuFormateur();
+            loadMenuEspace();
+        }
 
         getChildren().addAll(menu);
     }
 
-    private void save() {
+    private void onMenuNew() {
+        try {
+            var dest = Files.createTempFile("temp", ".tk");
+            Config.setProperty("file", "");
+            Config.setProperty("temp", dest.toString());
+            Config.setProperty("modified", Boolean.TRUE.toString());
+
+            Database.getInstance().createDatabase();
+            tabpane.getTabs().clear();
+            loadMenuGroupe();
+            loadMenuFormateur();
+            loadMenuEspace();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void onMenuSave() {
+        if (Config.getProperty("file").trim().isEmpty()) {
+            onMenuSaveAS();
+        } else {
+            try {
+                var temp = Path.of(Config.getProperty("temp"));
+                var source = Path.of(Config.getProperty("file"));
+                Files.copy(temp, source, StandardCopyOption.REPLACE_EXISTING);
+                Config.setProperty("modified", Boolean.FALSE.toString());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void onMenuSaveAS() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Time Table");
         fileChooser.getExtensionFilters().addAll(
@@ -75,8 +141,41 @@ public class Editor extends VBox {
         if (file != null) {
             try {
                 var path = file.toString().endsWith(".tk") ? file.toString() : file.toString().concat(".tk");
-                tabpane.getTabs().add(new EspaceConfig(this));
+                var temp = Path.of(Config.getProperty("temp"));
+                var source = Path.of(path);
+                Files.copy(temp, source, StandardCopyOption.REPLACE_EXISTING);
+                Config.setProperty("file", source.toString());
+                Config.setProperty("modified", Boolean.FALSE.toString());
+
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void onMenuOpen() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Ouvrir");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("TimeTable", "*.tk")
+        );
+        var file = fileChooser.showOpenDialog(getScene().getWindow());
+
+        if (file != null) {
+            try {
+                var dest = Files.createTempFile("temp", ".tk");
+                Files.copy(Path.of(file.getPath()), dest, StandardCopyOption.REPLACE_EXISTING);
+
+                Config.setProperty("file", file.getPath());
+                Config.setProperty("temp", dest.toString());
+                Config.setProperty("modified", Boolean.FALSE.toString());
+
+                tabpane.getTabs().clear();
+                loadMenuGroupe();
+                loadMenuFormateur();
+                loadMenuEspace();
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

@@ -5,6 +5,7 @@ import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.tools.Config;
 
 import java.sql.*;
 import java.time.DayOfWeek;
@@ -14,9 +15,10 @@ import java.util.List;
 
 public class Database {
     private static Database instance;
-    private final String url = "jdbc:sqlite:/home/khalid/Documents/data.tk";
+    private static String url;
 
     public static Database getInstance() {
+        url = "jdbc:sqlite:" + Config.getProperty("temp");
         if (instance == null) {
             instance = new Database();
             return instance;
@@ -28,6 +30,7 @@ public class Database {
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
             statement.execute(sql);
+            Config.setProperty("modified",Boolean.TRUE.toString());
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
