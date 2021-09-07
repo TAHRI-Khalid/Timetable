@@ -1,10 +1,7 @@
 package tk.tahri.timetable.dao;
 
 
-import tk.tahri.timetable.Entities.Espace;
-import tk.tahri.timetable.Entities.Formateur;
-import tk.tahri.timetable.Entities.Groupe;
-import tk.tahri.timetable.Entities.Seance;
+import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.tools.Config;
 
 import java.sql.*;
@@ -30,7 +27,7 @@ public class Database {
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
             statement.execute(sql);
-            Config.setProperty("modified",Boolean.TRUE.toString());
+            Config.setProperty("modified", Boolean.TRUE.toString());
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -245,5 +242,42 @@ public class Database {
             System.out.println(e.getMessage());
         }
         return list;
+    }
+
+    public Dashboard getDashboard() {
+        var dashboard = new Dashboard();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM formateur");
+            if (rs.next()) dashboard.setNombreFormateurs(rs.getInt(1));
+
+            rs = stmt.executeQuery("SELECT COUNT(*) FROM groupe");
+            if (rs.next()) dashboard.setNombreGroupes(rs.getInt(1));
+
+            rs = stmt.executeQuery("SELECT COUNT(*) FROM espace");
+            if (rs.next()) dashboard.setNombreEspaces(rs.getInt(1));
+
+            rs = stmt.executeQuery("SELECT COUNT(*) FROM seance");
+            if (rs.next()) dashboard.setNombreSeances(rs.getInt(1));
+
+            rs = stmt.executeQuery("""
+                    SELECT  SUM(s.fin-s.debut) as duree, e.id ,e.nom,e.type
+                    FROM espace e
+                    left join seance s on e.id = s.idEspace
+                    group by e.id;
+                    """);
+            while (rs.next()) {
+                var e = new Espace();
+                e.setId(rs.getLong("id"));
+                e.setNom(rs.getString("nom"));
+                e.setType(rs.getString("type"));
+                dashboard.getBarChartEspace().put(e, rs.getLong("duree"));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return dashboard;
     }
 }

@@ -1,20 +1,47 @@
 package tk.tahri.timetable.tabs;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
+import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.tools.Config;
 
 public class DashboardTab extends EditorTab {
-    private final FontAwesome fontAwesome = new FontAwesome();
+    private final Label lblFormateur;
+    private final Label lblGroupe;
+    private final Label lblEspace;
+    private final Label lblSeance;
+    private final BarChart<String, Number> bc;
 
     public DashboardTab(String nom) {
         super(nom);
         this.setClosable(false);
+        FontAwesome fontAwesome = new FontAwesome();
+        var vBox = new VBox(20);
+        vBox.setPadding(new Insets(20));
+
+        var groupeTitle = new Label("Tableau de bord : " + Config.getProperty("file"));
+        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.DASHBOARD).color(Color.WHITE).size(26));
+        groupeTitle.setGraphicTextGap(10);
+        groupeTitle.setMaxWidth(Double.MAX_VALUE);
+        groupeTitle.getStyleClass().add("groupe-title-main");
+        vBox.getChildren().add(groupeTitle);
+
+
         var cards = new HBox(50);
+        vBox.getChildren().add(cards);
         cards.setAlignment(Pos.CENTER);
-        var lblFormateur = new Label("16");
+
+
+        lblFormateur = new Label("16");
         lblFormateur.setPrefSize(220, 120);
         lblFormateur.setStyle("""
                 -fx-background-color: #038C4C;
@@ -29,7 +56,7 @@ public class DashboardTab extends EditorTab {
         lblFormateur.setGraphicTextGap(50);
 
 
-        var lblGroupe = new Label("54");
+        lblGroupe = new Label("54");
         lblGroupe.setPrefSize(220, 120);
         lblGroupe.setStyle("""
                 -fx-background-color: #1C588C;
@@ -42,7 +69,7 @@ public class DashboardTab extends EditorTab {
         lblGroupe.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(52));
         lblGroupe.setGraphicTextGap(50);
 
-        var lblEspace = new Label("12");
+        lblEspace = new Label("12");
         lblEspace.setPrefSize(220, 120);
         lblEspace.setStyle("""
                 -fx-background-color: #8D9AA6;
@@ -56,7 +83,7 @@ public class DashboardTab extends EditorTab {
         lblEspace.setGraphicTextGap(50);
 
 
-        var lblSeance = new Label("234");
+        lblSeance = new Label("234");
         lblSeance.setPrefSize(220, 120);
         lblSeance.setStyle("""
                 -fx-background-color: #e36b40;
@@ -69,13 +96,35 @@ public class DashboardTab extends EditorTab {
         lblSeance.setGraphic(fontAwesome.create(FontAwesome.Glyph.CALENDAR).color(Color.WHITE).size(52));
         lblSeance.setGraphicTextGap(50);
 
-        cards.getChildren().addAll(lblFormateur,lblGroupe,lblEspace,lblSeance);
-        this.setContent(cards);
+        cards.getChildren().addAll(lblFormateur, lblGroupe, lblEspace, lblSeance);
+
+
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        bc = new BarChart<>(xAxis, yAxis);
+        bc.setTitle("Taux d'occupation des espaces");
+        bc.setLegendVisible(false);
+        xAxis.setLabel("Espace");
+        yAxis.setLabel("Heurs/semaine");
+
+
+        vBox.getChildren().add(bc);
+        this.setContent(vBox);
     }
 
     @Override
     protected void selectionChanged() {
-
+        var d = Database.getInstance().getDashboard();
+        lblEspace.setText(String.valueOf(d.getNombreEspaces()));
+        lblFormateur.setText(String.valueOf(d.getNombreFormateurs()));
+        lblGroupe.setText(String.valueOf(d.getNombreGroupes()));
+        lblSeance.setText(String.valueOf(d.getNombreSeances()));
+        bc.getData().clear();
+        var series1 = new XYChart.Series();
+        d.getBarChartEspace().forEach((espace, aLong) -> {
+            series1.getData().add(new XYChart.Data(espace.getNom(), aLong/3600));
+        });
+        bc.getData().add(series1);
     }
 
     @Override

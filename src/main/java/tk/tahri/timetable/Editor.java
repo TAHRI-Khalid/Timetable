@@ -96,6 +96,7 @@ public class Editor extends VBox {
 
             Database.getInstance().createDatabase();
             tabpane.getTabs().clear();
+            tabpane.getTabs().add(new DashboardTab("Accueil"));
             loadMenuGroupe();
             loadMenuFormateur();
             loadMenuEspace();
@@ -163,6 +164,8 @@ public class Editor extends VBox {
                 Config.setProperty("modified", Boolean.FALSE.toString());
 
                 tabpane.getTabs().clear();
+                tabpane.getTabs().add(new DashboardTab("Accueil"));
+
                 loadMenuGroupe();
                 loadMenuFormateur();
                 loadMenuEspace();
