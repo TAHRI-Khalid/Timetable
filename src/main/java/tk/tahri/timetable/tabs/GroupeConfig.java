@@ -38,6 +38,13 @@ public class GroupeConfig extends Tab {
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
+        Label groupeTitle = new Label("Les Groupes " );
+        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
+        groupeTitle.setGraphicTextGap(10);
+        groupeTitle.setMaxWidth(Double.MAX_VALUE);
+        groupeTitle.getStyleClass().add("groupe-title-main");
+
+
         var grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
@@ -47,37 +54,39 @@ public class GroupeConfig extends Tab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 0);
 
+        grid.add(new Label("Filiére : "), 2, 0);
+        txtFiliere = new TextField();
+        GridPane.setHgrow(txtFiliere, Priority.ALWAYS);
+        grid.add(txtFiliere, 3, 0);
+
+
         grid.add(new Label("Année : "), 0, 1);
         txtAnnee = new TextField();
         GridPane.setHgrow(txtAnnee, Priority.ALWAYS);
         grid.add(txtAnnee, 1, 1);
 
-        grid.add(new Label("Filiére : "), 0, 2);
-        txtFiliere = new TextField();
-        GridPane.setHgrow(txtFiliere, Priority.ALWAYS);
-        grid.add(txtFiliere, 1, 2);
-
-        grid.add(new Label("Niveau : "), 0, 3);
+        grid.add(new Label("Niveau : "), 2, 1);
         comboNiveau = new ComboBox<>();
         GridPane.setHgrow(comboNiveau, Priority.ALWAYS);
         comboNiveau.getItems().addAll(Groupe.Niveaux);
         comboNiveau.getSelectionModel().select(0);
-        grid.add(comboNiveau, 1, 3);
+        grid.add(comboNiveau, 3, 1);
 
-        grid.add(new Label("Secteur : "), 0, 4);
+
+        grid.add(new Label("Secteur : "), 0, 2);
         comboSecteur = new ComboBox<>();
         GridPane.setHgrow(comboSecteur, Priority.ALWAYS);
         comboSecteur.getItems().addAll(Groupe.Secteurs);
         comboSecteur.getSelectionModel().select(0);
-        grid.add(comboSecteur, 1, 4);
+        grid.add(comboSecteur, 1, 2);
 
 
-        grid.add(new Label("Type de formation : "), 0, 5);
+        grid.add(new Label("Type de formation : "), 2, 2);
         comboType = new ComboBox<>();
         GridPane.setHgrow(comboType, Priority.ALWAYS);
         comboType.getItems().addAll(Groupe.typeFormation);
         comboType.getSelectionModel().select(0);
-        grid.add(comboType, 1, 5);
+        grid.add(comboType, 3, 2);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -170,7 +179,7 @@ public class GroupeConfig extends Tab {
 
         table.getColumns().addAll(colNom, colAnnee, colFiliere, colNiveau, colSecteur,colType,colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(grid, hBox, table);
+        vBox.getChildren().addAll(groupeTitle,grid, hBox, table);
         setContent(vBox);
 
     }

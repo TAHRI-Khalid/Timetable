@@ -1,6 +1,5 @@
 package tk.tahri.timetable;
 
-import javafx.application.Platform;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -32,6 +31,8 @@ public class Editor extends VBox {
     public Editor() {
         createMenu();
         createTabpane();
+        DashboardTab tab = new DashboardTab("Acceuil");
+        tabpane.getTabs().add(tab);
     }
 
     private void createTabpane() {
@@ -77,16 +78,7 @@ public class Editor extends VBox {
 
         mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, mPrint, new SeparatorMenuItem(), mQuitter);
 
-        if (!(Config.getProperty("file")==null || Config.getProperty("file").trim().isEmpty())) {
-            try {
-                var source = Path.of(Config.getProperty("file"));
-                Path dest = Files.createTempFile("temp", ".tk");
-                Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-                Config.setProperty("temp", dest.toString());
-                Config.setProperty("modified", Boolean.FALSE.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();
             loadMenuFormateur();
             loadMenuEspace();

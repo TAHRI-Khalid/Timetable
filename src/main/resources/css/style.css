@@ -3,17 +3,21 @@
     -fx-background-color: #f0ad4e;
     -fx-padding: 5px;
 }
+
 .btn-print {
     -fx-pref-width: 30px;
     -fx-background-color: #12b243;
     -fx-padding: 5px;
 }
+
 .btn-save:hover {
     -fx-background-color: #c1873c;
 }
+
 .btn-print:hover {
     -fx-background-color: #0f8733;
 }
+
 .btn-delete {
     -fx-pref-width: 30px;
     -fx-background-color: #d9534f;
@@ -30,6 +34,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .groupe-view:hover {
     -fx-background-color: #144164;
 }
@@ -40,6 +45,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .formateur-view:hover {
     -fx-background-color: #02542d;
 }
@@ -55,7 +61,7 @@
     -fx-background-color: #545961;
 }
 
-.formateur-seance-view, .espace-seance-view, .groupe-seance-view ,.chevauchement-seance-view{
+.formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-view {
     -fx-background-radius: 7.0;
     -fx-alignment: center;
 }
@@ -63,35 +69,44 @@
 .formateur-seance-view {
     -fx-background-color: #038C4C;
 }
+
 .formateur-seance-view:hover {
     -fx-background-color: #025d31;
 }
+
 .espace-seance-view {
     -fx-background-color: #8D9AA6;
 }
+
 .espace-seance-view:hover {
     -fx-background-color: #666e78;
 }
+
 .groupe-seance-view {
     -fx-background-color: #1C588C;
 }
+
 .groupe-seance-view:hover {
     -fx-background-color: #144164;
 }
+
 .chevauchement-seance-view {
     -fx-background-color: #b71c1c;
 }
+
 .formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label, .chevauchement-seance-view Label {
     -fx-text-fill: #fff;
     -fx-font-weight: bold;
 }
-.espace-title-main{
+
+.espace-title-main {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-background-color: #8D9AA6;
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .groupe-title-main {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -99,6 +114,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .formateur-title-main {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -106,6 +122,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .formateur-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -113,6 +130,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .groupe-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -120,6 +138,7 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+
 .espace-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -127,3 +146,4 @@
     -fx-text-fill: #fff;
     -fx-padding: 5px;
 }
+

@@ -30,6 +30,13 @@ public class EspaceConfig extends Tab {
         super("Espaces");
         this.editor=editor;
         FontAwesome fontAwesome = new FontAwesome();
+
+        Label espaceTitle = new Label("Les Espaces");
+        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
+        espaceTitle.setGraphicTextGap(10);
+        espaceTitle.setMaxWidth(Double.MAX_VALUE);
+        espaceTitle.getStyleClass().add("espace-title-main");
+
         var grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
@@ -124,7 +131,7 @@ public class EspaceConfig extends Tab {
 
         table.getColumns().addAll(colNom, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(grid, hBox, table);
+        vBox.getChildren().addAll(espaceTitle,grid, hBox, table);
         setContent(vBox);
 
     }

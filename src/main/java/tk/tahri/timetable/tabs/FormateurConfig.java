@@ -18,7 +18,6 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.FormateurTimeTablePrint;
-import tk.tahri.timetable.print.GroupeTimeTablePrint;
 
 import java.util.Objects;
 
@@ -36,6 +35,14 @@ public class FormateurConfig extends Tab {
         super("Formateurs");
         this.editor=editor;
         FontAwesome fontAwesome = new FontAwesome();
+
+        Label formateurTitle = new Label("Les Fromateurs");
+        formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
+        formateurTitle.setGraphicTextGap(10);
+        formateurTitle.setMaxWidth(Double.MAX_VALUE);
+        formateurTitle.getStyleClass().add("formateur-title-main");
+
+
         var grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
@@ -147,7 +154,7 @@ public class FormateurConfig extends Tab {
 
         table.getColumns().addAll(colNom, colPrenom, colMatricule, colType,colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(grid, hBox, table);
+        vBox.getChildren().addAll(formateurTitle,grid, hBox, table);
         setContent(vBox);
 
     }
