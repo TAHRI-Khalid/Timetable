@@ -100,7 +100,7 @@
 }
 
 .espace-title-main {
-    -fx-font-size: 24px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-background-color: #8D9AA6;
     -fx-text-fill: #fff;
@@ -108,7 +108,7 @@
 }
 
 .groupe-title-main {
-    -fx-font-size: 24px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-background-color: #1C588C;
     -fx-text-fill: #fff;
@@ -116,7 +116,7 @@
 }
 
 .formateur-title-main {
-    -fx-font-size: 24px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-background-color: #038C4C;
     -fx-text-fill: #fff;

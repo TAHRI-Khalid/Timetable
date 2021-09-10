@@ -1,13 +1,12 @@
 package tk.tahri.timetable.tabs;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
@@ -20,6 +19,7 @@ public class DashboardTab extends EditorTab {
     private final Label lblEspace;
     private final Label lblSeance;
     private final BarChart<String, Number> bc;
+    private final PieChart pieChart;
 
     public DashboardTab(String nom) {
         super(nom);
@@ -98,17 +98,24 @@ public class DashboardTab extends EditorTab {
 
         cards.getChildren().addAll(lblFormateur, lblGroupe, lblEspace, lblSeance);
 
+        var hBox=new HBox(10);
 
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
         bc = new BarChart<>(xAxis, yAxis);
-        bc.setTitle("Taux d'occupation des espaces");
+        bc.setTitle("Occupation des espaces");
         bc.setLegendVisible(false);
         xAxis.setLabel("Espace");
         yAxis.setLabel("Heurs/semaine");
+        HBox.setHgrow(bc, Priority.ALWAYS);
 
+        pieChart = new PieChart();
+        pieChart.setTitle("Taux d'occupation");
+        pieChart.setLegendVisible(false);
 
-        vBox.getChildren().add(bc);
+        hBox.getChildren().addAll(bc,pieChart);
+
+        vBox.getChildren().add(hBox);
         this.setContent(vBox);
     }
 
@@ -119,12 +126,21 @@ public class DashboardTab extends EditorTab {
         lblFormateur.setText(String.valueOf(d.getNombreFormateurs()));
         lblGroupe.setText(String.valueOf(d.getNombreGroupes()));
         lblSeance.setText(String.valueOf(d.getNombreSeances()));
+
         bc.getData().clear();
         var series1 = new XYChart.Series();
         d.getBarChartEspace().forEach((espace, aLong) -> {
-            series1.getData().add(new XYChart.Data(espace.getNom(), aLong/3600));
+            series1.getData().add(new XYChart.Data(espace.getNom(), aLong / 3600));
         });
         bc.getData().add(series1);
+
+        var total = d.getBarChartEspace().size() * 10 * 6;
+        var occupe = d.getBarChartEspace().values().stream().mapToLong(Long::longValue).sum() / 3600;
+        var pieChartData = FXCollections.observableArrayList(
+                new PieChart.Data("Occupation", occupe),
+                new PieChart.Data("libére", total - occupe));
+        pieChart.setData(pieChartData);
+
     }
 
     @Override

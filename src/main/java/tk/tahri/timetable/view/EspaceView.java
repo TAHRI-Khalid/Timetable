@@ -7,7 +7,7 @@ import tk.tahri.timetable.Entities.Espace;
 
 public class EspaceView extends Label {
     private final FontAwesome fontAwesome;
-    private Espace espace;
+    private final Espace espace;
 
     public EspaceView(Espace espace) {
         super(espace.toString());

@@ -12,6 +12,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
@@ -38,15 +39,14 @@ public class GroupeTab extends EditorTab {
     }
 
     private void drawMainContent() {
-
+        var stack = new StackPane();
+        stack.setPadding(new Insets(10));
         var grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
 
-        grid.setAlignment(Pos.CENTER);
-
         Label groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
-        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
+        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(22));
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
         groupeTitle.getStyleClass().add("groupe-title-main");
         grid.add(groupeTitle, 0, 0, 2, 1);
@@ -68,8 +68,26 @@ public class GroupeTab extends EditorTab {
         grid.add(espaceTitle, 1, 2);
         grid.add(espaceTimeTable, 1, 3);
 
-        parent.setCenter(grid);
+        stack.getChildren().add(grid);
+        parent.setCenter(stack);
         setContent(parent);
+
+        grid.widthProperty().addListener((observableValue, number, t1) -> {
+            grid.getTransforms().clear();
+            var scaleX =  stack.getWidth()/1110;
+            var scaleY = stack.getHeight()/700;
+            var scale = Math.min(scaleX, scaleY);
+            grid.getTransforms().add(new Scale(scale, scale));
+
+        });
+
+        grid.heightProperty().addListener((observableValue, number, t1) -> {
+            grid.getTransforms().clear();
+            var scaleX =  stack.getWidth()/1120;
+            var scaleY = stack.getHeight()/720;
+            var scale = Math.min(scaleX, scaleY);
+            grid.getTransforms().add(new Scale(scale, scale));
+        });
 
     }
 
@@ -149,8 +167,8 @@ public class GroupeTab extends EditorTab {
 
     @Override
     protected void selectionChanged() {
-        if(this.isSelected()){
-           groupeTimeTable.loadSeanceViews(true);
+        if (this.isSelected()) {
+            groupeTimeTable.loadSeanceViews(true);
         }
     }
 
@@ -160,7 +178,7 @@ public class GroupeTab extends EditorTab {
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
 
         if (job.showPrintDialog(groupeTimeTable.getScene().getWindow())) {
             boolean success = job.printPage(groupeTT);

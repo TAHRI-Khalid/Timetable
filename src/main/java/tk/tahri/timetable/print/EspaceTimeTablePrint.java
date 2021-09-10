@@ -7,9 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Espace;
-import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.view.EspacePrintTimeTableView;
-import tk.tahri.timetable.view.GroupePrintTimeTableView;
 
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
 module tk.tahri.TimeTable {
-    requires javafx.controls;
     requires java.sql;
+    requires javafx.controls;
     requires org.controlsfx.controls;
     requires org.xerial.sqlitejdbc;
 

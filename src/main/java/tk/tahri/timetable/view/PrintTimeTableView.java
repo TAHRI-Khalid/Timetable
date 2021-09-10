@@ -53,7 +53,7 @@ public abstract class PrintTimeTableView extends TimeTableView {
 
                 var debut = time;
                 var fin = time.plusHours(1);
-                var txt = new Text(debut.toString() + " - " + fin.toString());
+                var txt = new Text(debut + " - " + fin.toString());
                 txt.setFont(colHeader);
                 txt.setX(tableX + (colWidth * i) + 3);
                 txt.setY(rowHeight / 4 + 3);

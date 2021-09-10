@@ -20,8 +20,8 @@ public abstract class TimeTableView extends Pane {
 
     protected final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
     protected final LocalTime beginTime = LocalTime.of(8, 30);
-    protected double colWidth = 24.5;
-    protected double rowHeight = 50;
+    protected double colWidth = 25;
+    protected double rowHeight = 55;
     protected double tableX = colWidth * 4;
     protected double tableY = rowHeight / 2;
     protected Font colHeader = new Font(15);
@@ -31,6 +31,10 @@ public abstract class TimeTableView extends Pane {
     protected boolean dashedLine = true;
     protected Label Titre;
     protected final SeanceType type;
+    protected double timeHeaderX =tableX  + 5;
+    protected double timeHeaderY =rowHeight / 4 + 5;
+    protected double dayHeaderX =6;
+    protected double dayHeaderY =tableY + rowHeight / 2 + 6;
 
     protected TimeTableView(SeanceType type) {
         this.type = type;
@@ -67,10 +71,10 @@ public abstract class TimeTableView extends Pane {
 
                 var debut = time;
                 var fin = time.plusHours(1);
-                var txt = new Text(debut.toString() + " - " + fin.toString());
+                var txt = new Text(debut + " - " + fin.toString());
                 txt.setFont(colHeader);
-                txt.setX(tableX + (colWidth * i) + 1);
-                txt.setY(rowHeight / 4 + 5);
+                txt.setX(timeHeaderX + (colWidth * i));
+                txt.setY(timeHeaderY);
                 this.getChildren().add(txt);
                 time = time.plusHours(1);
             }
@@ -90,8 +94,8 @@ public abstract class TimeTableView extends Pane {
 
             var day = new Text(days[i]);
             day.setFont(rowHeader);
-            day.setX(2);
-            day.setY(tableY + (rowHeight * i) + rowHeight / 2 + 9);
+            day.setX(dayHeaderX);
+            day.setY(dayHeaderY + (rowHeight * i));
             this.getChildren().add(day);
 
             var line = new Line(tableX, tableY + (rowHeight * i), tableX + (colWidth * 40), tableY + (rowHeight * i));
@@ -135,10 +139,7 @@ public abstract class TimeTableView extends Pane {
             return true;
         } else if (s2.getDebut().toSecondOfDay() < s1.getFin().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getFin().toSecondOfDay()) {
             return true;
-        } else if (s2.getDebut().toSecondOfDay() >= s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() <= s1.getFin().toSecondOfDay()) {
-            return true;
-        }
-        return false;
+        } else return s2.getDebut().toSecondOfDay() >= s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() <= s1.getFin().toSecondOfDay();
     }
 
     public void setTitre(Label titre) {

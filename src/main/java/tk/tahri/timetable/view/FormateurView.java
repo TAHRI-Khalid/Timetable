@@ -7,7 +7,7 @@ import tk.tahri.timetable.Entities.Formateur;
 
 public class FormateurView extends Label {
     private final FontAwesome fontAwesome;
-    private Formateur formateur;
+    private final Formateur formateur;
 
     public FormateurView(Formateur formateur) {
         super(formateur.toString());

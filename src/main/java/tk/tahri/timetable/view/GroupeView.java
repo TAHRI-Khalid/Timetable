@@ -11,7 +11,7 @@ import tk.tahri.timetable.Entities.Groupe;
 
 public class GroupeView extends Label {
     private final FontAwesome fontAwesome;
-    private Groupe groupe;
+    private final Groupe groupe;
     public GroupeView(Groupe groupe) {
         super(groupe.getNom());
         this.groupe = groupe;
