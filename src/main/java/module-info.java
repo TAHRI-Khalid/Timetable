@@ -1,4 +1,4 @@
-module tk.tahri.TimeTable {
+module timeTable {
     requires java.sql;
     requires javafx.controls;
     requires org.controlsfx.controls;

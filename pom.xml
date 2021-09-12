@@ -49,9 +49,46 @@
                         <configuration>
                             <stripDebug>true</stripDebug>
                             <compress>2</compress>
-                            <launcher>TimeTable</launcher>
-                            <jlinkImageName>TimeTable</jlinkImageName>
+                            <launcher>timeTable</launcher>
+                            <jlinkImageName>timeTable</jlinkImageName>
                             <mainClass>tk.tahri.timetable.App</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.5.1</version>
+                <configuration>
+                    <name>TimeTable</name>
+                    <appVersion>${project.version}</appVersion>
+                    <vendor>tk.tahri</vendor>
+                    <destination>target/dist</destination>
+                    <module>timeTable/tk.tahri.timetable.App</module>
+                    <runtimeImage>target/timeTable</runtimeImage>
+                    <javaOptions>
+                        <option>-Dfile.encoding=UTF-8</option>
+                    </javaOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>win</id>
+                        <configuration>
+                            <icon>target/classes/images/icon.png</icon>
+                            <winMenu>true</winMenu>
+                            <winShortcut>true</winShortcut>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>linux</id>
+                        <configuration>
+                            <linuxShortcut>true</linuxShortcut>
+                            <linuxDebMaintainer>tahri.tk@gmail.com</linuxDebMaintainer>
+                            <linuxPackageName>timetable</linuxPackageName>
+                            <linuxAppCategory>Development</linuxAppCategory>
+                            <linuxMenuGroup>Development</linuxMenuGroup>
+                            <icon>target/classes/images/icon.png</icon>
                         </configuration>
                     </execution>
                 </executions>

@@ -4,7 +4,6 @@ import javafx.scene.input.TransferMode;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -63,10 +62,26 @@ public abstract class MainTimeTableView extends TimeTableView {
         seanceView.setTranslateX((x * colWidth) + tableX);
         seanceView.setTranslateY((y * rowHeight) + tableY);
 
+        y = Math.max(y, 0);
+        y = Math.min(y, 5);
+
         var duree = seanceView.getSeance().getDuree();
         seanceView.getSeance().setJour(DayOfWeek.of(y + 1));
-        seanceView.getSeance().setDebut(LocalTime.of(8, 30).plusMinutes(x * 15));
-        seanceView.getSeance().setFin(seanceView.getSeance().getDebut().plusMinutes(duree));
+        LocalTime debut = LocalTime.of(8, 30).plusMinutes(x * 15);
+
+        if (debut.isBefore(LocalTime.of(8, 30))) {
+            debut = LocalTime.of(8, 30);
+        }
+        seanceView.getSeance().setDebut(debut);
+        LocalTime fin = seanceView.getSeance().getDebut().plusMinutes(duree);
+
+        if (fin.isAfter(LocalTime.of(18, 30))) {
+            debut = LocalTime.of(18, 30).minusMinutes(duree);
+            seanceView.getSeance().setDebut(debut);
+            seanceView.getSeance().setFin(debut.plusMinutes(duree));
+        } else {
+            seanceView.getSeance().setFin(fin);
+        }
     }
 
     protected abstract Seance getDraggedSeance();
