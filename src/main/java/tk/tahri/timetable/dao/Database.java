@@ -84,6 +84,7 @@ public class Database {
                 debut integer,
                 fin integer,
                 jour integer,
+                type text NOT NULL,
                 idGroupe integer,
                 idFormateur integer,
                 idEspace integer,
@@ -154,7 +155,7 @@ public class Database {
     public List<Seance> getSeances(Formateur formateur) {
         String sql = """
                 SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
@@ -170,7 +171,7 @@ public class Database {
     public List<Seance> getSeances(Groupe groupe) {
         String sql = """
                 SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
@@ -186,7 +187,7 @@ public class Database {
     public List<Seance> getSeances(Espace espace) {
         String sql = """
                 SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.idFormateur,s.idEspace,s.idGroupe,
+                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
                 f.nom as fnom, f.prenom, f.matricule, f.type,
                 e.nom as enom, e.type,
                 g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
@@ -211,6 +212,7 @@ public class Database {
                 seance.setDebut(LocalTime.ofSecondOfDay(rs.getLong("debut")));
                 seance.setFin(LocalTime.ofSecondOfDay(rs.getLong("fin")));
                 seance.setJour(DayOfWeek.of(rs.getInt("jour")));
+                seance.setType(rs.getString("type"));
 
                 var e = new Espace();
                 e.setId(rs.getLong("idEspace"));

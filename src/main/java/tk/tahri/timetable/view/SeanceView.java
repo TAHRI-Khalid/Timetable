@@ -1,10 +1,7 @@
 package tk.tahri.timetable.view;
 
 
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
@@ -22,9 +19,9 @@ public class SeanceView extends VBox {
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
         switch (type) {
-            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupe().toString()), new Label(seance.getEspace().toString()));
-            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace().toString()));
-            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupe().toString()));
+            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupe().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
+            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
+            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupe().toString() + "  [ " + seance.getType() + " ]"));
         }
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
@@ -50,7 +47,15 @@ public class SeanceView extends VBox {
             mSuppr.setOnAction(event -> {
                 ((MainTimeTableView) this.getParent()).deleteSeance(this);
             });
-            contextMenu.getItems().addAll(mHeurs, mSuppr);
+
+            var mtype = new Menu("Type");
+            var fad = new MenuItem("FAD : Distancielle");
+            var fp = new MenuItem("FP : Présentielle");
+            mtype.getItems().addAll(fad, fp);
+
+            fad.setOnAction(event -> updateTypeDeSeance("FAD"));
+            fp.setOnAction(event -> updateTypeDeSeance("FP"));
+            contextMenu.getItems().addAll(mHeurs, mtype, new SeparatorMenuItem(), mSuppr);
 
             this.setOnMousePressed(event -> {
                 this.firstClickX = event.getX();
@@ -84,6 +89,11 @@ public class SeanceView extends VBox {
 
     private void updateTime(Duration duration) {
         this.seance.setFin(this.seance.getDebut().plusMinutes(duration.toMinutes()));
+        ((MainTimeTableView) this.getParent()).updateSeance(this);
+    }
+
+    private void updateTypeDeSeance(String type) {
+        this.seance.setType(type);
         ((MainTimeTableView) this.getParent()).updateSeance(this);
     }
 }

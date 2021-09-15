@@ -71,12 +71,21 @@ public class Editor extends VBox {
         mPrint.setAccelerator(pkeyCombination);
         mPrint.setOnAction(event -> print());
 
+        var mPrintCenter = new MenuItem("Espace d'impression");
+        var pckeyCombination = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        mPrintCenter.setAccelerator(pckeyCombination);
+        mPrintCenter.setOnAction(event -> {
+            PrintTab printTab = new PrintTab("Espace d'impression");
+            loadTab(printTab);
+
+        });
+
         var mQuitter = new MenuItem("Quitter");
         var qkeyCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
         mQuitter.setAccelerator(qkeyCombination);
         mQuitter.setOnAction(event -> ((Stage) this.getScene().getWindow()).close());
 
-        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, mPrint, new SeparatorMenuItem(), mQuitter);
+        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, new SeparatorMenuItem(), mQuitter);
 
         if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();

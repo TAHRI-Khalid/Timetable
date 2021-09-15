@@ -90,19 +90,20 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     protected void saveSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,%d,%d,%d)"
+        Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,'%s',%d,%d,%d)"
                 .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
-                        s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
+                        s.getType(),s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
         loadSeanceViews(true);
         refreshView(seanceView);
     }
 
     protected void updateSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("UPDATE seance set debut=%d, fin=%d, jour=%d WHERE id=%d"
+        Database.getInstance().execute("UPDATE seance set debut=%d, fin=%d, jour=%d ,type='%s' WHERE id=%d"
                 .formatted(s.getDebut().toSecondOfDay(),
                         s.getFin().toSecondOfDay(),
                         s.getJour().getValue(),
+                        s.getType(),
                         s.getId()));
         loadSeanceViews(true);
         refreshView(seanceView);

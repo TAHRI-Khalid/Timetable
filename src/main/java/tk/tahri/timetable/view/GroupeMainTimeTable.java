@@ -23,7 +23,7 @@ public class GroupeMainTimeTable extends MainTimeTableView {
 
     @Override
     protected Seance getDraggedSeance() {
-        return new Seance(LocalTime.of(8, 30), LocalTime.of(11, 0), DayOfWeek.of(1), groupe, formateurTimetable.getFormateur(), espaceTimetable.getEspace());
+        return new Seance(LocalTime.of(8, 30), LocalTime.of(11, 0), DayOfWeek.of(1),"FP", groupe, formateurTimetable.getFormateur(), espaceTimetable.getEspace());
     }
 
     @Override

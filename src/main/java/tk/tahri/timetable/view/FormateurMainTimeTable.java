@@ -23,7 +23,7 @@ public class FormateurMainTimeTable extends MainTimeTableView {
 
     @Override
     protected Seance getDraggedSeance() {
-        return new Seance(LocalTime.of(8, 30), LocalTime.of(11, 0), DayOfWeek.of(1), groupeTimetable.getGroupe(), formateur, espaceTimetable.getEspace());
+        return new Seance(LocalTime.of(8, 30), LocalTime.of(11, 0), DayOfWeek.of(1),"FP", groupeTimetable.getGroupe(), formateur, espaceTimetable.getEspace());
     }
 
     @Override

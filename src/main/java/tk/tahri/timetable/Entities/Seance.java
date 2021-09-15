@@ -9,6 +9,7 @@ public class Seance {
     private LocalTime debut;
     private LocalTime fin;
     private DayOfWeek jour;
+    private String type="FP";
     private Groupe groupe;
     private Formateur formateur;
     private Espace espace;
@@ -16,10 +17,11 @@ public class Seance {
     public Seance() {
     }
 
-    public Seance(LocalTime debut, LocalTime fin, DayOfWeek dayOfWeek, Groupe groupe, Formateur formateur, Espace espace) {
+    public Seance(LocalTime debut, LocalTime fin, DayOfWeek dayOfWeek,String  type, Groupe groupe, Formateur formateur, Espace espace) {
         this.debut = debut;
         this.fin = fin;
         this.jour = dayOfWeek;
+        this.type=type;
         this.groupe = groupe;
         this.formateur = formateur;
         this.espace = espace;
@@ -87,12 +89,22 @@ public class Seance {
         this.espace = espace;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "Seance{" +
-                "debut=" + debut +
+                "id=" + id +
+                ", debut=" + debut +
                 ", fin=" + fin +
                 ", jour=" + jour +
+                ", type='" + type + '\'' +
                 ", groupe=" + groupe +
                 ", formateur=" + formateur +
                 ", espace=" + espace +
