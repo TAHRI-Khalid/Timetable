@@ -121,14 +121,19 @@ public class PrintTab extends EditorTab {
         GridPane.setHalignment(btnPrint, HPos.CENTER);
         grid.add(btnPrint, 1, 7);
 
-
         vBox.getChildren().add(grid);
         this.setContent(vBox);
     }
 
     @Override
     protected void selectionChanged() {
+        groupeCheckListView.getItems().clear();
+        formateurCheckListView.getItems().clear();
+        espaceCheckListView.getItems().clear();
 
+        groupeCheckListView.getItems().addAll(Database.getInstance().getGroupes());
+        formateurCheckListView.getItems().addAll(Database.getInstance().getFormateurs());
+        espaceCheckListView.getItems().addAll(Database.getInstance().getEspaces());
     }
 
     @Override
