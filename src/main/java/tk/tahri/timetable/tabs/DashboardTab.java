@@ -3,7 +3,6 @@ package tk.tahri.timetable.tabs;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -24,24 +23,19 @@ public class DashboardTab extends EditorTab {
     private Label lblGroupe;
     private Label lblEspace;
     private Label lblSeance;
+    private Label lblOccupation;
     private BarChart<String, Number> bc;
-    private PieChart pieChart;
 
     public DashboardTab(String nom) {
         super(nom);
         this.setClosable(false);
-        if (Config.getProperty("file").isEmpty() && Config.getProperty("temp").isEmpty()) {
-            this.setContent(noData());
-        } else {
-            this.setContent(dashboard());
-        }
     }
 
 
     @Override
     protected void selectionChanged() {
         if (Config.getProperty("file").isEmpty() && Config.getProperty("temp").isEmpty()) {
-
+            this.setContent(noData());
         } else {
             this.setContent(dashboard());
             var d = Database.getInstance().getDashboard();
@@ -59,10 +53,9 @@ public class DashboardTab extends EditorTab {
 
             var total = d.getBarChartEspace().size() * 10 * 6;
             var occupe = d.getBarChartEspace().values().stream().mapToLong(Long::longValue).sum() / 3600;
-            var pieChartData = FXCollections.observableArrayList(
-                    new PieChart.Data("Occupation", occupe),
-                    new PieChart.Data("libére", total - occupe));
-            pieChart.setData(pieChartData);
+
+            lblOccupation.setText(String.format("%.1f%%", (float)occupe / total * 100));
+
         }
     }
 
@@ -84,7 +77,7 @@ public class DashboardTab extends EditorTab {
         vBox.getChildren().add(groupeTitle);
 
 
-        var cards = new HBox(50);
+        var cards = new HBox(40);
         vBox.getChildren().add(cards);
         cards.setAlignment(Pos.CENTER);
 
@@ -96,7 +89,7 @@ public class DashboardTab extends EditorTab {
                 -fx-font-weight: bold;
                 """);
         lblFormateur.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(52));
-        lblFormateur.setGraphicTextGap(70);
+        lblFormateur.setGraphicTextGap(50);
         var lbl1 = new Label("Formateurs");
         lbl1.setStyle("""
                 -fx-text-fill: #fff;
@@ -121,7 +114,7 @@ public class DashboardTab extends EditorTab {
                 -fx-font-weight: bold;
                 """);
         lblGroupe.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(52));
-        lblGroupe.setGraphicTextGap(70);
+        lblGroupe.setGraphicTextGap(50);
         var lbl2 = new Label("Groupes");
         lbl2.setStyle("""
                 -fx-text-fill: #fff;
@@ -138,7 +131,6 @@ public class DashboardTab extends EditorTab {
         vBox2.getChildren().addAll(lblGroupe, lbl2);
 
 
-
         var vBox3 = new VBox(10);
         lblEspace = new Label();
         lblEspace.setStyle("""
@@ -147,7 +139,7 @@ public class DashboardTab extends EditorTab {
                 -fx-font-weight: bold;
                 """);
         lblEspace.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(52));
-        lblEspace.setGraphicTextGap(70);
+        lblEspace.setGraphicTextGap(50);
         var lbl3 = new Label("Espaces");
         lbl3.setStyle("""
                 -fx-text-fill: #fff;
@@ -172,7 +164,7 @@ public class DashboardTab extends EditorTab {
                 -fx-font-weight: bold;
                 """);
         lblSeance.setGraphic(fontAwesome.create(FontAwesome.Glyph.CALENDAR).color(Color.WHITE).size(52));
-        lblSeance.setGraphicTextGap(70);
+        lblSeance.setGraphicTextGap(50);
         var lbl4 = new Label("Séances");
         lbl4.setStyle("""
                 -fx-text-fill: #fff;
@@ -189,10 +181,32 @@ public class DashboardTab extends EditorTab {
         vBox4.getChildren().addAll(lblSeance, lbl4);
 
 
+        var vBox5 = new VBox(10);
+        lblOccupation = new Label();
+        lblOccupation.setStyle("""
+                -fx-text-fill: #fff;
+                -fx-font-size: 42;
+                -fx-font-weight: bold;
+                """);
+        lblOccupation.setGraphic(fontAwesome.create(FontAwesome.Glyph.PIE_CHART).color(Color.WHITE).size(52));
+        lblOccupation.setGraphicTextGap(5);
+        var lbl5 = new Label("Taux d'occupation");
+        lbl5.setStyle("""
+                -fx-text-fill: #fff;
+                -fx-font-size: 16;
+                -fx-font-weight: bold;
+                """);
+        vBox5.setStyle("""
+                -fx-background-color: #e36b40;
+                -fx-padding: 5;
+                -fx-background-radius: 10;
+                -fx-alignment: center;
+                -fx-pref-width: 230;
+                """);
+        vBox5.getChildren().addAll(lblOccupation, lbl5);
 
-        cards.getChildren().addAll(vBox1, vBox2, vBox3, vBox4);
+        cards.getChildren().addAll(vBox1, vBox2, vBox3, vBox4, vBox5);
 
-        var hBox = new HBox(10);
 
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
@@ -203,13 +217,7 @@ public class DashboardTab extends EditorTab {
         yAxis.setLabel("Heurs/semaine");
         HBox.setHgrow(bc, Priority.ALWAYS);
 
-        pieChart = new PieChart();
-        pieChart.setTitle("Taux d'occupation");
-        pieChart.setLegendVisible(false);
-
-        hBox.getChildren().addAll(bc, pieChart);
-
-        vBox.getChildren().add(hBox);
+        vBox.getChildren().add(bc);
         return vBox;
     }
 
