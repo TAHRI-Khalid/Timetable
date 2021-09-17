@@ -123,9 +123,15 @@ public abstract class TimeTableView extends Pane {
             for (var s2 : seances) {
                 if (chevauchement(s1, s2)) {
                     ch = true;
+                    /*
+                    if(s1.getType().equals("FAD")&& s2.getType().equals("FAD") && s1.getDebut().equals(s2.getDebut()) && s1.getFin().equals(s2.getFin())){
+
+                    }
+                     */
                     break;
                 }
             }
+
             sv.getStyleClass().add(ch ? "chevauchement-seance-view" : style);
             this.getChildren().add(sv);
             sv.setTranslateX((((s1.getDebut().toSecondOfDay() - LocalTime.of(8, 30).toSecondOfDay()) / (60 * 15)) * colWidth) + tableX);

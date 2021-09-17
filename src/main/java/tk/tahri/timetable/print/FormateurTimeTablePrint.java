@@ -56,7 +56,8 @@ public class FormateurTimeTablePrint extends VBox {
 
         grid.add(new Text(" : DRO"), 1, 0);
         grid.add(new Text(" : Complexe Berkane"), 1, 1);
-        grid.add(new Text(" : ISTA Berkane "), 1, 2);
+        //grid.add(new Text(" : ISTA Berkane "), 1, 2);
+        grid.add(new Text(" : CQP Berkane "), 1, 2);
 
         var region1 = new Region();
         region1.setPrefWidth(50);
