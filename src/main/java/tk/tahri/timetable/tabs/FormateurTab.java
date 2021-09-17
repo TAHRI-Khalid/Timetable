@@ -12,9 +12,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Formateur;
@@ -24,14 +22,34 @@ import tk.tahri.timetable.view.*;
 
 public class FormateurTab extends EditorTab {
 
-    private final BorderPane parent = new BorderPane();
     private final FontAwesome fontAwesome = new FontAwesome();
     private final FormateurMainTimeTable formateurTimeTable;
     private final GroupeSubTimetableView groupeTimeTable;
     private final EspaceSubTimetableView espaceTimeTable;
+    private final GridPane grid;
 
     public FormateurTab(Formateur formateur) {
         super(formateur.toString());
+        grid = new GridPane();
+
+        setContent(grid);
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(43);
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(43);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(14);
+        grid.getColumnConstraints().addAll(column1, column2,column3);
+
+        RowConstraints rowConstraints1 = new RowConstraints();
+        rowConstraints1.setPercentHeight(7);
+        RowConstraints rowConstraints2 = new RowConstraints();
+        rowConstraints2.setPercentHeight(50);
+        RowConstraints rowConstraints3 = new RowConstraints();
+        rowConstraints3.setPercentHeight(6);
+        RowConstraints rowConstraints4 = new RowConstraints();
+        rowConstraints4.setPercentHeight(37);
+        grid.getRowConstraints().addAll(rowConstraints1, rowConstraints2, rowConstraints3, rowConstraints4);
 
         groupeTimeTable = new GroupeSubTimetableView();
         espaceTimeTable = new EspaceSubTimetableView();
@@ -43,18 +61,16 @@ public class FormateurTab extends EditorTab {
 
     private void drawMainContent() {
 
-        var grid = new GridPane();
-        grid.setVgap(10);
-        grid.setHgap(10);
-
-        grid.setAlignment(Pos.CENTER);
-
         Label formateurTitle = new Label("Fromateur : " + formateurTimeTable.getFormateur());
         formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
         formateurTitle.getStyleClass().add("formateur-title-main");
         grid.add(formateurTitle, 0, 0, 2, 1);
-        grid.add(formateurTimeTable, 0, 1, 2, 1);
+        var box = new VBox(formateurTimeTable);
+        box.setAlignment(Pos.CENTER);
+        var box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 0, 1, 2, 1);
 
         Label groupeTitle = new Label("Groupe : ");
         groupeTimeTable.setTitre(groupeTitle);
@@ -62,7 +78,11 @@ public class FormateurTab extends EditorTab {
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
         groupeTitle.getStyleClass().add("groupe-title-sub");
         grid.add(groupeTitle, 0, 2);
-        grid.add(groupeTimeTable, 0, 3);
+        box = new VBox(groupeTimeTable);
+        box.setAlignment(Pos.CENTER);
+        box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 0, 3);
 
         Label espaceTitle = new Label("Espace : ");
         espaceTimeTable.setTitre(espaceTitle);
@@ -70,16 +90,36 @@ public class FormateurTab extends EditorTab {
         espaceTitle.setMaxWidth(Double.MAX_VALUE);
         espaceTitle.getStyleClass().add("espace-title-sub");
         grid.add(espaceTitle, 1, 2);
-        grid.add(espaceTimeTable, 1, 3);
 
-        parent.setCenter(grid);
-        setContent(parent);
+        box = new VBox(espaceTimeTable);
+        box.setAlignment(Pos.CENTER);
+        box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 1, 3);
 
+        grid.widthProperty().addListener((observableValue, number, t1) -> resize());
+        grid.heightProperty().addListener((observableValue, number, t1) -> resize());
+
+
+    }
+    private void resize() {
+
+        var scaleX = (grid.getWidth() - grid.getWidth()*14/100) / 1150;
+        var scaleY = grid.getHeight() / 750;
+        var scale = Math.min(scaleX, scaleY);
+
+        formateurTimeTable.setScaleX(scale);
+        formateurTimeTable.setScaleY(scale);
+
+        espaceTimeTable.setScaleX(scale);
+        espaceTimeTable.setScaleY(scale);
+
+        groupeTimeTable.setScaleX(scale);
+        groupeTimeTable.setScaleY(scale);
     }
 
     private void drawRigthSidebar() {
         var acc = new VBox();
-        acc.setPrefWidth(250);
         // Groupe --------------------
         var formateurs = new TitledPane();
         formateurs.setText("Groupes");
@@ -148,7 +188,7 @@ public class FormateurTab extends EditorTab {
         acc.getChildren().addAll(formateurs, espaces);
         formateurs.setExpanded(true);
         espaces.setExpanded(true);
-        parent.setRight(acc);
+        grid.add(acc, 2, 0, 1, 4);
     }
 
     @Override

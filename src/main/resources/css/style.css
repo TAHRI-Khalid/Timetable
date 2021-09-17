@@ -28,37 +28,10 @@
     -fx-background-color: #9e3a37;
 }
 
-.groupe-view {
-    -fx-background-color: #1C588C;
+.groupe-view, .formateur-view, .espace-view {
     -fx-font-size: 14;
     -fx-text-fill: #fff;
     -fx-padding: 5px;
-}
-
-.groupe-view:hover {
-    -fx-background-color: #144164;
-}
-
-.formateur-view {
-    -fx-background-color: #038C4C;
-    -fx-font-size: 14;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
-}
-
-.formateur-view:hover {
-    -fx-background-color: #02542d;
-}
-
-.espace-view {
-    -fx-background-color: #8D9AA6;
-    -fx-font-size: 14;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
-}
-
-.espace-view:hover {
-    -fx-background-color: #545961;
 }
 
 .formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-view {
@@ -66,84 +39,52 @@
     -fx-alignment: center;
 }
 
-.formateur-seance-view {
-    -fx-background-color: #038C4C;
-}
-
-.formateur-seance-view:hover {
-    -fx-background-color: #025d31;
-}
-
-.espace-seance-view {
-    -fx-background-color: #8D9AA6;
-}
-
-.espace-seance-view:hover {
-    -fx-background-color: #666e78;
-}
-
-.groupe-seance-view {
-    -fx-background-color: #1C588C;
-}
-
-.groupe-seance-view:hover {
-    -fx-background-color: #144164;
-}
-
-.chevauchement-seance-view {
-    -fx-background-color: #b71c1c;
-}
-
 .formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label, .chevauchement-seance-view Label {
     -fx-text-fill: #fff;
     -fx-font-weight: bold;
 }
 
-.espace-title-main {
-    -fx-font-size: 22px;
+.espace-title-main, .groupe-title-main, .formateur-title-main {
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
+    -fx-text-fill: #fff;
+    -fx-padding: 5 25 5 25;
+    -fx-background-insets: 0 10 0 10;
+}
+
+.formateur-title-sub, .groupe-title-sub, .espace-title-sub {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fff;
+    -fx-padding: 5 25 5 25;
+    -fx-background-insets: 0 10 0 10;
+}
+
+.espace-title-main, .espace-title-sub, .espace-seance-view, .espace-view {
     -fx-background-color: #8D9AA6;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
 }
 
-.groupe-title-main {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+.groupe-title-main, .groupe-title-sub, .groupe-seance-view, .groupe-view {
     -fx-background-color: #1C588C;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
 }
 
-.formateur-title-main {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
+.formateur-title-main, .formateur-title-sub, .formateur-seance-view, .formateur-view {
     -fx-background-color: #038C4C;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
 }
 
-.formateur-title-sub {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-background-color: #038C4C;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
+.formateur-seance-view:hover, .formateur-view:hover {
+    -fx-background-color: #025d31;
 }
 
-.groupe-title-sub {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-background-color: #1C588C;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
+.espace-seance-view:hover, .espace-view:hover {
+    -fx-background-color: #666e78;
 }
 
-.espace-title-sub {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-background-color: #8D9AA6;
-    -fx-text-fill: #fff;
-    -fx-padding: 5px;
+.groupe-seance-view:hover, .groupe-view:hover {
+    -fx-background-color: #144164;
+}
+
+.chevauchement-seance-view {
+    -fx-background-color: #b71c1c;
 }
 

@@ -20,28 +20,38 @@ import tk.tahri.timetable.view.*;
 
 public class GroupeTab extends EditorTab {
 
-    private final BorderPane parent = new BorderPane();
     private final FontAwesome fontAwesome = new FontAwesome();
     private final GroupeMainTimeTable groupeTimeTable;
     private final FormateurSubTimetableView formateurTimeTable;
     private final EspaceSubTimetableView espaceTimeTable;
-    private Label groupeTitle;
-    private Label formateurTitle;
-    private Label espaceTitle;
-    private GridPane grid;
+    private final GridPane grid;
 
     public GroupeTab(Groupe groupe) {
         super(groupe.getNom());
-        setContent(parent);
+        grid = new GridPane();
+        setContent(grid);
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(43);
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(43);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(14);
+        grid.getColumnConstraints().addAll(column1, column2,column3);
+
+        RowConstraints rowConstraints1 = new RowConstraints();
+        rowConstraints1.setPercentHeight(7);
+        RowConstraints rowConstraints2 = new RowConstraints();
+        rowConstraints2.setPercentHeight(50);
+        RowConstraints rowConstraints3 = new RowConstraints();
+        rowConstraints3.setPercentHeight(6);
+        RowConstraints rowConstraints4 = new RowConstraints();
+        rowConstraints4.setPercentHeight(37);
+        grid.getRowConstraints().addAll(rowConstraints1, rowConstraints2, rowConstraints3, rowConstraints4);
 
         formateurTimeTable = new FormateurSubTimetableView();
-        //formateurTimeTable.setBackground(new Background(new BackgroundFill(Color.GREENYELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
-
         espaceTimeTable = new EspaceSubTimetableView();
-        //espaceTimeTable.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-
         groupeTimeTable = new GroupeMainTimeTable(groupe, formateurTimeTable, espaceTimeTable);
-        //groupeTimeTable.setBackground(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
 
         drawMainContent();
         drawRigthSidebar();
@@ -49,68 +59,52 @@ public class GroupeTab extends EditorTab {
     }
 
     private void drawMainContent() {
-        grid = new GridPane();
-        //grid.setPadding(new Insets(10));
-        parent.setCenter(grid);
-        grid.setAlignment(Pos.CENTER);
-        grid.setVgap(10);
-        grid.setHgap(10);
-        /*
-        ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPercentWidth(50);
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setPercentWidth(50);
-        grid.getColumnConstraints().addAll(column1, column2);
 
-        RowConstraints rowConstraints1=new RowConstraints();
-        rowConstraints1.setPercentHeight(7);
-        RowConstraints rowConstraints2=new RowConstraints();
-        rowConstraints2.setPercentHeight(50);
-        RowConstraints rowConstraints3=new RowConstraints();
-        rowConstraints3.setPercentHeight(7);
-        RowConstraints rowConstraints4=new RowConstraints();
-        rowConstraints4.setPercentHeight(36);
-
-        grid.getRowConstraints().addAll(rowConstraints1,rowConstraints2,rowConstraints3,rowConstraints4);
-*/
-        groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
-        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(22));
+        Label groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
+        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
         groupeTitle.getStyleClass().add("groupe-title-main");
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
         grid.add(groupeTitle, 0, 0, 2, 1);
-        grid.add(groupeTimeTable, 0, 1, 2, 1);
+        var box = new VBox(groupeTimeTable);
+        box.setAlignment(Pos.CENTER);
+        var box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 0, 1, 2, 1);
 
-        formateurTitle = new Label("Fromateur : ");
+        Label formateurTitle = new Label("Fromateur : ");
         formateurTimeTable.setTitre(formateurTitle);
         formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(18));
         formateurTitle.getStyleClass().add("formateur-title-sub");
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
-
         grid.add(formateurTitle, 0, 2);
-        grid.add(formateurTimeTable, 0, 3);
+        box = new VBox(formateurTimeTable);
+        box.setAlignment(Pos.CENTER);
+        box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 0, 3);
 
-        espaceTitle = new Label("Espace : ");
+        Label espaceTitle = new Label("Espace : ");
         espaceTimeTable.setTitre(espaceTitle);
         espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(18));
         espaceTitle.getStyleClass().add("espace-title-sub");
         espaceTitle.setMaxWidth(Double.MAX_VALUE);
-
         grid.add(espaceTitle, 1, 2);
-        grid.add(espaceTimeTable, 1, 3);
+        box = new VBox(espaceTimeTable);
+        box.setAlignment(Pos.CENTER);
+        box2 = new HBox(box);
+        box2.setAlignment(Pos.CENTER);
+        grid.add(box2, 1, 3);
 
-        //grid.widthProperty().addListener((observableValue, number, t1) -> resize());
-        //grid.heightProperty().addListener((observableValue, number, t1) -> resize());
+        grid.widthProperty().addListener((observableValue, number, t1) -> resize());
+        grid.heightProperty().addListener((observableValue, number, t1) -> resize());
 
     }
 
-    /*
-    private void resize() {
-        formateurTimeTable.getTransforms().clear();
-        espaceTimeTable.getTransforms().clear();
-        groupeTimeTable.getTransforms().clear();
 
-        var scaleX = (parent.getWidth() - 250) / 1500;
-        var scaleY = parent.getHeight() / 1000;
+    private void resize() {
+
+        var scaleX = (grid.getWidth() - grid.getWidth()*14/100) / 1150;
+        var scaleY = grid.getHeight() / 750;
         var scale = Math.min(scaleX, scaleY);
 
         formateurTimeTable.setScaleX(scale);
@@ -123,11 +117,10 @@ public class GroupeTab extends EditorTab {
         groupeTimeTable.setScaleY(scale);
     }
 
-     */
+
 
     private void drawRigthSidebar() {
         var acc = new VBox();
-        acc.setPrefWidth(250);
         // Groupe --------------------
         var formateurs = new TitledPane();
         formateurs.setText("Formateurs");
@@ -196,7 +189,9 @@ public class GroupeTab extends EditorTab {
         acc.getChildren().addAll(formateurs, espaces);
         formateurs.setExpanded(true);
         espaces.setExpanded(true);
-        parent.setRight(acc);
+        //parent.setRight(acc);
+        grid.add(acc, 2, 0, 1, 4);
+
     }
 
     @Override
@@ -221,5 +216,4 @@ public class GroupeTab extends EditorTab {
             }
         }
     }
-
 }

@@ -52,6 +52,7 @@ public class App extends Application {
         stage.getIcons().add(icon);
         stage.setTitle("Time Table");
         stage.setOnHiding(event -> onStageClose(parent, event));
+        stage.setMaximized(true);
         stage.show();
     }
 

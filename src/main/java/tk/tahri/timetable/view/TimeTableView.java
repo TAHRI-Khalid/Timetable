@@ -33,16 +33,17 @@ public abstract class TimeTableView extends Pane {
     protected boolean dashedLine = true;
     protected Label Titre;
     protected final SeanceType type;
-    protected double timeHeaderX =tableX  + 5;
-    protected double timeHeaderY =rowHeight / 4 + 5;
-    protected double dayHeaderX =6;
-    protected double dayHeaderY =tableY + rowHeight / 2 + 6;
+    protected double timeHeaderX = tableX + 5;
+    protected double timeHeaderY = rowHeight / 4 + 5;
+    protected double dayHeaderX = 6;
+    protected double dayHeaderY = tableY + rowHeight / 2 + 6;
 
     protected TimeTableView(SeanceType type) {
         this.type = type;
     }
 
     protected void draw() {
+
         getChildren().clear();
         var rec = new Rectangle(tableX, tableY, colWidth * 40, rowHeight * 6);
         rec.setFill(Color.TRANSPARENT);
@@ -141,7 +142,8 @@ public abstract class TimeTableView extends Pane {
             return true;
         } else if (s2.getDebut().toSecondOfDay() < s1.getFin().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getFin().toSecondOfDay()) {
             return true;
-        } else return s2.getDebut().toSecondOfDay() >= s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() <= s1.getFin().toSecondOfDay();
+        } else
+            return s2.getDebut().toSecondOfDay() >= s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() <= s1.getFin().toSecondOfDay();
     }
 
     public void setTitre(Label titre) {
