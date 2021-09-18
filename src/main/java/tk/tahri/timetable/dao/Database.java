@@ -23,10 +23,13 @@ public class Database {
         return instance;
     }
 
-    public void execute(String sql) {
+    public void execute(String sql, String... args) {
         try (var connection = DriverManager.getConnection(url);
-             var statement = connection.createStatement()) {
-            statement.execute(sql);
+             var statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) {
+                statement.setString(i+1, args[i]);
+            }
+            statement.executeUpdate();
             Config.setProperty("modified", Boolean.TRUE.toString());
         } catch (SQLException e) {
             System.out.println(e.getMessage());

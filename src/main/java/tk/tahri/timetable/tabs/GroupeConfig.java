@@ -38,7 +38,7 @@ public class GroupeConfig extends Tab {
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
-        Label groupeTitle = new Label("Les Groupes " );
+        Label groupeTitle = new Label("Les Groupes ");
         groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
         groupeTitle.setGraphicTextGap(10);
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
@@ -177,19 +177,19 @@ public class GroupeConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colAnnee, colFiliere, colNiveau, colSecteur,colType,colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colAnnee, colFiliere, colNiveau, colSecteur, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(groupeTitle,grid, hBox, table);
+        vBox.getChildren().addAll(groupeTitle, grid, hBox, table);
         setContent(vBox);
 
     }
 
     private void printGroupeTimetable(Long item) {
-        var groupeTT = new GroupeTimeTablePrint(table.getItems().stream().filter(g-> Objects.equals(g.getId(), item)).findFirst().get());
+        var groupeTT = new GroupeTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
 
         if (job.showPrintDialog(table.getScene().getWindow())) {
             boolean success = job.printPage(groupeTT);
@@ -224,8 +224,8 @@ public class GroupeConfig extends Tab {
                         comboSecteur.getSelectionModel().getSelectedItem(),
                         comboType.getSelectionModel().getSelectedItem()
                 );
-                Database.getInstance().execute("INSERT INTO groupe VALUES(null,'%s','%d','%s','%s','%s','%s')"
-                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(),groupe.getType()));
+                Database.getInstance().execute("INSERT INTO groupe VALUES(null,?,?,?,?,?,?)",
+                        groupe.getNom(), String.valueOf(groupe.getAnnee()), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(), groupe.getType());
             } else {
                 groupe = new Groupe(
                         groupe.getId(),
@@ -236,8 +236,8 @@ public class GroupeConfig extends Tab {
                         comboSecteur.getSelectionModel().getSelectedItem(),
                         comboType.getSelectionModel().getSelectedItem()
                 );
-                Database.getInstance().execute("UPDATE groupe SET nom='%s' ,annee='%d',filiere='%s' ,niveau='%s' ,secteur='%s',type='%s' WHERE id=%d"
-                        .formatted(groupe.getNom(), groupe.getAnnee(), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(),groupe.getType(), groupe.getId()));
+                Database.getInstance().execute("UPDATE groupe SET nom=? ,annee=?,filiere=? ,niveau=? ,secteur=?,type=? WHERE id=?",
+                        groupe.getNom(), String.valueOf(groupe.getAnnee()), groupe.getFiliere(), groupe.getNiveau(), groupe.getSecteur(), groupe.getType(), String.valueOf(groupe.getId()));
             }
             loadData();
             clearForm();
@@ -245,7 +245,7 @@ public class GroupeConfig extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM groupe WHERE id= '%d'".formatted(id));
+        Database.getInstance().execute("DELETE FROM groupe WHERE id=?", String.valueOf(id));
         loadData();
     }
 

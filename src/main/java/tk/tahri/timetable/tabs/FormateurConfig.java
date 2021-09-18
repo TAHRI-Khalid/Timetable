@@ -33,7 +33,7 @@ public class FormateurConfig extends Tab {
 
     public FormateurConfig(Editor editor) {
         super("Formateurs");
-        this.editor=editor;
+        this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
         Label formateurTitle = new Label("Les Fromateurs");
@@ -152,19 +152,19 @@ public class FormateurConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType,colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(formateurTitle,grid, hBox, table);
+        vBox.getChildren().addAll(formateurTitle, grid, hBox, table);
         setContent(vBox);
 
     }
 
     private void printFormateurTimetable(Long item) {
-        var groupeTT = new FormateurTimeTablePrint(table.getItems().stream().filter(g-> Objects.equals(g.getId(), item)).findFirst().get());
+        var groupeTT = new FormateurTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
 
         if (job.showPrintDialog(table.getScene().getWindow())) {
             boolean success = job.printPage(groupeTT);
@@ -192,10 +192,12 @@ public class FormateurConfig extends Tab {
         if (!txtNom.getText().trim().isEmpty()) {
             if (formateur == null) {
                 formateur = new Formateur(txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("INSERT INTO formateur VALUES(null,'%s','%s','%s','%s')".formatted(formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType()));
+                Database.getInstance().execute("INSERT INTO formateur VALUES(null,?,?,?,?)",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType());
             } else {
                 formateur = new Formateur(formateur.getId(), txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("UPDATE formateur SET nom='%s' ,prenom='%s' ,matricule='%s' ,type='%s' WHERE id=%d".formatted(formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType(), formateur.getId()));
+                Database.getInstance().execute("UPDATE formateur SET nom=? ,prenom=? ,matricule=? ,type=? WHERE id=?",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType(), String.valueOf(formateur.getId()));
             }
             loadData();
             clearForm();
@@ -203,7 +205,7 @@ public class FormateurConfig extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM formateur WHERE id= '%d'".formatted(id));
+        Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
         loadData();
     }
 

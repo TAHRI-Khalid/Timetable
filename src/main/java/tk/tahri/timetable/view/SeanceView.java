@@ -6,7 +6,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
-
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,13 +29,15 @@ public class SeanceView extends VBox {
             ContextMenu contextMenu = new ContextMenu();
 
             var mHeurs = new Menu("Heurs");
+            var h1 = new MenuItem("01 H 00 Min");
             var h2 = new MenuItem("02 H 00 Min");
             var h25 = new MenuItem("02 H 30 Min");
             var h3 = new MenuItem("03 H 00 Min");
             var h4 = new MenuItem("04 H 00 Min");
             var h5 = new MenuItem("05 H 00 Min");
-            mHeurs.getItems().addAll(h2, h25, h3, h4, h5);
+            mHeurs.getItems().addAll(h1,h2, h25, h3, h4, h5);
 
+            h1.setOnAction(event -> this.updateTime(Duration.ofMinutes(60)));
             h2.setOnAction(event -> this.updateTime(Duration.ofMinutes(120)));
             h25.setOnAction(event -> this.updateTime(Duration.ofMinutes(150)));
             h3.setOnAction(event -> this.updateTime(Duration.ofMinutes(180)));

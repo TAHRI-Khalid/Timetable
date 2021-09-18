@@ -98,6 +98,21 @@ public class Editor extends VBox {
 
     private void onMenuNew() {
         try {
+            var modified = Boolean.parseBoolean(Config.getProperty("modified"));
+            if (modified) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Attension");
+                alert.setContentText("le fichier a ete modifié voulez vous le sauvegarder ?");
+                ButtonType okButton = new ButtonType("Oui", ButtonBar.ButtonData.YES);
+                ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.NO);
+                alert.getButtonTypes().setAll(okButton, noButton);
+                alert.showAndWait().ifPresent(type -> {
+                    if (type == okButton) {
+                        onMenuSave();
+                    }
+                });
+            }
+
             var dest = Files.createTempFile("temp", ".tk");
             Config.setProperty("file", "");
             Config.setProperty("temp", dest.toString());

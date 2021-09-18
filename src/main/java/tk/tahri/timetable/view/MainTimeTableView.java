@@ -4,6 +4,7 @@ import javafx.scene.input.TransferMode;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -90,28 +91,33 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     protected void saveSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("INSERT INTO seance VALUES(null,%d,%d,%d,'%s',%d,%d,%d)"
-                .formatted(s.getDebut().toSecondOfDay(), s.getFin().toSecondOfDay(), s.getJour().getValue(),
-                        s.getType(),s.getGroupe().getId(), s.getFormateur().getId(), s.getEspace().getId()));
+        Database.getInstance().execute("INSERT INTO seance VALUES(null,?,?,?,?,?,?,?)",
+                String.valueOf(s.getDebut().toSecondOfDay()),
+                String.valueOf(s.getFin().toSecondOfDay()),
+                String.valueOf(s.getJour().getValue()),
+                s.getType(),
+                String.valueOf(s.getGroupe().getId()),
+                String.valueOf(s.getFormateur().getId()),
+                String.valueOf(s.getEspace().getId()));
         loadSeanceViews(true);
         refreshView(seanceView);
     }
 
     protected void updateSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("UPDATE seance set debut=%d, fin=%d, jour=%d ,type='%s' WHERE id=%d"
-                .formatted(s.getDebut().toSecondOfDay(),
-                        s.getFin().toSecondOfDay(),
-                        s.getJour().getValue(),
-                        s.getType(),
-                        s.getId()));
+        Database.getInstance().execute("UPDATE seance set debut=?, fin=?, jour=? ,type=? WHERE id=?",
+                String.valueOf(s.getDebut().toSecondOfDay()),
+                String.valueOf(s.getFin().toSecondOfDay()),
+                String.valueOf(s.getJour().getValue()),
+                s.getType(),
+                String.valueOf(s.getId()));
         loadSeanceViews(true);
         refreshView(seanceView);
     }
 
     protected void deleteSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("DELETE FROM seance WHERE id=%d".formatted(s.getId()));
+        Database.getInstance().execute("DELETE FROM seance WHERE id=?", String.valueOf(s.getId()));
         loadSeanceViews(true);
         refreshView(seanceView);
     }

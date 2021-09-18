@@ -15,7 +15,10 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.EspaceTimeTablePrint;
+import tk.tahri.timetable.tools.Config;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class EspaceConfig extends Tab {
@@ -28,7 +31,7 @@ public class EspaceConfig extends Tab {
 
     public EspaceConfig(Editor editor) {
         super("Espaces");
-        this.editor=editor;
+        this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
         Label espaceTitle = new Label("Les Espaces");
@@ -131,17 +134,17 @@ public class EspaceConfig extends Tab {
 
         table.getColumns().addAll(colNom, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(espaceTitle,grid, hBox, table);
+        vBox.getChildren().addAll(espaceTitle, grid, hBox, table);
         setContent(vBox);
 
     }
 
     private void printEspaceTimetable(Long item) {
-        var groupeTT = new EspaceTimeTablePrint(table.getItems().stream().filter(g-> Objects.equals(g.getId(), item)).findFirst().get());
+        var groupeTT = new EspaceTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        groupeTT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
 
         if (job.showPrintDialog(table.getScene().getWindow())) {
             boolean success = job.printPage(groupeTT);
@@ -167,10 +170,11 @@ public class EspaceConfig extends Tab {
         if (!txtNom.getText().trim().isEmpty()) {
             if (espace == null) {
                 espace = new Espace(txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("INSERT INTO espace VALUES(null,'%s','%s')".formatted(espace.getNom(), espace.getType()));
+                Database.getInstance().execute("INSERT INTO espace VALUES(null,?,?)", espace.getNom(), espace.getType());
             } else {
                 espace = new Espace(espace.getId(), txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("UPDATE espace SET nom='%s' , type='%s' WHERE id=%d".formatted(espace.getNom(), espace.getType(), espace.getId()));
+                Database.getInstance().execute("UPDATE espace SET nom=? , type=? WHERE id=?",
+                        espace.getNom(), espace.getType(), String.valueOf(espace.getId()));
             }
             loadData();
             clearForm();
@@ -178,7 +182,7 @@ public class EspaceConfig extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM espace WHERE id= '%d'".formatted(id));
+        Database.getInstance().execute("DELETE FROM espace WHERE id= ?", String.valueOf(id));
         loadData();
     }
 
