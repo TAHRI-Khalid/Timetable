@@ -27,6 +27,8 @@ public class FormateurTab extends EditorTab {
     private final GroupeSubTimetableView groupeTimeTable;
     private final EspaceSubTimetableView espaceTimeTable;
     private final GridPane grid;
+    private VBox groupesVBox;
+    private VBox espacesVBox;
 
     public FormateurTab(Formateur formateur) {
         super(formateur.toString());
@@ -39,7 +41,7 @@ public class FormateurTab extends EditorTab {
         column2.setPercentWidth(43);
         ColumnConstraints column3 = new ColumnConstraints();
         column3.setPercentWidth(14);
-        grid.getColumnConstraints().addAll(column1, column2,column3);
+        grid.getColumnConstraints().addAll(column1, column2, column3);
 
         RowConstraints rowConstraints1 = new RowConstraints();
         rowConstraints1.setPercentHeight(7);
@@ -102,9 +104,10 @@ public class FormateurTab extends EditorTab {
 
 
     }
+
     private void resize() {
 
-        var scaleX = (grid.getWidth() - grid.getWidth()*14/100) / 1150;
+        var scaleX = (grid.getWidth() - grid.getWidth() * 14 / 100) / 1150;
         var scaleY = grid.getHeight() / 750;
         var scale = Math.min(scaleX, scaleY);
 
@@ -130,27 +133,11 @@ public class FormateurTab extends EditorTab {
         scrolPane.setFitToHeight(true);
         scrolPane.setFitToWidth(true);
         scrolPane.setPadding(new Insets(10));
-        var vFrm = new VBox(5);
-        Database.getInstance().getGroupes().forEach(g -> {
-            var groupeView = new GroupeView(g);
-            groupeView.setOnMousePressed(mouseEvent -> {
-                groupeTimeTable.setGroupe(groupeView.getGroupe());
-                groupeTimeTable.loadSeanceViews(false);
+        groupesVBox = new VBox(5);
 
-                if (espaceTimeTable.getEspace() != null) {
-                    groupeView.setOnDragDetected(event -> {
-                        Dragboard db = groupeView.startDragAndDrop(TransferMode.ANY);
-                        ClipboardContent content = new ClipboardContent();
-                        content.putString("GROUPE");
-                        db.setContent(content);
-                        event.consume();
-                    });
-                }
-            });
-            groupeView.setMaxWidth(Double.MAX_VALUE);
-            vFrm.getChildren().addAll(groupeView);
-        });
-        scrolPane.setContent(vFrm);
+        loadGroupes();
+
+        scrolPane.setContent(groupesVBox);
         formateurs.setContent(scrolPane);
 
         // Espace --------------------
@@ -162,7 +149,19 @@ public class FormateurTab extends EditorTab {
         scrolPane2.setFitToHeight(true);
         scrolPane2.setFitToWidth(true);
         scrolPane2.setPadding(new Insets(10));
-        var vEsp = new VBox(5);
+        espacesVBox = new VBox(5);
+        loadEspaces();
+        scrolPane2.setContent(espacesVBox);
+        espaces.setContent(scrolPane2);
+
+        acc.getChildren().addAll(formateurs, espaces);
+        formateurs.setExpanded(true);
+        espaces.setExpanded(true);
+        grid.add(acc, 2, 0, 1, 4);
+    }
+
+    private void loadEspaces() {
+        espacesVBox.getChildren().clear();
         Database.getInstance().getEspaces().forEach(e -> {
             var espaceView = new EspaceView(e);
             espaceView.setOnMousePressed(mouseEvent -> {
@@ -180,21 +179,39 @@ public class FormateurTab extends EditorTab {
                 }
             });
             espaceView.setMaxWidth(Double.MAX_VALUE);
-            vEsp.getChildren().addAll(espaceView);
+            espacesVBox.getChildren().addAll(espaceView);
         });
-        scrolPane2.setContent(vEsp);
-        espaces.setContent(scrolPane2);
+    }
 
-        acc.getChildren().addAll(formateurs, espaces);
-        formateurs.setExpanded(true);
-        espaces.setExpanded(true);
-        grid.add(acc, 2, 0, 1, 4);
+    private void loadGroupes() {
+        groupesVBox.getChildren().clear();
+        Database.getInstance().getGroupes().forEach(g -> {
+            var groupeView = new GroupeView(g);
+            groupeView.setOnMousePressed(mouseEvent -> {
+                groupeTimeTable.setGroupe(groupeView.getGroupe());
+                groupeTimeTable.loadSeanceViews(false);
+
+                if (espaceTimeTable.getEspace() != null) {
+                    groupeView.setOnDragDetected(event -> {
+                        Dragboard db = groupeView.startDragAndDrop(TransferMode.ANY);
+                        ClipboardContent content = new ClipboardContent();
+                        content.putString("GROUPE");
+                        db.setContent(content);
+                        event.consume();
+                    });
+                }
+            });
+            groupeView.setMaxWidth(Double.MAX_VALUE);
+            groupesVBox.getChildren().addAll(groupeView);
+        });
     }
 
     @Override
     protected void selectionChanged() {
-        if(this.isSelected()){
-           formateurTimeTable.loadSeanceViews(true);
+        if (this.isSelected()) {
+            formateurTimeTable.loadSeanceViews(true);
+            loadGroupes();
+            loadEspaces();
         }
     }
 
@@ -205,7 +222,7 @@ public class FormateurTab extends EditorTab {
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        TT.setPrefWidth(pageLayout.getPrintableWidth()-40);
+        TT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
 
         if (job.showPrintDialog(formateurTimeTable.getScene().getWindow())) {
             boolean success = job.printPage(TT);
