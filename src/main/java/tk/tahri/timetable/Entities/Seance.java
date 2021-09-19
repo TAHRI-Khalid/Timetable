@@ -11,22 +11,32 @@ public class Seance {
     private LocalTime debut;
     private LocalTime fin;
     private DayOfWeek jour;
-    private String type="FP";
-    private List<Groupe> groupes=new ArrayList<>();
+    private String type = "FP";
+    private List<Groupe> groupes = new ArrayList<>();
     private Formateur formateur;
     private Espace espace;
 
     public Seance() {
     }
 
-    public Seance(LocalTime debut, LocalTime fin, DayOfWeek dayOfWeek,String  type, Groupe groupe, Formateur formateur, Espace espace) {
+    public Seance(LocalTime debut, LocalTime fin, DayOfWeek dayOfWeek, String type, Groupe groupe, Formateur formateur, Espace espace) {
         this.debut = debut;
         this.fin = fin;
         this.jour = dayOfWeek;
-        this.type=type;
+        this.type = type;
         this.groupes.add(groupe);
         this.formateur = formateur;
         this.espace = espace;
+    }
+
+    public Seance(Seance seance) {
+        this.debut = seance.getDebut();
+        this.fin = seance.getFin();
+        this.jour = seance.getJour();
+        this.type = seance.getType();
+        this.groupes.addAll(seance.getGroupes());
+        this.formateur = seance.getFormateur();
+        this.espace = seance.getEspace();
     }
 
     public long getId() {

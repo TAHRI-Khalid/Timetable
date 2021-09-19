@@ -34,10 +34,10 @@ public class GroupeMainTimeTable extends MainTimeTableView {
 
 
     @Override
-    protected void refreshView(SeanceView seanceView) {
-        formateurTimetable.setFormateur(seanceView.getSeance().getFormateur());
+    protected void refreshView(Seance seance) {
+        formateurTimetable.setFormateur(seance.getFormateur());
         formateurTimetable.loadSeanceViews(false);
-        espaceTimetable.setEspace(seanceView.getSeance().getEspace());
+        espaceTimetable.setEspace(seance.getEspace());
         espaceTimetable.loadSeanceViews(false);
     }
 

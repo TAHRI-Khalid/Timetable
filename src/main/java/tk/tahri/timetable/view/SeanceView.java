@@ -6,6 +6,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
+import tk.tahri.timetable.dao.Database;
+
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -18,9 +20,9 @@ public class SeanceView extends VBox {
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
         switch (type) {
-            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupes().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
-            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
-            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupes().toString() + "  [ " + seance.getType() + " ]"));
+            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupes().toString()), new Label(seance.getEspace() + "  [" + seance.getType() + "]"));
+            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace() + "  [" + seance.getType() + "]"));
+            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupes().toString() + "  [" + seance.getType() + "]"));
         }
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
@@ -35,7 +37,7 @@ public class SeanceView extends VBox {
             var h3 = new MenuItem("03 H 00 Min");
             var h4 = new MenuItem("04 H 00 Min");
             var h5 = new MenuItem("05 H 00 Min");
-            mHeurs.getItems().addAll(h1,h2, h25, h3, h4, h5);
+            mHeurs.getItems().addAll(h1, h2, h25, h3, h4, h5);
 
             h1.setOnAction(event -> this.updateTime(Duration.ofMinutes(60)));
             h2.setOnAction(event -> this.updateTime(Duration.ofMinutes(120)));
@@ -46,7 +48,7 @@ public class SeanceView extends VBox {
 
             var mSuppr = new MenuItem("Suuprimer");
             mSuppr.setOnAction(event -> {
-                ((MainTimeTableView) this.getParent()).deleteSeance(this);
+                ((MainTimeTableView) this.getParent()).deleteSeance(this.getSeance());
             });
 
             var mtype = new Menu("Type");
@@ -61,7 +63,7 @@ public class SeanceView extends VBox {
             this.setOnMousePressed(event -> {
                 this.firstClickX = event.getX();
                 this.firstClickY = event.getY();
-                ((MainTimeTableView) this.getParent()).refreshView(this);
+                ((MainTimeTableView) this.getParent()).refreshView(this.getSeance());
             });
 
             this.setOnMouseDragged(event -> {
@@ -75,7 +77,7 @@ public class SeanceView extends VBox {
             this.setOnMouseReleased(event -> {
                 if (event.getButton() == MouseButton.PRIMARY && isDragging.get()) {
                     ((MainTimeTableView) this.getParent()).placeSeance(this);
-                    ((MainTimeTableView) this.getParent()).updateSeance(this);
+                    ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
                     isDragging.set(false);
                 } else if (event.getButton() == MouseButton.SECONDARY) {
                     contextMenu.show(this, event.getScreenX(), event.getScreenY());
@@ -90,11 +92,20 @@ public class SeanceView extends VBox {
 
     private void updateTime(Duration duration) {
         this.seance.setFin(this.seance.getDebut().plusMinutes(duration.toMinutes()));
-        ((MainTimeTableView) this.getParent()).updateSeance(this);
+        ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
     }
 
     private void updateTypeDeSeance(String type) {
         this.seance.setType(type);
-        ((MainTimeTableView) this.getParent()).updateSeance(this);
+        ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
+
+        var groupes = Database.getInstance().getGroupesSimilaire(seance.getGroupes().get(0));
+        if(type.equals("FAD")){
+            groupes.stream().filter(g -> g.getId() != seance.getGroupes().get(0).getId()).forEach(grp -> {
+                Database.getInstance().execute("INSERT INTO seance_groupe VALUES(?,?)",
+                        String.valueOf(grp.getId()),
+                        String.valueOf(this.seance.getId()));
+            });
+        }
     }
 }

@@ -3,7 +3,6 @@ package tk.tahri.timetable.dao;
 
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.tools.Config;
-
 import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -175,7 +174,30 @@ public class Database {
         }
         return list;
     }
+    public List<Groupe> getGroupesSimilaire(Groupe groupe) {
+        String sql = """
+                SELECT g.id, g.nom , annee
+                FROM groupe g
+                WHERE g.idFiliere=%d AND g.annee=%d
+                """.formatted(groupe.getFiliere().getId(), groupe.getAnnee());
+        var list = new ArrayList<Groupe>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
+            while (rs.next()) {
+                var grp = new Groupe();
+                grp.setId(rs.getLong("id"));
+                grp.setNom(rs.getString("nom"));
+                grp.setAnnee(rs.getInt("annee"));
+                grp.setFiliere(groupe.getFiliere());
+                list.add(grp);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
     public List<Groupe> getGroupes() {
         String sql = """
                 SELECT g.id, g.nom as gnom, annee, idFiliere, f.nom as fnom, abreviation, niveau, secteur, type

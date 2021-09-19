@@ -51,7 +51,7 @@ public abstract class MainTimeTableView extends TimeTableView {
 
         this.setOnDragDropped(event -> {
             placeSeance(seanceView);
-            saveSeance(seanceView);
+            saveSeance(seanceView.getSeance());
             event.setDropCompleted(true);
             event.consume();
         });
@@ -87,10 +87,9 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     protected abstract Seance getDraggedSeance();
 
-    protected abstract void refreshView(SeanceView seanceView);
+    protected abstract void refreshView(Seance seance);
 
-    protected void saveSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
+    protected void saveSeance(Seance s) {
         var id = Database.getInstance().execute("INSERT INTO seance VALUES(null,?,?,?,?,?,?)",
                 String.valueOf(s.getDebut().toSecondOfDay()),
                 String.valueOf(s.getFin().toSecondOfDay()),
@@ -104,11 +103,10 @@ public abstract class MainTimeTableView extends TimeTableView {
                 String.valueOf(id));
 
         loadSeanceViews(true);
-        refreshView(seanceView);
+        refreshView(s);
     }
 
-    protected void updateSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
+    protected void updateSeance(Seance s) {
         Database.getInstance().execute("UPDATE seance set debut=?, fin=?, jour=? ,type=? WHERE id=?",
                 String.valueOf(s.getDebut().toSecondOfDay()),
                 String.valueOf(s.getFin().toSecondOfDay()),
@@ -116,15 +114,14 @@ public abstract class MainTimeTableView extends TimeTableView {
                 s.getType(),
                 String.valueOf(s.getId()));
         loadSeanceViews(true);
-        refreshView(seanceView);
+        refreshView(s);
     }
 
-    protected void deleteSeance(SeanceView seanceView) {
-        var s = seanceView.getSeance();
+    protected void deleteSeance(Seance s) {
         Database.getInstance().execute("DELETE FROM seance_groupe WHERE idSeance=?", String.valueOf(s.getId()));
         Database.getInstance().execute("DELETE FROM seance WHERE id=?", String.valueOf(s.getId()));
         loadSeanceViews(true);
-        refreshView(seanceView);
+        refreshView(s);
     }
 
 }
