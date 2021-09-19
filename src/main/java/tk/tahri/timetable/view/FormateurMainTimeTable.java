@@ -33,7 +33,7 @@ public class FormateurMainTimeTable extends MainTimeTableView {
 
     @Override
     protected void refreshView(SeanceView seanceView) {
-        groupeTimetable.setGroupe(seanceView.getSeance().getGroupe());
+        groupeTimetable.setGroupe(seanceView.getSeance().getGroupes().get(0));
         groupeTimetable.loadSeanceViews(false);
         espaceTimetable.setEspace(seanceView.getSeance().getEspace());
         espaceTimetable.loadSeanceViews(false);

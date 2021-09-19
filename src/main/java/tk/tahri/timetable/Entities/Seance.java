@@ -3,6 +3,8 @@ package tk.tahri.timetable.Entities;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Seance {
     private long id;
@@ -10,7 +12,7 @@ public class Seance {
     private LocalTime fin;
     private DayOfWeek jour;
     private String type="FP";
-    private Groupe groupe;
+    private List<Groupe> groupes=new ArrayList<>();
     private Formateur formateur;
     private Espace espace;
 
@@ -22,13 +24,7 @@ public class Seance {
         this.fin = fin;
         this.jour = dayOfWeek;
         this.type=type;
-        this.groupe = groupe;
-        this.formateur = formateur;
-        this.espace = espace;
-    }
-
-    public Seance(Groupe groupe, Formateur formateur, Espace espace) {
-        this.groupe = groupe;
+        this.groupes.add(groupe);
         this.formateur = formateur;
         this.espace = espace;
     }
@@ -65,14 +61,6 @@ public class Seance {
         this.jour = jour;
     }
 
-    public Groupe getGroupe() {
-        return groupe;
-    }
-
-    public void setGroupe(Groupe groupe) {
-        this.groupe = groupe;
-    }
-
     public Formateur getFormateur() {
         return formateur;
     }
@@ -97,6 +85,10 @@ public class Seance {
         this.type = type;
     }
 
+    public List<Groupe> getGroupes() {
+        return groupes;
+    }
+
     @Override
     public String toString() {
         return "Seance{" +
@@ -105,7 +97,7 @@ public class Seance {
                 ", fin=" + fin +
                 ", jour=" + jour +
                 ", type='" + type + '\'' +
-                ", groupe=" + groupe +
+                ", groupe=" + groupes +
                 ", formateur=" + formateur +
                 ", espace=" + espace +
                 '}';

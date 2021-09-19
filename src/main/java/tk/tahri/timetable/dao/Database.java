@@ -23,17 +23,92 @@ public class Database {
         return instance;
     }
 
-    public void execute(String sql, String... args) {
+    public int execute(String sql, String... args) {
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
-                statement.setString(i+1, args[i]);
+                statement.setString(i + 1, args[i]);
             }
             statement.executeUpdate();
             Config.setProperty("modified", Boolean.TRUE.toString());
+            var rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return -1;
+    }
+
+
+    public void createDatabase() {
+        String sql_create_espace = """
+                CREATE TABLE IF NOT EXISTS espace (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                type text NOT NULL);
+                """;
+
+        String sql_create_filiere = """
+                CREATE TABLE IF NOT EXISTS filiere (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                abreviation text NOT NULL,
+                niveau text NOT NULL,
+                secteur text NOT NULL,
+                type text NOT NULL);
+                """;
+
+        String sql_create_groupe = """
+                CREATE TABLE IF NOT EXISTS groupe (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                annee text NOT NULL,
+                idFiliere text NOT NULL);
+                """;
+
+        String sql_create_formateur = """
+                CREATE TABLE IF NOT EXISTS formateur (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                prenom text NOT NULL,
+                matricule text NOT NULL,
+                type text NOT NULL);
+                """;
+        String sql_create_seance = """
+                CREATE TABLE IF NOT EXISTS seance (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                debut integer,
+                fin integer,
+                jour integer,
+                type text NOT NULL,
+                idFormateur integer,
+                idEspace integer,
+                FOREIGN KEY (idFormateur) REFERENCES formateur(id),
+                FOREIGN KEY (idEspace) REFERENCES espace(id)
+                );
+                """;
+        String sql_create_seance_groupe = """
+                CREATE TABLE IF NOT EXISTS seance_groupe (
+                idGroupe integer,
+                idSeance integer,
+                FOREIGN KEY(idGroupe) REFERENCES groupe(id),
+                FOREIGN KEY (idSeance) REFERENCES seance(id)
+                );
+                """;
+        try (var connection = DriverManager.getConnection(url);
+             var statement = connection.createStatement()) {
+            statement.execute(sql_create_espace);
+            statement.execute(sql_create_filiere);
+            statement.execute(sql_create_groupe);
+            statement.execute(sql_create_formateur);
+            statement.execute(sql_create_seance);
+            statement.execute(sql_create_seance_groupe);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public List<Espace> getEspaces() {
@@ -54,59 +129,6 @@ public class Database {
             System.out.println(e.getMessage());
         }
         return list;
-    }
-
-    public void createDatabase() {
-        String sql_create_espace = """
-                CREATE TABLE IF NOT EXISTS espace (
-                id integer PRIMARY KEY AUTOINCREMENT,
-                nom text NOT NULL,
-                type text NOT NULL);
-                """;
-        String sql_create_groupe = """
-                CREATE TABLE IF NOT EXISTS groupe (
-                id integer PRIMARY KEY AUTOINCREMENT,
-                nom text NOT NULL,
-                annee text NOT NULL,
-                filiere text NOT NULL,
-                niveau text NOT NULL,
-                secteur text NOT NULL,
-                type text NOT NULL);
-                """;
-        String sql_create_formateur = """
-                CREATE TABLE IF NOT EXISTS formateur (
-                id integer PRIMARY KEY AUTOINCREMENT,
-                nom text NOT NULL,
-                prenom text NOT NULL,
-                matricule text NOT NULL,
-                type text NOT NULL);
-                """;
-        String sql_create_seance = """
-                CREATE TABLE IF NOT EXISTS seance (
-                id integer PRIMARY KEY AUTOINCREMENT,
-                debut integer,
-                fin integer,
-                jour integer,
-                type text NOT NULL,
-                idGroupe integer,
-                idFormateur integer,
-                idEspace integer,
-                FOREIGN KEY(idGroupe) REFERENCES groupe(id),
-                FOREIGN KEY (idFormateur) REFERENCES formateur(id),
-                FOREIGN KEY (idEspace) REFERENCES espace(id)
-                );
-                """;
-        try (var connection = DriverManager.getConnection(url);
-             var statement = connection.createStatement()) {
-
-            statement.execute(sql_create_espace);
-            statement.execute(sql_create_groupe);
-            statement.execute(sql_create_formateur);
-            statement.execute(sql_create_seance);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public List<Formateur> getFormateurs() {
@@ -131,8 +153,35 @@ public class Database {
         return list;
     }
 
+    public List<Filiere> getFilieres() {
+        String sql = "SELECT * FROM filiere";
+        var list = new ArrayList<Filiere>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                var filiere = new Filiere();
+                filiere.setId(rs.getLong("id"));
+                filiere.setNom(rs.getString("nom"));
+                filiere.setAbreviation(rs.getString("abreviation"));
+                filiere.setNiveau(rs.getString("niveau"));
+                filiere.setSecteur(rs.getString("secteur"));
+                filiere.setType(rs.getString("type"));
+                list.add(filiere);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
     public List<Groupe> getGroupes() {
-        String sql = "SELECT * FROM groupe";
+        String sql = """
+                SELECT g.id, g.nom as gnom, annee, idFiliere, f.nom as fnom, abreviation, niveau, secteur, type
+                FROM groupe g
+                INNER JOIN filiere f on g.idFiliere = f.id
+                """;
         var list = new ArrayList<Groupe>();
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement();
@@ -141,13 +190,69 @@ public class Database {
             while (rs.next()) {
                 var groupe = new Groupe();
                 groupe.setId(rs.getLong("id"));
-                groupe.setNom(rs.getString("nom"));
+                groupe.setNom(rs.getString("gnom"));
                 groupe.setAnnee(rs.getInt("annee"));
-                groupe.setFiliere(rs.getString("filiere"));
-                groupe.setNiveau(rs.getString("niveau"));
-                groupe.setSecteur(rs.getString("secteur"));
-                groupe.setType(rs.getString("type"));
+
+                var filiere = new Filiere();
+                filiere.setId(rs.getLong("idFiliere"));
+                filiere.setNom(rs.getString("fnom"));
+                filiere.setAbreviation(rs.getString("abreviation"));
+                filiere.setNiveau(rs.getString("niveau"));
+                filiere.setSecteur(rs.getString("secteur"));
+                filiere.setType(rs.getString("type"));
+
+                groupe.setFiliere(filiere);
                 list.add(groupe);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+
+    public List<Seance> getSeances(Groupe groupe) {
+        var list = new ArrayList<Seance>();
+        String sql = """
+                SELECT
+                    s.id, s.debut, s.fin ,s.jour ,s.type as stype,
+                    s.idEspace,e.nom as enom,e.type as etype,
+                    s.idFormateur,f.id, f.nom as fnom, f.prenom, f.matricule, f.type as ftype
+                FROM seance_groupe sg
+                INNER JOIN seance s on s.id = sg.idSeance
+                INNER JOIN formateur f on f.id = s.idFormateur
+                INNER JOIN espace e on e.id = s.idEspace
+                WHERE sg.idGroupe = %d;
+                """.formatted(groupe.getId());
+
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                var seance = new Seance();
+                seance.setId(rs.getLong("id"));
+                seance.setDebut(LocalTime.ofSecondOfDay(rs.getLong("debut")));
+                seance.setFin(LocalTime.ofSecondOfDay(rs.getLong("fin")));
+                seance.setJour(DayOfWeek.of(rs.getInt("jour")));
+                seance.setType(rs.getString("stype"));
+
+                var e = new Espace();
+                e.setId(rs.getLong("idEspace"));
+                e.setNom(rs.getString("enom"));
+                e.setType(rs.getString("etype"));
+                seance.setEspace(e);
+
+                var f = new Formateur();
+                f.setId(rs.getLong("idFormateur"));
+                f.setNom(rs.getString("fnom"));
+                f.setPrenom(rs.getString("prenom"));
+                f.setMatricule(rs.getString("matricule"));
+                f.setType(rs.getString("ftype"));
+                seance.setFormateur(f);
+
+                seance.getGroupes().add(groupe);
+                list.add(seance);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -158,46 +263,26 @@ public class Database {
     public List<Seance> getSeances(Formateur formateur) {
         String sql = """
                 SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
-                f.nom as fnom, f.prenom, f.matricule, f.type,
-                e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
+                s.id, s.debut, s.fin ,s.jour ,s.type as stype,s.idFormateur,s.idEspace,
+                f.nom as fnom, f.prenom, f.matricule, f.type as ftype,
+                e.nom as enom, e.type
                 FROM seance s
                 INNER JOIN formateur f on  f.id=s.idFormateur
                 INNER JOIN espace e on e.id = s.idEspace
-                INNER JOIN groupe g on g.id = s.idGroupe
                 WHERE idFormateur='%s';
                 """.formatted(formateur.getId());
-        return getSeances(sql);
-    }
-
-    public List<Seance> getSeances(Groupe groupe) {
-        String sql = """
-                SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
-                f.nom as fnom, f.prenom, f.matricule, f.type,
-                e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
-                FROM seance s
-                INNER JOIN formateur f on  f.id=s.idFormateur
-                INNER JOIN espace e on e.id = s.idEspace
-                INNER JOIN groupe g on g.id = s.idGroupe
-                WHERE idGroupe='%s';
-                """.formatted(groupe.getId());
         return getSeances(sql);
     }
 
     public List<Seance> getSeances(Espace espace) {
         String sql = """
                 SELECT
-                s.id, s.debut, s.fin ,s.jour ,s.type,s.idFormateur,s.idEspace,s.idGroupe,
-                f.nom as fnom, f.prenom, f.matricule, f.type,
-                e.nom as enom, e.type,
-                g.nom as gnom, g.annee, g.filiere, g.niveau, g.secteur,g.type
+                s.id, s.debut, s.fin ,s.jour ,s.type as stype,s.idFormateur,s.idEspace,
+                f.nom as fnom, f.prenom, f.matricule, f.type as ftype,
+                e.nom as enom, e.type
                 FROM seance s
                 INNER JOIN formateur f on  f.id=s.idFormateur
                 INNER JOIN espace e on e.id = s.idEspace
-                INNER JOIN groupe g on g.id = s.idGroupe
                 WHERE idEspace='%s';
                 """.formatted(espace.getId());
         return getSeances(sql);
@@ -215,7 +300,7 @@ public class Database {
                 seance.setDebut(LocalTime.ofSecondOfDay(rs.getLong("debut")));
                 seance.setFin(LocalTime.ofSecondOfDay(rs.getLong("fin")));
                 seance.setJour(DayOfWeek.of(rs.getInt("jour")));
-                seance.setType(rs.getString("type"));
+                seance.setType(rs.getString("stype"));
 
                 var e = new Espace();
                 e.setId(rs.getLong("idEspace"));
@@ -228,23 +313,39 @@ public class Database {
                 f.setNom(rs.getString("fnom"));
                 f.setPrenom(rs.getString("prenom"));
                 f.setMatricule(rs.getString("matricule"));
-                f.setType(rs.getString("type"));
+                f.setType(rs.getString("ftype"));
                 seance.setFormateur(f);
-
-                var g = new Groupe();
-                g.setId(rs.getLong("idGroupe"));
-                g.setNom(rs.getString("gnom"));
-                g.setAnnee(rs.getInt("annee"));
-                g.setFiliere(rs.getString("filiere"));
-                g.setNiveau(rs.getString("niveau"));
-                g.setSecteur(rs.getString("secteur"));
-                g.setType(rs.getString("type"));
-                seance.setGroupe(g);
-
                 list.add(seance);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+        var req = """
+                SELECT g.id, g.nom, g.annee, g.idFiliere,f.abreviation
+                FROM seance_groupe sg
+                         INNER JOIN groupe g on g.id = sg.idGroupe
+                         INNER JOIN filiere f on g.idFiliere = f.id
+                WHERE sg.idSeance = %d
+                """;
+        for (var seance : list) {
+            try (Connection conn = DriverManager.getConnection(url);
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(req.formatted(seance.getId()))) {
+                while (rs.next()) {
+                    var g = new Groupe();
+                    g.setId(rs.getLong("id"));
+                    g.setNom(rs.getString("nom"));
+                    g.setAnnee(rs.getInt("annee"));
+                    var f = new Filiere();
+                    f.setId(rs.getLong("idFiliere"));
+                    f.setAbreviation(rs.getString("abreviation"));
+                    g.setFiliere(f);
+
+                    seance.getGroupes().add(g);
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
         }
         return list;
     }
@@ -285,4 +386,6 @@ public class Database {
         }
         return dashboard;
     }
+
+
 }

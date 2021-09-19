@@ -66,9 +66,9 @@ public class GroupeTimeTablePrint extends VBox {
         grid.add(new Text("Secteur"), 3, 1);
         grid.add(new Text("Type de formation"), 3, 2);
 
-        grid.add(new Text(" : " + groupe.getNiveau()), 4, 0);
-        grid.add(new Text(" : " + groupe.getSecteur()), 4, 1);
-        grid.add(new Text(" : " + groupe.getType()), 4, 2);
+        grid.add(new Text(" : " + groupe.getFiliere().getNiveau()), 4, 0);
+        grid.add(new Text(" : " + groupe.getFiliere().getSecteur()), 4, 1);
+        grid.add(new Text(" : " + groupe.getFiliere().getType()), 4, 2);
 
         var region2 = new Region();
         region2.setPrefWidth(50);

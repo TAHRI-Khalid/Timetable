@@ -24,9 +24,10 @@ public class Editor extends VBox {
     private TabPane tabpane;
     private MenuBar menu;
     private final Menu mFichier = new Menu("Fichier");
-    private final Menu mGroupe = new Menu("Groupe");
-    private final Menu mFormateur = new Menu("Formateur");
-    private final Menu mEspace = new Menu("Espace");
+    private final Menu mGroupe = new Menu("Groupes");
+    private final Menu mFormateur = new Menu("Formateurs");
+    private final Menu mEspace = new Menu("Espaces");
+    private final Menu mParametre = new Menu("Paramètres");
 
     public Editor() {
         createMenu();
@@ -93,6 +94,36 @@ public class Editor extends VBox {
             loadMenuEspace();
         }
 
+        var mEtablissement = new MenuItem("Etablissement");
+
+        var mFiliere = new MenuItem("Filières");
+        mFiliere.setOnAction(event -> {
+            loadTab(new FiliereConfig(this));
+        });
+
+        var mParamGroupe = new MenuItem("Groupes");
+        var gkeyCombination = new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN);
+        mParamGroupe.setAccelerator(gkeyCombination);
+        mParamGroupe.setOnAction(event -> {
+            loadTab(new GroupeConfig(this));
+        });
+
+        var mParamFormateur = new MenuItem("Formateurs");
+        var fkeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+        mParamFormateur.setAccelerator(fkeyCombination);
+        mParamFormateur.setOnAction(event -> {
+            loadTab(new FormateurConfig(this));
+        });
+
+        var mParamEspace = new MenuItem("Espace");
+        var ekeyCombination = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
+        mParamEspace.setAccelerator(ekeyCombination);
+        mParamEspace.setOnAction(event -> {
+            loadTab(new EspaceConfig(this));
+        });
+
+        mParametre.getItems().addAll(mEtablissement,mFiliere,mParamGroupe,mParamFormateur,mParamEspace);
+        menu.getMenus().add(mParametre);
         getChildren().addAll(menu);
     }
 
@@ -203,10 +234,10 @@ public class Editor extends VBox {
     public void loadMenuGroupe() {
         mGroupe.getItems().clear();
         var list = Database.getInstance().getGroupes();
-        list.stream().map(Groupe::getNiveau).distinct().forEach(niveau -> {
+        list.stream().map(g->g.getFiliere().getNiveau()).distinct().forEach(niveau -> {
             var menu = new Menu(niveau);
             mGroupe.getItems().add(menu);
-            list.stream().filter(groupe -> groupe.getNiveau().equals(niveau)).forEach(groupe -> {
+            list.stream().filter(groupe -> groupe.getFiliere().getNiveau().equals(niveau)).forEach(groupe -> {
                 var submenu = new MenuItem(groupe.getNom());
                 submenu.setOnAction(event -> {
                     loadTab(new GroupeTab(groupe));
@@ -214,13 +245,7 @@ public class Editor extends VBox {
                 menu.getItems().add(submenu);
             });
         });
-        var menuConfig = new MenuItem("Parametres");
-        var gkeyCombination = new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN);
-        menuConfig.setAccelerator(gkeyCombination);
-        mGroupe.getItems().addAll(new SeparatorMenuItem(), menuConfig);
-        menuConfig.setOnAction(event -> {
-            loadTab(new GroupeConfig(this));
-        });
+
     }
 
     public void loadMenuFormateur() {
@@ -237,13 +262,7 @@ public class Editor extends VBox {
                 menu.getItems().add(submenu);
             });
         });
-        var menuConfig = new MenuItem("Parametres");
-        var fkeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
-        menuConfig.setAccelerator(fkeyCombination);
-        mFormateur.getItems().addAll(new SeparatorMenuItem(), menuConfig);
-        menuConfig.setOnAction(event -> {
-            loadTab(new FormateurConfig(this));
-        });
+
     }
 
     public void loadMenuEspace() {
@@ -260,13 +279,7 @@ public class Editor extends VBox {
                 menu.getItems().add(submenu);
             });
         });
-        var menuConfig = new MenuItem("Parametres");
-        var ekeyCombination = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
-        menuConfig.setAccelerator(ekeyCombination);
-        mEspace.getItems().addAll(new SeparatorMenuItem(), menuConfig);
-        menuConfig.setOnAction(event -> {
-            loadTab(new EspaceConfig(this));
-        });
+
     }
 
     public void loadTab(Tab tab) {

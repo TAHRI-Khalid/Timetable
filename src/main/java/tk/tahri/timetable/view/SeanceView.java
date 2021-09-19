@@ -18,9 +18,9 @@ public class SeanceView extends VBox {
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
         switch (type) {
-            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupe().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
+            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupes().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
             case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace() + "  [ " + seance.getType() + " ]"));
-            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupe().toString() + "  [ " + seance.getType() + " ]"));
+            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupes().toString() + "  [ " + seance.getType() + " ]"));
         }
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 

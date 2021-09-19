@@ -91,14 +91,18 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     protected void saveSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
-        Database.getInstance().execute("INSERT INTO seance VALUES(null,?,?,?,?,?,?,?)",
+        var id = Database.getInstance().execute("INSERT INTO seance VALUES(null,?,?,?,?,?,?)",
                 String.valueOf(s.getDebut().toSecondOfDay()),
                 String.valueOf(s.getFin().toSecondOfDay()),
                 String.valueOf(s.getJour().getValue()),
                 s.getType(),
-                String.valueOf(s.getGroupe().getId()),
                 String.valueOf(s.getFormateur().getId()),
                 String.valueOf(s.getEspace().getId()));
+
+        Database.getInstance().execute("INSERT INTO seance_groupe VALUES(?,?)",
+                String.valueOf(s.getGroupes().get(0).getId()),
+                String.valueOf(id));
+
         loadSeanceViews(true);
         refreshView(seanceView);
     }
@@ -117,6 +121,7 @@ public abstract class MainTimeTableView extends TimeTableView {
 
     protected void deleteSeance(SeanceView seanceView) {
         var s = seanceView.getSeance();
+        Database.getInstance().execute("DELETE FROM seance_groupe WHERE idSeance=?", String.valueOf(s.getId()));
         Database.getInstance().execute("DELETE FROM seance WHERE id=?", String.valueOf(s.getId()));
         loadSeanceViews(true);
         refreshView(seanceView);
