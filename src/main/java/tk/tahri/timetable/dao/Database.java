@@ -3,6 +3,7 @@ package tk.tahri.timetable.dao;
 
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.tools.Config;
+
 import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -42,6 +43,14 @@ public class Database {
 
 
     public void createDatabase() {
+        String sql_create_etablissment = """
+                CREATE TABLE IF NOT EXISTS etablissement (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                abreviation text NOT NULL,
+                code text);
+                """;
+
         String sql_create_espace = """
                 CREATE TABLE IF NOT EXISTS espace (
                 id integer PRIMARY KEY AUTOINCREMENT,
@@ -98,6 +107,8 @@ public class Database {
                 """;
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
+            statement.execute(sql_create_etablissment);
+            statement.execute("INSERT INTO etablissement VALUES (null,'Institut Spécialisé de Technologie Appliquée Berkane','ISTA Berkane','S140')");
             statement.execute(sql_create_espace);
             statement.execute(sql_create_filiere);
             statement.execute(sql_create_groupe);
@@ -108,6 +119,25 @@ public class Database {
             e.printStackTrace();
         }
 
+    }
+
+    public Etablissement getItablissment() {
+        String sql = "SELECT * FROM etablissement";
+        var etab = new Etablissement();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                etab.setId(rs.getLong("id"));
+                etab.setNom(rs.getString("nom"));
+                etab.setAbreviation(rs.getString("abreviation"));
+                etab.setCode(rs.getString("code"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return etab;
     }
 
     public List<Espace> getEspaces() {
@@ -174,6 +204,7 @@ public class Database {
         }
         return list;
     }
+
     public List<Groupe> getGroupesSimilaire(Groupe groupe) {
         String sql = """
                 SELECT g.id, g.nom , annee
@@ -198,6 +229,7 @@ public class Database {
         }
         return list;
     }
+
     public List<Groupe> getGroupes() {
         String sql = """
                 SELECT g.id, g.nom as gnom, annee, idFiliere, f.nom as fnom, abreviation, niveau, secteur, type

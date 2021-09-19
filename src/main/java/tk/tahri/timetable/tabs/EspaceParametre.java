@@ -162,7 +162,6 @@ public class EspaceParametre extends Tab {
 
     private void clearForm() {
         txtNom.clear();
-        comboType.getSelectionModel().select(0);
         espace = null;
     }
 

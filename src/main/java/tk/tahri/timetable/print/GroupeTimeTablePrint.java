@@ -7,10 +7,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Groupe;
+import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.GroupePrintTimeTableView;
 import java.util.Objects;
 
-public class GroupeTimeTablePrint extends VBox {
+public class GroupeTimeTablePrint extends TimeTablePrint {
     private final Groupe groupe;
 
     public GroupeTimeTablePrint(Groupe groupe) {
@@ -23,28 +24,16 @@ public class GroupeTimeTablePrint extends VBox {
         this.getChildren().addAll(header(), titre(), info(), groupeTT);
     }
 
-    private HBox header() {
-        var header = new HBox(10);
-        var logo = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png"))));
-        logo.setPreserveRatio(true);
-        logo.setFitHeight(50);
-        var titreAr = new Label("مكتب التكوين المهني وإنعاش الشغل");
-        var titreFr = new Label("Office de la Formation Professionnelle et de la Promotion du Travail");
-        var vBox = new VBox(10);
-        HBox.setHgrow(vBox, Priority.ALWAYS);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().addAll(titreAr, titreFr);
-        header.getChildren().addAll(logo, vBox);
-        return header;
-    }
 
-    private Label titre() {
+
+    protected Label titre() {
         var lbl = new Label("Emploi du temps : " + groupe.getNom());
         lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 22");
         return lbl;
     }
 
-    private GridPane info() {
+    protected GridPane info() {
+
         var grid = new GridPane();
         grid.setAlignment(Pos.TOP_CENTER);
         grid.setHgap(5);
@@ -55,8 +44,7 @@ public class GroupeTimeTablePrint extends VBox {
 
         grid.add(new Text(" : DRO"), 1, 0);
         grid.add(new Text(" : Complexe Berkane"), 1, 1);
-        //grid.add(new Text(" : ISTA Berkane "), 1, 2);
-        grid.add(new Text(" : CQP Berkane "), 1, 2);
+        grid.add(new Text(" : " + etablissement.getAbreviation()), 1, 2);
 
         var region1 = new Region();
         region1.setPrefWidth(50);

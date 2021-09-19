@@ -184,7 +184,6 @@ public class FormateurParametre extends Tab {
         txtNom.clear();
         txtPrenom.clear();
         txtMatricule.clear();
-        comboType.getSelectionModel().select(0);
         formateur = null;
     }
 
