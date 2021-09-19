@@ -157,4 +157,8 @@ public abstract class TimeTableView extends Pane {
     }
 
     protected abstract void loadData();
+
+    public List<Seance> getSeances() {
+        return seances;
+    }
 }

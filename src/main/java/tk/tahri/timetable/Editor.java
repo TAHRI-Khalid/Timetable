@@ -11,7 +11,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
-import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tabs.*;
 import tk.tahri.timetable.tools.Config;
@@ -98,28 +97,28 @@ public class Editor extends VBox {
 
         var mFiliere = new MenuItem("Filières");
         mFiliere.setOnAction(event -> {
-            loadTab(new FiliereConfig(this));
+            loadTab(new FiliereParametre(this));
         });
 
         var mParamGroupe = new MenuItem("Groupes");
         var gkeyCombination = new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN);
         mParamGroupe.setAccelerator(gkeyCombination);
         mParamGroupe.setOnAction(event -> {
-            loadTab(new GroupeConfig(this));
+            loadTab(new GroupeParametre(this));
         });
 
         var mParamFormateur = new MenuItem("Formateurs");
         var fkeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
         mParamFormateur.setAccelerator(fkeyCombination);
         mParamFormateur.setOnAction(event -> {
-            loadTab(new FormateurConfig(this));
+            loadTab(new FormateurParametre(this));
         });
 
         var mParamEspace = new MenuItem("Espace");
         var ekeyCombination = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
         mParamEspace.setAccelerator(ekeyCombination);
         mParamEspace.setOnAction(event -> {
-            loadTab(new EspaceConfig(this));
+            loadTab(new EspaceParametre(this));
         });
 
         mParametre.getItems().addAll(mEtablissement,mFiliere,mParamGroupe,mParamFormateur,mParamEspace);

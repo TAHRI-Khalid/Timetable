@@ -8,40 +8,37 @@ import javafx.print.Paper;
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Editor;
-import tk.tahri.timetable.Entities.Filiere;
-import tk.tahri.timetable.Entities.Groupe;
+import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.dao.Database;
-import tk.tahri.timetable.print.GroupeTimeTablePrint;
+import tk.tahri.timetable.print.EspaceTimeTablePrint;
+import tk.tahri.timetable.tools.Config;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Objects;
 
-public class GroupeConfig extends Tab {
+public class EspaceParametre extends Tab {
 
-    private final Editor editor;
-    private Groupe groupe;
-    private final TableView<Groupe> table;
+    private Espace espace;
+    private final TableView<Espace> table;
     private final TextField txtNom;
-    private final ComboBox<Integer> comboAnnee;
-    private final ComboBox<Filiere> comboFiliere;
+    private final ComboBox<String> comboType;
+    private final Editor editor;
 
-    public GroupeConfig(Editor editor) {
-        super("Groupes");
+    public EspaceParametre(Editor editor) {
+        super("Espaces");
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
-        Label groupeTitle = new Label("Les Groupes ");
-        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
-        groupeTitle.setGraphicTextGap(10);
-        groupeTitle.setMaxWidth(Double.MAX_VALUE);
-        groupeTitle.getStyleClass().add("groupe-title-main");
-
+        Label espaceTitle = new Label("Les Espaces");
+        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
+        espaceTitle.setGraphicTextGap(10);
+        espaceTitle.setMaxWidth(Double.MAX_VALUE);
+        espaceTitle.getStyleClass().add("espace-title-main");
 
         var grid = new GridPane();
         grid.setVgap(15);
@@ -52,19 +49,12 @@ public class GroupeConfig extends Tab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 0);
 
-        grid.add(new Label("Filiére : "), 2, 0);
-        comboFiliere = new ComboBox<>();
-        comboFiliere.getItems().addAll(Database.getInstance().getFilieres());
-        GridPane.setHgrow(comboFiliere, Priority.ALWAYS);
-        grid.add(comboFiliere, 3, 0);
-
-
-        grid.add(new Label("Année : "), 4, 0);
-        comboAnnee = new ComboBox<>();
-        comboAnnee.getItems().addAll(1, 2, 3);
-        GridPane.setHgrow(comboAnnee, Priority.ALWAYS);
-        grid.add(comboAnnee, 5, 0);
-
+        grid.add(new Label("Type : "), 0, 1);
+        comboType = new ComboBox<String>();
+        GridPane.setHgrow(comboType, Priority.ALWAYS);
+        comboType.getItems().addAll(Espace.Types);
+        comboType.getSelectionModel().select(0);
+        grid.add(comboType, 1, 1);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -82,16 +72,13 @@ public class GroupeConfig extends Tab {
         table = new TableView<>();
         VBox.setVgrow(table, Priority.ALWAYS);
 
-        var colNom = new TableColumn<Groupe, String>("Nom");
+        var colNom = new TableColumn<Espace, String>("Nom");
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
 
-        var colAnnee = new TableColumn<Groupe, String>("Année");
-        colAnnee.setCellValueFactory(new PropertyValueFactory<>("annee"));
+        var colType = new TableColumn<Espace, String>("Type");
+        colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
-        var colFiliere = new TableColumn<Groupe, Filiere>("Filiére");
-        colFiliere.setCellValueFactory(new PropertyValueFactory<>("filiere"));
-
-        var colPrint = new TableColumn<Groupe, Long>("Imprimer");
+        var colPrint = new TableColumn<Espace, Long>("Imprimer");
         colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
         colPrint.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -105,12 +92,11 @@ public class GroupeConfig extends Tab {
                 btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.PRINT).color(Color.WHITE).size(16));
                 btn.getStyleClass().add("btn-print");
                 setGraphic(btn);
-                btn.setOnAction(event -> printGroupeTimetable(item));
+                btn.setOnAction(event -> printEspaceTimetable(item));
             }
         });
 
-
-        var colUpdate = new TableColumn<Groupe, Long>("Modifier");
+        var colUpdate = new TableColumn<Espace, Long>("Modifier");
         colUpdate.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUpdate.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -128,7 +114,7 @@ public class GroupeConfig extends Tab {
             }
         });
 
-        var colDelete = new TableColumn<Groupe, Long>("Supprimer");
+        var colDelete = new TableColumn<Espace, Long>("Supprimer");
         colDelete.setCellValueFactory(new PropertyValueFactory<>("id"));
         colDelete.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -146,15 +132,15 @@ public class GroupeConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colAnnee, colFiliere, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(groupeTitle, grid, hBox, table);
+        vBox.getChildren().addAll(espaceTitle, grid, hBox, table);
         setContent(vBox);
 
     }
 
-    private void printGroupeTimetable(Long item) {
-        var groupeTT = new GroupeTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
+    private void printEspaceTimetable(Long item) {
+        var groupeTT = new EspaceTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
@@ -170,35 +156,25 @@ public class GroupeConfig extends Tab {
 
     private void loadData() {
         table.getItems().clear();
-        table.getItems().addAll(Database.getInstance().getGroupes());
-        editor.loadMenuGroupe();
+        table.getItems().addAll(Database.getInstance().getEspaces());
+        editor.loadMenuEspace();
     }
 
     private void clearForm() {
         txtNom.clear();
-        comboAnnee.getSelectionModel().select(1);
-        groupe = null;
+        comboType.getSelectionModel().select(0);
+        espace = null;
     }
 
     private void saveForm() {
         if (!txtNom.getText().trim().isEmpty()) {
-            if (groupe == null) {
-                groupe = new Groupe(
-                        txtNom.getText(),
-                        comboAnnee.getSelectionModel().getSelectedItem(),
-                        comboFiliere.getSelectionModel().getSelectedItem()
-                );
-                Database.getInstance().execute("INSERT INTO groupe VALUES(null,?,?,?)",
-                        groupe.getNom(), String.valueOf(groupe.getAnnee()), String.valueOf(groupe.getFiliere().getId()));
+            if (espace == null) {
+                espace = new Espace(txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("INSERT INTO espace VALUES(null,?,?)", espace.getNom(), espace.getType());
             } else {
-                groupe = new Groupe(
-                        groupe.getId(),
-                        txtNom.getText(),
-                        comboAnnee.getSelectionModel().getSelectedItem(),
-                        comboFiliere.getSelectionModel().getSelectedItem()
-                );
-                Database.getInstance().execute("UPDATE groupe SET nom=? ,annee=?,idFiliere=? WHERE id=?",
-                        groupe.getNom(), String.valueOf(groupe.getAnnee()), String.valueOf(groupe.getFiliere().getId()), String.valueOf(groupe.getId()));
+                espace = new Espace(espace.getId(), txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("UPDATE espace SET nom=? , type=? WHERE id=?",
+                        espace.getNom(), espace.getType(), String.valueOf(espace.getId()));
             }
             loadData();
             clearForm();
@@ -206,7 +182,7 @@ public class GroupeConfig extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM groupe WHERE id=?", String.valueOf(id));
+        Database.getInstance().execute("DELETE FROM espace WHERE id= ?", String.valueOf(id));
         loadData();
     }
 
@@ -214,10 +190,9 @@ public class GroupeConfig extends Tab {
         table.getItems().stream()
                 .filter(e -> e.getId() == id)
                 .findFirst().ifPresent(e -> {
-                    groupe = e;
+                    espace = e;
                     txtNom.setText(e.getNom());
-                    comboFiliere.getSelectionModel().select(e.getFiliere());
-                    comboAnnee.getSelectionModel().select(e.getAnnee()-1);
+                    comboType.getSelectionModel().select(e.getType());
                 });
     }
 }

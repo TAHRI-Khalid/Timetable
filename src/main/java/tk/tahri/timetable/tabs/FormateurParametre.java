@@ -8,37 +8,40 @@ import javafx.print.Paper;
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Editor;
-import tk.tahri.timetable.Entities.Espace;
+import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
-import tk.tahri.timetable.print.EspaceTimeTablePrint;
-import tk.tahri.timetable.tools.Config;
+import tk.tahri.timetable.print.FormateurTimeTablePrint;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Objects;
 
-public class EspaceConfig extends Tab {
+public class FormateurParametre extends Tab {
 
-    private Espace espace;
-    private final TableView<Espace> table;
+    private Formateur formateur;
+    private final TableView<Formateur> table;
     private final TextField txtNom;
+    private final TextField txtPrenom;
+    private final TextField txtMatricule;
     private final ComboBox<String> comboType;
     private final Editor editor;
 
-    public EspaceConfig(Editor editor) {
-        super("Espaces");
+    public FormateurParametre(Editor editor) {
+        super("Formateurs");
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
-        Label espaceTitle = new Label("Les Espaces");
-        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
-        espaceTitle.setGraphicTextGap(10);
-        espaceTitle.setMaxWidth(Double.MAX_VALUE);
-        espaceTitle.getStyleClass().add("espace-title-main");
+        Label formateurTitle = new Label("Les Fromateurs");
+        formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
+        formateurTitle.setGraphicTextGap(10);
+        formateurTitle.setMaxWidth(Double.MAX_VALUE);
+        formateurTitle.getStyleClass().add("formateur-title-main");
+
 
         var grid = new GridPane();
         grid.setVgap(15);
@@ -49,12 +52,22 @@ public class EspaceConfig extends Tab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 0);
 
-        grid.add(new Label("Type : "), 0, 1);
+        grid.add(new Label("Prénom : "), 0, 1);
+        txtPrenom = new TextField();
+        GridPane.setHgrow(txtPrenom, Priority.ALWAYS);
+        grid.add(txtPrenom, 1, 1);
+
+        grid.add(new Label("Matricule : "), 0, 2);
+        txtMatricule = new TextField();
+        GridPane.setHgrow(txtMatricule, Priority.ALWAYS);
+        grid.add(txtMatricule, 1, 2);
+
+        grid.add(new Label("Type : "), 0, 3);
         comboType = new ComboBox<String>();
         GridPane.setHgrow(comboType, Priority.ALWAYS);
-        comboType.getItems().addAll(Espace.Types);
+        comboType.getItems().addAll(Formateur.Types);
         comboType.getSelectionModel().select(0);
-        grid.add(comboType, 1, 1);
+        grid.add(comboType, 1, 3);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -72,13 +85,20 @@ public class EspaceConfig extends Tab {
         table = new TableView<>();
         VBox.setVgrow(table, Priority.ALWAYS);
 
-        var colNom = new TableColumn<Espace, String>("Nom");
+        var colNom = new TableColumn<Formateur, String>("Nom");
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
 
-        var colType = new TableColumn<Espace, String>("Type");
+        var colPrenom = new TableColumn<Formateur, String>("Prénom");
+        colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenom"));
+
+        var colMatricule = new TableColumn<Formateur, String>("Matricule");
+        colMatricule.setCellValueFactory(new PropertyValueFactory<>("matricule"));
+
+        var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
-        var colPrint = new TableColumn<Espace, Long>("Imprimer");
+
+        var colPrint = new TableColumn<Formateur, Long>("Imprimer");
         colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
         colPrint.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -92,11 +112,11 @@ public class EspaceConfig extends Tab {
                 btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.PRINT).color(Color.WHITE).size(16));
                 btn.getStyleClass().add("btn-print");
                 setGraphic(btn);
-                btn.setOnAction(event -> printEspaceTimetable(item));
+                btn.setOnAction(event -> printFormateurTimetable(item));
             }
         });
 
-        var colUpdate = new TableColumn<Espace, Long>("Modifier");
+        var colUpdate = new TableColumn<Formateur, Long>("Modifier");
         colUpdate.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUpdate.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -114,7 +134,7 @@ public class EspaceConfig extends Tab {
             }
         });
 
-        var colDelete = new TableColumn<Espace, Long>("Supprimer");
+        var colDelete = new TableColumn<Formateur, Long>("Supprimer");
         colDelete.setCellValueFactory(new PropertyValueFactory<>("id"));
         colDelete.setCellFactory(param -> new TableCell<>() {
             @Override
@@ -132,15 +152,15 @@ public class EspaceConfig extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colType, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colPrint, colUpdate, colDelete);
         loadData();
-        vBox.getChildren().addAll(espaceTitle, grid, hBox, table);
+        vBox.getChildren().addAll(formateurTitle, grid, hBox, table);
         setContent(vBox);
 
     }
 
-    private void printEspaceTimetable(Long item) {
-        var groupeTT = new EspaceTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
+    private void printFormateurTimetable(Long item) {
+        var groupeTT = new FormateurTimeTablePrint(table.getItems().stream().filter(g -> Objects.equals(g.getId(), item)).findFirst().get());
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
@@ -156,25 +176,28 @@ public class EspaceConfig extends Tab {
 
     private void loadData() {
         table.getItems().clear();
-        table.getItems().addAll(Database.getInstance().getEspaces());
-        editor.loadMenuEspace();
+        table.getItems().addAll(Database.getInstance().getFormateurs());
+        editor.loadMenuFormateur();
     }
 
     private void clearForm() {
         txtNom.clear();
+        txtPrenom.clear();
+        txtMatricule.clear();
         comboType.getSelectionModel().select(0);
-        espace = null;
+        formateur = null;
     }
 
     private void saveForm() {
         if (!txtNom.getText().trim().isEmpty()) {
-            if (espace == null) {
-                espace = new Espace(txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("INSERT INTO espace VALUES(null,?,?)", espace.getNom(), espace.getType());
+            if (formateur == null) {
+                formateur = new Formateur(txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("INSERT INTO formateur VALUES(null,?,?,?,?)",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType());
             } else {
-                espace = new Espace(espace.getId(), txtNom.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("UPDATE espace SET nom=? , type=? WHERE id=?",
-                        espace.getNom(), espace.getType(), String.valueOf(espace.getId()));
+                formateur = new Formateur(formateur.getId(), txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("UPDATE formateur SET nom=? ,prenom=? ,matricule=? ,type=? WHERE id=?",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType(), String.valueOf(formateur.getId()));
             }
             loadData();
             clearForm();
@@ -182,7 +205,7 @@ public class EspaceConfig extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM espace WHERE id= ?", String.valueOf(id));
+        Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
         loadData();
     }
 
@@ -190,8 +213,10 @@ public class EspaceConfig extends Tab {
         table.getItems().stream()
                 .filter(e -> e.getId() == id)
                 .findFirst().ifPresent(e -> {
-                    espace = e;
+                    formateur = e;
                     txtNom.setText(e.getNom());
+                    txtMatricule.setText(e.getMatricule());
+                    txtPrenom.setText(e.getPrenom());
                     comboType.getSelectionModel().select(e.getType());
                 });
     }

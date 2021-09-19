@@ -42,6 +42,7 @@
 .formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label, .chevauchement-seance-view Label {
     -fx-text-fill: #fff;
     -fx-font-weight: bold;
+    -fx-font-size: 13px;
 }
 
 .espace-title-main, .groupe-title-main, .formateur-title-main {

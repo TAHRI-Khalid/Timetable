@@ -22,7 +22,7 @@ import tk.tahri.timetable.print.GroupeTimeTablePrint;
 
 import java.util.Objects;
 
-public class FiliereConfig extends Tab {
+public class FiliereParametre extends Tab {
 
     private final Editor editor;
     private Filiere filiere;
@@ -33,7 +33,7 @@ public class FiliereConfig extends Tab {
     private final ComboBox<String> comboSecteur;
     private final ComboBox<String> comboType;
 
-    public FiliereConfig(Editor editor) {
+    public FiliereParametre(Editor editor) {
         super("Filières");
         this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();

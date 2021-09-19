@@ -18,10 +18,12 @@ public class EspaceTimeTablePrint extends VBox {
         super(15);
         this.espace = espace;
         this.setAlignment(Pos.TOP_CENTER);
-        var groupeTT=new EspacePrintTimeTableView(espace);
-        groupeTT.loadSeanceViews(false);
-        groupeTT.setTranslateX(30);
-        this.getChildren().addAll(header(), titre(), info(), groupeTT);
+        var TT=new EspacePrintTimeTableView(espace);
+        var sec=TT.getSeances().stream().mapToLong(s ->s.getFin().toSecondOfDay()-s.getDebut().toSecondOfDay()).sum()/60;
+
+        TT.loadSeanceViews(false);
+        TT.setTranslateX(30);
+        this.getChildren().addAll(header(), titre(), info(), TT);
     }
 
     private HBox header() {

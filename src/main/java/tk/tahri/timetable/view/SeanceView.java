@@ -20,9 +20,31 @@ public class SeanceView extends VBox {
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
         switch (type) {
-            case FORMATEUR -> this.getChildren().addAll(new Label(seance.getGroupes().toString()), new Label(seance.getEspace() + "  [" + seance.getType() + "]"));
-            case GROUPE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getEspace() + "  [" + seance.getType() + "]"));
-            case ESPACE -> this.getChildren().addAll(new Label(seance.getFormateur().toString()), new Label(seance.getGroupes().toString() + "  [" + seance.getType() + "]"));
+            case FORMATEUR -> {
+                if (seance.getType().equals("FP")) {
+                    this.getChildren().add(new Label(seance.getGroupes().get(0).toString()));
+                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
+                } else {
+                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().toString() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().add(new Label("[" + seance.getType() + "]"));
+                }
+            }
+            case GROUPE -> {
+                this.getChildren().addAll(new Label(seance.getFormateur().toString()));
+                if (seance.getType().equals("FP")) {
+                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
+                } else {
+                    this.getChildren().add(new Label("[" + seance.getType() + "]"));
+                }
+            }
+            case ESPACE -> {
+                this.getChildren().addAll(new Label(seance.getFormateur().toString()));
+                if (seance.getType().equals("FP")) {
+                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).toString()));
+                } else {
+                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).getFiliere().toString() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                }
+            }
         }
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
@@ -53,11 +75,11 @@ public class SeanceView extends VBox {
 
             var mtype = new Menu("Type");
             var fad = new MenuItem("FAD : Distancielle");
-            var fp = new MenuItem("FP : Présentielle");
-            mtype.getItems().addAll(fad, fp);
+            //var fp = new MenuItem("FP : Présentielle");
+            mtype.getItems().addAll(fad);
 
             fad.setOnAction(event -> updateTypeDeSeance("FAD"));
-            fp.setOnAction(event -> updateTypeDeSeance("FP"));
+            //fp.setOnAction(event -> updateTypeDeSeance("FP"));
             contextMenu.getItems().addAll(mHeurs, mtype, new SeparatorMenuItem(), mSuppr);
 
             this.setOnMousePressed(event -> {
@@ -100,7 +122,7 @@ public class SeanceView extends VBox {
         ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
 
         var groupes = Database.getInstance().getGroupesSimilaire(seance.getGroupes().get(0));
-        if(type.equals("FAD")){
+        if (type.equals("FAD")) {
             groupes.stream().filter(g -> g.getId() != seance.getGroupes().get(0).getId()).forEach(grp -> {
                 Database.getInstance().execute("INSERT INTO seance_groupe VALUES(?,?)",
                         String.valueOf(grp.getId()),
