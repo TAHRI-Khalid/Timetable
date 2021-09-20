@@ -3,9 +3,9 @@ package tk.tahri.timetable.dao;
 
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.tools.Config;
-
 import java.sql.*;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,9 @@ public class Database {
                 id integer PRIMARY KEY AUTOINCREMENT,
                 nom text NOT NULL,
                 abreviation text NOT NULL,
-                code text);
+                code text,
+                dateDebut text,
+                dateFin text);
                 """;
 
         String sql_create_espace = """
@@ -108,7 +110,7 @@ public class Database {
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
             statement.execute(sql_create_etablissment);
-            statement.execute("INSERT INTO etablissement VALUES (null,'Institut Spécialisé de Technologie Appliquée Berkane','ISTA Berkane','S140')");
+            statement.execute("INSERT INTO etablissement VALUES (null,'Institut Spécialisé de Technologie Appliquée Berkane','ISTA Berkane','S140',null,null)");
             statement.execute(sql_create_espace);
             statement.execute(sql_create_filiere);
             statement.execute(sql_create_groupe);
@@ -133,6 +135,14 @@ public class Database {
                 etab.setNom(rs.getString("nom"));
                 etab.setAbreviation(rs.getString("abreviation"));
                 etab.setCode(rs.getString("code"));
+                var d1 = rs.getString("dateDebut");
+                if (d1 != null) {
+                    etab.setDateDebut(LocalDate.parse(d1));
+                }
+                var d2 = rs.getString("dateFin");
+                if (d2 != null) {
+                    etab.setDateFin(LocalDate.parse(d2));
+                }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

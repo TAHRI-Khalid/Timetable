@@ -19,11 +19,11 @@ public class EtablissementParametre extends Tab {
     private final TextField txtNom;
     private final TextField txtAbreviation;
     private final TextField txtCode;
-    private final Editor editor;
+    private final DatePicker datePickerDebut;
+    private final DatePicker datePickerFin;
 
     public EtablissementParametre(Editor editor) {
         super("Etablissement");
-        this.editor = editor;
         FontAwesome fontAwesome = new FontAwesome();
 
         Label formateurTitle = new Label("Etablissement");
@@ -31,7 +31,6 @@ public class EtablissementParametre extends Tab {
         formateurTitle.setGraphicTextGap(10);
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
         formateurTitle.getStyleClass().add("formateur-title-main");
-
 
         var grid = new GridPane();
         grid.setVgap(15);
@@ -47,11 +46,20 @@ public class EtablissementParametre extends Tab {
         GridPane.setHgrow(txtAbreviation, Priority.ALWAYS);
         grid.add(txtAbreviation, 1, 1);
 
-        grid.add(new Label("Matricule : "), 0, 2);
+        grid.add(new Label("Code : "), 0, 2);
         txtCode = new TextField();
         GridPane.setHgrow(txtCode, Priority.ALWAYS);
         grid.add(txtCode, 1, 2);
 
+        grid.add(new Label("Date début : "), 0, 3);
+        datePickerDebut = new DatePicker();
+        GridPane.setHgrow(datePickerDebut, Priority.ALWAYS);
+        grid.add(datePickerDebut, 1, 3);
+
+        grid.add(new Label("Date fin : "), 0, 4);
+        datePickerFin = new DatePicker();
+        GridPane.setHgrow(datePickerFin, Priority.ALWAYS);
+        grid.add(datePickerFin, 1, 4);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -74,21 +82,26 @@ public class EtablissementParametre extends Tab {
 
     private void loadData() {
         etablissement = Database.getInstance().getItablissment();
-        txtAbreviation.setText(etablissement.getAbreviation());
-        txtCode.setText(etablissement.getCode());
-        txtNom.setText(etablissement.getNom());
+        clearForm();
     }
 
     private void clearForm() {
         txtAbreviation.setText(etablissement.getAbreviation());
         txtCode.setText(etablissement.getCode());
         txtNom.setText(etablissement.getNom());
+        datePickerDebut.setValue(etablissement.getDateDebut());
+        datePickerFin.setValue(etablissement.getDateFin());
     }
 
     private void saveForm() {
-        Database.getInstance().execute("UPDATE etablissement SET nom=? ,abreviation=? ,code=? WHERE id=?",
-                txtNom.getText(), txtAbreviation.getText(), txtCode.getText(), String.valueOf(etablissement.getId()));
+
+        Database.getInstance().execute("UPDATE etablissement SET nom=? ,abreviation=? ,code=?,dateDebut=?, dateFin=? WHERE id=?",
+                txtNom.getText(),
+                txtAbreviation.getText(),
+                txtCode.getText(),
+                datePickerDebut.getEditor().getText().isEmpty() ? null : datePickerDebut.getValue().toString(),
+                datePickerFin.getEditor().getText().isEmpty() ? null : datePickerFin.getValue().toString(),
+                String.valueOf(etablissement.getId()));
         loadData();
     }
-
 }

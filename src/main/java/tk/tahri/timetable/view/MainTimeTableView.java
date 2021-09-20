@@ -107,11 +107,13 @@ public abstract class MainTimeTableView extends TimeTableView {
     }
 
     protected void updateSeance(Seance s) {
-        Database.getInstance().execute("UPDATE seance set debut=?, fin=?, jour=? ,type=? WHERE id=?",
+        Database.getInstance().execute("UPDATE seance set debut=?, fin=?, jour=? ,type=?,idEspace=? ,idFormateur=? WHERE id=?",
                 String.valueOf(s.getDebut().toSecondOfDay()),
                 String.valueOf(s.getFin().toSecondOfDay()),
                 String.valueOf(s.getJour().getValue()),
                 s.getType(),
+                String.valueOf(s.getEspace().getId()),
+                String.valueOf(s.getFormateur().getId()),
                 String.valueOf(s.getId()));
         loadSeanceViews(true);
         refreshView(s);

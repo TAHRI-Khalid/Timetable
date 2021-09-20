@@ -2,14 +2,10 @@ package tk.tahri.timetable.print;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Groupe;
-import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.GroupePrintTimeTableView;
-import java.util.Objects;
 
 public class GroupeTimeTablePrint extends TimeTablePrint {
     private final Groupe groupe;
@@ -23,8 +19,6 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
         groupeTT.setTranslateX(30);
         this.getChildren().addAll(header(), titre(), info(), groupeTT);
     }
-
-
 
     protected Label titre() {
         var lbl = new Label("Emploi du temps : " + groupe.getNom());
@@ -47,7 +41,7 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
         grid.add(new Text(" : " + etablissement.getAbreviation()), 1, 2);
 
         var region1 = new Region();
-        region1.setPrefWidth(50);
+        region1.setPrefWidth(40);
         grid.add(region1, 2, 0);
 
         grid.add(new Text("Niveau"), 3, 0);
@@ -59,16 +53,26 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
         grid.add(new Text(" : " + groupe.getFiliere().getType()), 4, 2);
 
         var region2 = new Region();
-        region2.setPrefWidth(50);
+        region2.setPrefWidth(40);
         grid.add(region2, 5, 0);
 
         grid.add(new Text("Filiere"), 6, 0);
         grid.add(new Text("Groupe"), 6, 1);
         grid.add(new Text("Année"), 6, 2);
 
-        grid.add(new Text(" : " + groupe.getFiliere()), 7, 0);
+        grid.add(new Text(" : " + groupe.getFiliere().getAbreviation()), 7, 0);
         grid.add(new Text(" : " + groupe.getNom()), 7, 1);
         grid.add(new Text(" : " + groupe.getAnnee()), 7, 2);
+
+        var region3 = new Region();
+        region3.setPrefWidth(40);
+        grid.add(region3, 8, 0);
+
+        grid.add(new Text("Date d'application"), 9, 0);
+
+        grid.add(new Text(" : " + etablissement.getDateDebut()), 10, 0);
+
+
 
         grid.getChildren().stream().filter(node -> node instanceof Text)
                 .forEach(node -> node.setStyle("-fx-font-size: 11"));

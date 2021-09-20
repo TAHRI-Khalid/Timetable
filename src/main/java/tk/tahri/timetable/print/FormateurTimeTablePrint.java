@@ -45,7 +45,7 @@ public class FormateurTimeTablePrint extends TimeTablePrint {
         grid.add(new Text(" : " + etablissement.getAbreviation()), 1, 2);
 
         var region1 = new Region();
-        region1.setPrefWidth(50);
+        region1.setPrefWidth(40);
         grid.add(region1, 2, 0);
 
         grid.add(new Text("Statut"), 3, 0);
@@ -54,7 +54,7 @@ public class FormateurTimeTablePrint extends TimeTablePrint {
 
 
         var region2 = new Region();
-        region2.setPrefWidth(50);
+        region2.setPrefWidth(40);
         grid.add(region2, 5, 0);
 
         grid.add(new Text("Matrecule"), 6, 0);
@@ -64,6 +64,14 @@ public class FormateurTimeTablePrint extends TimeTablePrint {
         grid.add(new Text(" : " + formateur.getMatricule()), 7, 0);
         grid.add(new Text(" : " + formateur.getNom()), 7, 1);
         grid.add(new Text(" : " + formateur.getPrenom()), 7, 2);
+
+        var region3 = new Region();
+        region3.setPrefWidth(40);
+        grid.add(region3, 8, 0);
+
+        grid.add(new Text("Date d'application"), 9, 0);
+
+        grid.add(new Text(" : " + etablissement.getDateDebut()), 10, 0);
 
         grid.getChildren().stream().filter(node -> node instanceof Text)
                 .forEach(node -> node.setStyle("-fx-font-size: 11"));

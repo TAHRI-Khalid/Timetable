@@ -55,7 +55,7 @@ public class GroupeParametre extends Tab {
         grid.add(new Label("Filiére : "), 2, 0);
         comboFiliere = new ComboBox<>();
         comboFiliere.getItems().addAll(Database.getInstance().getFilieres());
-        if(!comboFiliere.getItems().isEmpty()){
+        if (!comboFiliere.getItems().isEmpty()) {
             comboFiliere.getSelectionModel().select(0);
         }
         GridPane.setHgrow(comboFiliere, Priority.ALWAYS);
@@ -181,7 +181,6 @@ public class GroupeParametre extends Tab {
 
     private void clearForm() {
         txtNom.clear();
-        comboAnnee.getSelectionModel().select(1);
         groupe = null;
     }
 
@@ -222,7 +221,7 @@ public class GroupeParametre extends Tab {
                     groupe = e;
                     txtNom.setText(e.getNom());
                     comboFiliere.getSelectionModel().select(e.getFiliere());
-                    comboAnnee.getSelectionModel().select(e.getAnnee()-1);
+                    comboAnnee.getSelectionModel().select(e.getAnnee() - 1);
                 });
     }
 }

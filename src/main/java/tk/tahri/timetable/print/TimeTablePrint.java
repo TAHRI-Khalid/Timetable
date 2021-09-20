@@ -10,7 +10,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
-
 import java.util.Objects;
 
 public abstract class TimeTablePrint extends VBox {

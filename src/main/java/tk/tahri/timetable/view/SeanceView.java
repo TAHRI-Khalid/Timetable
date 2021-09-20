@@ -1,13 +1,13 @@
 package tk.tahri.timetable.view;
 
-
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
+import tk.tahri.timetable.Entities.Espace;
+import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
-
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,7 +25,7 @@ public class SeanceView extends VBox {
                     this.getChildren().add(new Label(seance.getGroupes().get(0).toString()));
                     this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
                 } else {
-                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().toString() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().getAbreviation()+ " " + seance.getGroupes().get(0).getAnnee() + "A"));
                     this.getChildren().add(new Label("[" + seance.getType() + "]"));
                 }
             }
@@ -42,7 +42,7 @@ public class SeanceView extends VBox {
                 if (seance.getType().equals("FP")) {
                     this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).toString()));
                 } else {
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).getFiliere().toString() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
                 }
             }
         }
@@ -80,7 +80,71 @@ public class SeanceView extends VBox {
 
             fad.setOnAction(event -> updateTypeDeSeance("FAD"));
             //fp.setOnAction(event -> updateTypeDeSeance("FP"));
-            contextMenu.getItems().addAll(mHeurs, mtype, new SeparatorMenuItem(), mSuppr);
+
+            var mEspace = new Menu("Changer l'espace");
+            var listEspaces = Database.getInstance().getEspaces();
+            listEspaces.stream().map(Espace::getType).distinct().forEach(typeEspace -> {
+                var menu = new Menu(typeEspace);
+                mEspace.getItems().add(menu);
+                listEspaces.stream().filter(espace -> espace.getType().equals(typeEspace)).forEach(espace -> {
+                    var submenu = new MenuItem(espace.getNom());
+                    submenu.setOnAction(event -> {
+                        this.seance.setEspace(espace);
+                        ((MainTimeTableView) this.getParent()).updateSeance(this.seance);
+                    });
+                    menu.getItems().add(submenu);
+                });
+            });
+
+
+            var mFormateur = new Menu("Changer le formateur");
+            var listFormateurs = Database.getInstance().getFormateurs();
+            listFormateurs.stream().map(Formateur::getType).distinct().forEach(typeFormateur -> {
+                var menu = new Menu(typeFormateur);
+                mFormateur.getItems().add(menu);
+                listFormateurs.stream().filter(formateur -> formateur.getType().equals(typeFormateur)).forEach(formateur -> {
+                    var submenu = new MenuItem(formateur.toString());
+                    submenu.setOnAction(event -> {
+                        this.seance.setFormateur(formateur);
+                        ((MainTimeTableView) this.getParent()).updateSeance(this.seance);
+                    });
+                    menu.getItems().add(submenu);
+                });
+            });
+
+            var mGroupe = new Menu("Changer le groupe");
+            var listGroupes = Database.getInstance().getGroupes();
+            listGroupes.stream().map(g -> g.getFiliere().getNiveau()).distinct().forEach(niveau -> {
+                var menu = new Menu(niveau);
+                mGroupe.getItems().add(menu);
+                listGroupes.stream().filter(groupe -> groupe.getFiliere().getNiveau().equals(niveau)).forEach(groupe -> {
+                    var submenu = new MenuItem(groupe.getNom());
+                    submenu.setOnAction(event -> {
+                        Database.getInstance().execute("UPDATE seance_groupe SET idGroupe=? WHERE idSeance=?",
+                                String.valueOf(groupe.getId()),
+                                String.valueOf(this.seance.getId()));
+                        this.seance.getGroupes().clear();
+                        this.seance.getGroupes().add(groupe);
+
+                        ((MainTimeTableView) this.getParent()).refreshView(this.seance);
+                        ((MainTimeTableView) this.getParent()).loadSeanceViews(true);
+
+                    });
+                    menu.getItems().add(submenu);
+                });
+            });
+
+            contextMenu.getItems().addAll(mHeurs, mtype);
+            if (type == SeanceType.FORMATEUR || type == SeanceType.GROUPE) {
+                contextMenu.getItems().add(mEspace);
+            }
+            if (type == SeanceType.ESPACE || type == SeanceType.GROUPE) {
+                contextMenu.getItems().add(mFormateur);
+            }
+            if (this.seance.getType().equals("FP") && (type == SeanceType.FORMATEUR || type == SeanceType.ESPACE)) {
+                contextMenu.getItems().add(mGroupe);
+            }
+            contextMenu.getItems().addAll(new SeparatorMenuItem(), mSuppr);
 
             this.setOnMousePressed(event -> {
                 this.firstClickX = event.getX();
@@ -119,7 +183,6 @@ public class SeanceView extends VBox {
 
     private void updateTypeDeSeance(String type) {
         this.seance.setType(type);
-        ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
 
         var groupes = Database.getInstance().getGroupesSimilaire(seance.getGroupes().get(0));
         if (type.equals("FAD")) {
@@ -129,5 +192,8 @@ public class SeanceView extends VBox {
                         String.valueOf(this.seance.getId()));
             });
         }
+
+        ((MainTimeTableView) this.getParent()).updateSeance(this.getSeance());
+
     }
 }

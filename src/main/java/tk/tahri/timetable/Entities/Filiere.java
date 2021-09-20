@@ -2,6 +2,7 @@ package tk.tahri.timetable.Entities;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Filiere {
     public static final List<String> Niveaux = Arrays.asList("Technicien Spécialisé", "Technicien", "Qualification","Spécialisation","Bac Pro","Parcours Collégial");
@@ -85,6 +86,19 @@ public class Filiere {
 
     @Override
     public String toString() {
-        return abreviation;
+        return this.nom;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Filiere filiere = (Filiere) o;
+        return id.equals(filiere.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

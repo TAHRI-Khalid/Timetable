@@ -243,7 +243,7 @@ public class Editor extends VBox {
         list.stream().map(Espace::getType).distinct().forEach(type -> {
             var menu = new Menu(type);
             mEspace.getItems().add(menu);
-            list.stream().filter(groupe -> groupe.getType().equals(type)).forEach(espace -> {
+            list.stream().filter(espace -> espace.getType().equals(type)).forEach(espace -> {
                 var submenu = new MenuItem(espace.getNom());
                 submenu.setOnAction(event -> {
                     loadTab(new EspaceTab(espace));
