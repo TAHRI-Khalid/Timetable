@@ -11,7 +11,6 @@ public class GroupePrintTimeTableView extends PrintTimeTableView {
     public GroupePrintTimeTableView(Groupe groupe) {
         super(SeanceType.GROUPE);
         this.groupe = groupe;
-        this.getStylesheets().add(getClass().getResource("/css/print.css").toString());
     }
 
     @Override

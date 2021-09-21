@@ -11,7 +11,6 @@ public class EspacePrintTimeTableView extends PrintTimeTableView {
     public EspacePrintTimeTableView(Espace espace) {
         super(SeanceType.ESPACE);
         this.espace = espace;
-        this.getStylesheets().add(getClass().getResource("/css/print.css").toString());
     }
 
     @Override

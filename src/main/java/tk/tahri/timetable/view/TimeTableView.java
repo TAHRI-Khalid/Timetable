@@ -12,7 +12,10 @@ import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 
+import java.time.Duration;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,4 +164,10 @@ public abstract class TimeTableView extends Pane {
     public List<Seance> getSeances() {
         return seances;
     }
+
+    public Duration getDuration() {
+        var sec = getSeances().stream().mapToLong(s -> s.getFin().toSecondOfDay() - s.getDebut().toSecondOfDay()).sum();
+        return Duration.of(sec, ChronoUnit.SECONDS);
+    }
+
 }

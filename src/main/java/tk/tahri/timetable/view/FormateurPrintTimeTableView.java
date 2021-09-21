@@ -11,7 +11,6 @@ public class FormateurPrintTimeTableView extends PrintTimeTableView {
     public FormateurPrintTimeTableView(Formateur formateur) {
         super(SeanceType.FORMATEUR);
         this.formateur = formateur;
-        this.getStylesheets().add(getClass().getResource("/css/print.css").toString());
     }
 
     @Override
