@@ -1,35 +1,24 @@
 package tk.tahri.timetable.print;
 
-import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.view.FormateurPrintTimeTableView;
 
-import java.time.Duration;
 
 public class FormateurTimeTablePrint extends TimeTablePrint {
     private final Formateur formateur;
 
     public FormateurTimeTablePrint(Formateur formateur) {
-        super(15);
+        super(15, new FormateurPrintTimeTableView(formateur));
         this.formateur = formateur;
-        this.setAlignment(Pos.TOP_CENTER);
-        var TT = new FormateurPrintTimeTableView(formateur);
-        TT.loadSeanceViews(false);
-        TT.setTranslateX(30);
-        this.getChildren().addAll(header(), titre(formateur.toString()), info(info1(TT.getDuration()), info2()), TT);
+        this.getChildren().addAll(header(), titre(formateur.toString()), info(info1(), info2()), body());
     }
 
-    private GridPane info1(Duration duration) {
+    private GridPane info1() {
         var grid = new GridPane();
-
         grid.add(new Text("Statut"), 0, 0);
-        grid.add(new Text("Masse horaire"), 0, 1);
-
         grid.add(new Text(" : " + formateur.getType()), 1, 0);
-        grid.add(new Text(" : " + duration.toHours() + "h" + duration.toMinutesPart() + "min"), 1, 1);
-
         return grid;
     }
 

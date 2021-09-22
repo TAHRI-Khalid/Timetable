@@ -1,6 +1,5 @@
 package tk.tahri.timetable.print;
 
-import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Groupe;
@@ -10,13 +9,9 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
     private final Groupe groupe;
 
     public GroupeTimeTablePrint(Groupe groupe) {
-        super(15);
+        super(15, new GroupePrintTimeTableView(groupe));
         this.groupe = groupe;
-        this.setAlignment(Pos.TOP_CENTER);
-        var TT=new GroupePrintTimeTableView(groupe);
-        TT.loadSeanceViews(false);
-        TT.setTranslateX(30);
-        this.getChildren().addAll(header(), titre(groupe.getNom()), info(info1(),info2()), TT);
+        this.getChildren().addAll(header(), titre(groupe.getNom()), info(info1(), info2()), body());
     }
 
     private GridPane info1() {
@@ -32,6 +27,7 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
 
         return grid;
     }
+
     private GridPane info2() {
         var grid = new GridPane();
 

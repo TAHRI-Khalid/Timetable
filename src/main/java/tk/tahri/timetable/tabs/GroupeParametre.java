@@ -163,7 +163,7 @@ public class GroupeParametre extends Tab {
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        groupeTT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
+        groupeTT.setPrefWidth(pageLayout.getPrintableWidth());
 
         if (job.showPrintDialog(table.getScene().getWindow())) {
             boolean success = job.printPage(groupeTT);

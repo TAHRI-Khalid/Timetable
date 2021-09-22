@@ -222,7 +222,7 @@ public class FormateurTab extends EditorTab {
         PrinterJob job = PrinterJob.createPrinterJob();
         PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 40, 40, 40, 40);
         job.getJobSettings().setPageLayout(pageLayout);
-        TT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
+        TT.setPrefWidth(pageLayout.getPrintableWidth());
 
         if (job.showPrintDialog(formateurTimeTable.getScene().getWindow())) {
             boolean success = job.printPage(TT);

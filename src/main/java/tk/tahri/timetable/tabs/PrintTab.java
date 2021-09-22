@@ -145,17 +145,17 @@ public class PrintTab extends EditorTab {
         if (job.showPrintDialog(groupeCheckListView.getScene().getWindow())) {
             groupeCheckListView.getCheckModel().getCheckedItems().forEach(groupe -> {
                 var TT = new GroupeTimeTablePrint(groupe);
-                TT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
+                TT.setPrefWidth(pageLayout.getPrintableWidth());
                 job.printPage(TT);
             });
             formateurCheckListView.getCheckModel().getCheckedItems().forEach(formateur -> {
                 var TT = new FormateurTimeTablePrint(formateur);
-                TT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
+                TT.setPrefWidth(pageLayout.getPrintableWidth() );
                 job.printPage(TT);
             });
             espaceCheckListView.getCheckModel().getCheckedItems().forEach(espace -> {
                 var TT = new EspaceTimeTablePrint(espace);
-                TT.setPrefWidth(pageLayout.getPrintableWidth() - 40);
+                TT.setPrefWidth(pageLayout.getPrintableWidth());
                 job.printPage(TT);
             });
 

@@ -11,14 +11,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.view.PrintTimeTableView;
 
 import java.util.Objects;
 
 public abstract class TimeTablePrint extends VBox {
-    protected Etablissement etablissement;
+    protected final Etablissement etablissement;
+    protected final PrintTimeTableView printTimeTableView;
 
-    public TimeTablePrint(int space) {
+    public TimeTablePrint(int space, PrintTimeTableView printTimeTableView) {
         super(space);
+        this.printTimeTableView = printTimeTableView;
+        this.printTimeTableView.loadSeanceViews(false);
+        this.setAlignment(Pos.TOP_CENTER);
         this.getStylesheets().add(getClass().getResource("/css/print.css").toString());
         etablissement = Database.getInstance().getItablissment();
     }
@@ -41,6 +46,7 @@ public abstract class TimeTablePrint extends VBox {
     protected HBox titre(String title) {
         var hBox = new HBox();
         hBox.setAlignment(Pos.CENTER);
+        HBox.setHgrow(hBox, Priority.ALWAYS);
         var vBox = new VBox();
         vBox.setAlignment(Pos.CENTER);
         var lblTitle = new Label("EMPLOI DU TEMPS : " + title);
@@ -54,6 +60,9 @@ public abstract class TimeTablePrint extends VBox {
 
     protected HBox info(GridPane... gridPane) {
         var hBox = new HBox();
+        HBox.setHgrow(hBox, Priority.ALWAYS);
+        hBox.setAlignment(Pos.TOP_CENTER);
+
         hBox.getStyleClass().add("timetable-info");
         var grid = new GridPane();
 
@@ -72,11 +81,22 @@ public abstract class TimeTablePrint extends VBox {
         grid.add(new Text("Date d'effet"), 0, 0);
         grid.add(new Text(" : " + etablissement.getDateDebut()), 1, 0);
 
-        if (etablissement.getDateFin()!=null){
+        if (etablissement.getDateFin() != null) {
             grid.add(new Text("Date de fin"), 0, 1);
             grid.add(new Text(" : " + etablissement.getDateFin()), 1, 1);
         }
+        var duration = printTimeTableView.getDuration();
+        grid.add(new Text("Masse horaire"), 0, 2);
+        grid.add(new Text(" : " + duration.toHours() + "h" + duration.toMinutesPart() + "min"), 1, 2);
+
         hBox.getChildren().add(grid);
+        return hBox;
+    }
+
+    protected HBox body() {
+        var hBox = new HBox();
+        hBox.setAlignment(Pos.TOP_CENTER);
+        hBox.getChildren().add(printTimeTableView);
         return hBox;
     }
 
