@@ -181,8 +181,10 @@ public class EspaceParametre extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM espace WHERE id= ?", String.valueOf(id));
-        loadData();
+        if (!Database.getInstance().isEspaceHasSeances(id)) {
+            Database.getInstance().execute("DELETE FROM espace WHERE id= ?", String.valueOf(id));
+            loadData();
+        }
     }
 
     private void updateForm(long id) {

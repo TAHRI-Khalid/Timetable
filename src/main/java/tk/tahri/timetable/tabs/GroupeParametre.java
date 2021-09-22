@@ -210,8 +210,10 @@ public class GroupeParametre extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM groupe WHERE id=?", String.valueOf(id));
-        loadData();
+        if (!Database.getInstance().isGroupeHasSeances(id)) {
+            Database.getInstance().execute("DELETE FROM groupe WHERE id=?", String.valueOf(id));
+            loadData();
+        }
     }
 
     private void updateForm(long id) {

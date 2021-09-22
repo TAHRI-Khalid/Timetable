@@ -3,6 +3,7 @@ package tk.tahri.timetable.dao;
 
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.tools.Config;
+
 import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -276,6 +277,52 @@ public class Database {
     }
 
 
+    public boolean isFiliereHasGroupes(long idFiliere) {
+        String sql = "SELECT * FROM groupe WHERE idFiliere=%d".formatted(idFiliere);
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            return rs.next();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isFormateurHasSeances(long idFormateur) {
+        String sql = "SELECT * FROM seance WHERE idFormateur=%d".formatted(idFormateur);
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            return rs.next();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+    public boolean isEspaceHasSeances(long idEspace) {
+        String sql = "SELECT * FROM seance WHERE idEspace=%d".formatted(idEspace);
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            return rs.next();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+    public boolean isGroupeHasSeances(long idGroupe) {
+        String sql = "SELECT * FROM seance_groupe WHERE idGroupe=%d".formatted(idGroupe);
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            return rs.next();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
     public List<Seance> getSeances(Groupe groupe) {
         var list = new ArrayList<Seance>();
         String sql = """
@@ -451,6 +498,7 @@ public class Database {
         }
         return dashboard;
     }
+
 
 
 }

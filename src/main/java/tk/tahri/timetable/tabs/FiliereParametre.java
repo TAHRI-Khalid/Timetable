@@ -198,8 +198,10 @@ public class FiliereParametre extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM filiere WHERE id=?", String.valueOf(id));
-        loadData();
+        if(!Database.getInstance().isFiliereHasGroupes(id)){
+            Database.getInstance().execute("DELETE FROM filiere WHERE id=?", String.valueOf(id));
+            loadData();
+        }
     }
 
     private void updateForm(long id) {

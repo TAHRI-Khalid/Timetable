@@ -204,8 +204,10 @@ public class FormateurParametre extends Tab {
     }
 
     private void deleteItem(long id) {
-        Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
-        loadData();
+        if(!Database.getInstance().isFormateurHasSeances(id)){
+            Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
+            loadData();
+        }
     }
 
     private void updateForm(long id) {
