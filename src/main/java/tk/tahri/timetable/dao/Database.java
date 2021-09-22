@@ -151,7 +151,7 @@ public class Database {
     }
 
     public List<Espace> getEspaces() {
-        String sql = "SELECT * FROM espace";
+        String sql = "SELECT * FROM espace ORDER BY nom";
         var list = new ArrayList<Espace>();
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement();
@@ -171,7 +171,7 @@ public class Database {
     }
 
     public List<Formateur> getFormateurs() {
-        String sql = "SELECT * FROM formateur";
+        String sql = "SELECT * FROM formateur ORDER BY nom";
         var list = new ArrayList<Formateur>();
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement();
@@ -193,7 +193,7 @@ public class Database {
     }
 
     public List<Filiere> getFilieres() {
-        String sql = "SELECT * FROM filiere";
+        String sql = "SELECT * FROM filiere ORDER BY abreviation";
         var list = new ArrayList<Filiere>();
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement();
@@ -245,6 +245,7 @@ public class Database {
                 SELECT g.id, g.nom as gnom, annee, idFiliere, f.nom as fnom, abreviation, niveau, secteur, type
                 FROM groupe g
                 INNER JOIN filiere f on g.idFiliere = f.id
+                ORDER BY g.nom
                 """;
         var list = new ArrayList<Groupe>();
         try (Connection conn = DriverManager.getConnection(url);

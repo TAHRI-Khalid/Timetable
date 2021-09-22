@@ -60,7 +60,7 @@ public class App extends Application {
         if (modified) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Attension");
-            alert.setContentText("le fichier a ete modifié voulez vous le sauvegarder ?");
+            alert.setContentText("le fichier a été modifié voulez-vous enregistrer les modifications ?");
             ButtonType okButton = new ButtonType("Oui", ButtonBar.ButtonData.YES);
             ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.NO);
             ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
