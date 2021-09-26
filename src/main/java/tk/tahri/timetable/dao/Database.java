@@ -399,7 +399,18 @@ public class Database {
                 """.formatted(espace.getId());
         return getSeances(sql);
     }
-
+    public List<Seance> getSeances() {
+        String sql = """
+                SELECT
+                s.id, s.debut, s.fin ,s.jour ,s.type as stype,s.idFormateur,s.idEspace,
+                f.nom as fnom, f.prenom, f.matricule, f.type as ftype,
+                e.nom as enom, e.type
+                FROM seance s
+                INNER JOIN formateur f on  f.id=s.idFormateur
+                INNER JOIN espace e on e.id = s.idEspace;
+                """;
+        return getSeances(sql);
+    }
     private List<Seance> getSeances(String sql) {
         var list = new ArrayList<Seance>();
         try (Connection conn = DriverManager.getConnection(url);

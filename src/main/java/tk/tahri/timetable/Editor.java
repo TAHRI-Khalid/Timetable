@@ -287,7 +287,13 @@ public class Editor extends VBox {
             loadTab(new EspaceParametre(this));
         });
 
-        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace);
+        var mMatrice = new MenuItem("Matrice");
+        mMatrice.setOnAction(event -> {
+            loadTab(new MatriceTab());
+        });
+
+
+        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace,mMatrice);
 
     }
 

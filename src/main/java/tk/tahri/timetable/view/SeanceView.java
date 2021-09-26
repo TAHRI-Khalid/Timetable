@@ -1,13 +1,19 @@
 package tk.tahri.timetable.view;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
+
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,6 +23,15 @@ public class SeanceView extends VBox {
     private double firstClickX;
     private double firstClickY;
 
+    public SeanceView(Seance seance) {
+        this.seance = seance;
+        this.setSpacing(5);
+        this.getChildren().addAll(new Label(seance.getFormateur().toString()));
+        this.getChildren().addAll(new Label(seance.getGroupes().get(0).getNom()));
+        this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace().getNom()));
+        this.setBackground(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
+    }
+
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
         this.seance = seance;
         switch (type) {
@@ -25,7 +40,7 @@ public class SeanceView extends VBox {
                     this.getChildren().add(new Label(seance.getGroupes().get(0).toString()));
                     this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
                 } else {
-                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().getAbreviation()+ " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
                     this.getChildren().add(new Label("[" + seance.getType() + "]"));
                 }
             }

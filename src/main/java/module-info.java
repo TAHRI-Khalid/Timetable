@@ -1,5 +1,6 @@
 module timeTable {
     requires java.sql;
+    requires javafx.base;
     requires javafx.controls;
     requires org.controlsfx.controls;
     requires org.xerial.sqlitejdbc;
