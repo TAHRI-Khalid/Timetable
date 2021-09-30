@@ -25,5 +25,4 @@ public class FormateurSubTimetableView extends SubTimeTableView {
         this.formateur = formateur;
         super.Titre.setText("Fromateur : "+formateur.toString());
     }
-
 }

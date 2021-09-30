@@ -34,7 +34,7 @@
     -fx-padding: 5px;
 }
 
-.formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-view {
+.formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-viewgroupe-title-main {
     -fx-background-radius: 7.0;
     -fx-alignment: center;
 }
@@ -46,11 +46,18 @@
 }
 
 .espace-title-main, .groupe-title-main, .formateur-title-main {
+    -fx-padding: 5 30 5 30;
+    -fx-background-insets: 0 10 0 10;
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #fff;
-    -fx-padding: 5 25 5 25;
-    -fx-background-insets: 0 10 0 10;
+}
+
+.espace-title-main Label, .groupe-title-main Label, .formateur-title-main Label{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fff;
+    -fx-padding: 0 30 0 30;
 }
 
 .formateur-title-sub, .groupe-title-sub, .espace-title-sub {

@@ -37,7 +37,7 @@ public class PrintTab extends EditorTab {
     public PrintTab(String nom) {
         super(nom);
         FontAwesome fontAwesome = new FontAwesome();
-        var vBox = new VBox(20);
+        var vBox = new VBox(15);
         vBox.setPadding(new Insets(20));
 
         var groupeTitle = new Label("Espace d'impression : ");
@@ -49,13 +49,14 @@ public class PrintTab extends EditorTab {
 
 
         GridPane grid = new GridPane();
-        grid.setVgap(10);
-        grid.setHgap(10);
+        grid.setVgap(15);
+        grid.setHgap(20);
         VBox.setVgrow(grid,Priority.ALWAYS);
         grid.setAlignment(Pos.CENTER);
 
         grid.add(new Label("Groupes :"), 0, 0);
         groupeCheckListView = new CheckListView<>();
+        GridPane.setVgrow(groupeCheckListView,Priority.ALWAYS);
         groupeCheckListView.getItems().addAll(Database.getInstance().getGroupes());
         grid.add(groupeCheckListView, 0, 1);
         var hBox1 = new HBox(20);
@@ -119,7 +120,7 @@ public class PrintTab extends EditorTab {
         btnPrint.setMaxWidth(Double.MAX_VALUE);
         btnPrint.setOnAction(e -> print());
         GridPane.setHalignment(btnPrint, HPos.CENTER);
-        grid.add(btnPrint, 1, 7);
+        grid.add(btnPrint, 1, 3);
 
         vBox.getChildren().add(grid);
         this.setContent(vBox);

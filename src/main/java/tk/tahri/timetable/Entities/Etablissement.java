@@ -5,12 +5,39 @@ import java.time.LocalDate;
 public class Etablissement {
     private Long id;
     private String code;
+    private String direction;
+    private String complexe;
     private String nom;
     private String abreviation;
+    private String anneeDeFormation;
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
     public Etablissement() {
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public String getComplexe() {
+        return complexe;
+    }
+
+    public void setComplexe(String complexe) {
+        this.complexe = complexe;
+    }
+
+    public String getAnneeDeFormation() {
+        return anneeDeFormation;
+    }
+
+    public void setAnneeDeFormation(String anneeDeFormation) {
+        this.anneeDeFormation = anneeDeFormation;
     }
 
     public String getAbreviation() {

@@ -16,9 +16,12 @@ import tk.tahri.timetable.dao.Database;
 public class EtablissementParametre extends Tab {
 
     private Etablissement etablissement;
+    private final TextField txtDirection;
+    private final TextField txtComplexe;
     private final TextField txtNom;
     private final TextField txtAbreviation;
     private final TextField txtCode;
+    private final TextField txtAnneeDeFormation;
     private final DatePicker datePickerDebut;
     private final DatePicker datePickerFin;
 
@@ -36,30 +39,45 @@ public class EtablissementParametre extends Tab {
         grid.setVgap(15);
         grid.setHgap(15);
 
-        grid.add(new Label("Nom : "), 0, 0);
+        grid.add(new Label("Direction : "), 0, 0);
+        txtDirection = new TextField();
+        GridPane.setHgrow(txtDirection, Priority.ALWAYS);
+        grid.add(txtDirection, 1, 0);
+
+        grid.add(new Label("Complexe : "), 0, 1);
+        txtComplexe = new TextField();
+        GridPane.setHgrow(txtComplexe, Priority.ALWAYS);
+        grid.add(txtComplexe, 1, 1);
+
+        grid.add(new Label("Etablissement : "), 0, 2);
         txtNom = new TextField();
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
-        grid.add(txtNom, 1, 0);
+        grid.add(txtNom, 1, 2);
 
-        grid.add(new Label("abreviation : "), 0, 1);
+        grid.add(new Label("abreviation : "), 0, 3);
         txtAbreviation = new TextField();
         GridPane.setHgrow(txtAbreviation, Priority.ALWAYS);
-        grid.add(txtAbreviation, 1, 1);
+        grid.add(txtAbreviation, 1, 3);
 
-        grid.add(new Label("Code : "), 0, 2);
+        grid.add(new Label("Code : "), 0, 4);
         txtCode = new TextField();
         GridPane.setHgrow(txtCode, Priority.ALWAYS);
-        grid.add(txtCode, 1, 2);
+        grid.add(txtCode, 1, 4);
 
-        grid.add(new Label("Date début : "), 0, 3);
+        grid.add(new Label("Année de formation : "), 0, 5);
+        txtAnneeDeFormation = new TextField();
+        GridPane.setHgrow(txtAnneeDeFormation, Priority.ALWAYS);
+        grid.add(txtAnneeDeFormation, 1, 5);
+
+        grid.add(new Label("Date début : "), 0, 6);
         datePickerDebut = new DatePicker();
         GridPane.setHgrow(datePickerDebut, Priority.ALWAYS);
-        grid.add(datePickerDebut, 1, 3);
+        grid.add(datePickerDebut, 1, 6);
 
-        grid.add(new Label("Date fin : "), 0, 4);
+        grid.add(new Label("Date fin : "), 0, 7);
         datePickerFin = new DatePicker();
         GridPane.setHgrow(datePickerFin, Priority.ALWAYS);
-        grid.add(datePickerFin, 1, 4);
+        grid.add(datePickerFin, 1, 7);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -86,19 +104,24 @@ public class EtablissementParametre extends Tab {
     }
 
     private void clearForm() {
+        txtDirection.setText(etablissement.getDirection());
+        txtComplexe.setText(etablissement.getComplexe());
         txtAbreviation.setText(etablissement.getAbreviation());
         txtCode.setText(etablissement.getCode());
+        txtAnneeDeFormation.setText(etablissement.getAnneeDeFormation());
         txtNom.setText(etablissement.getNom());
         datePickerDebut.setValue(etablissement.getDateDebut());
         datePickerFin.setValue(etablissement.getDateFin());
     }
 
     private void saveForm() {
-
-        Database.getInstance().execute("UPDATE etablissement SET nom=? ,abreviation=? ,code=?,dateDebut=?, dateFin=? WHERE id=?",
+        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=? ,abreviation=? ,code=?,annee=?,dateDebut=?, dateFin=? WHERE id=?",
+                txtDirection.getText(),
+                txtComplexe.getText(),
                 txtNom.getText(),
                 txtAbreviation.getText(),
                 txtCode.getText(),
+                txtAnneeDeFormation.getText(),
                 datePickerDebut.getEditor().getText().isEmpty() ? null : datePickerDebut.getValue().toString(),
                 datePickerFin.getEditor().getText().isEmpty() ? null : datePickerFin.getValue().toString(),
                 String.valueOf(etablissement.getId()));

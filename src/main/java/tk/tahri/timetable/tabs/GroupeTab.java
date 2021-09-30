@@ -39,7 +39,7 @@ public class GroupeTab extends EditorTab {
         column2.setPercentWidth(43);
         ColumnConstraints column3 = new ColumnConstraints();
         column3.setPercentWidth(14);
-        grid.getColumnConstraints().addAll(column1, column2,column3);
+        grid.getColumnConstraints().addAll(column1, column2, column3);
 
         RowConstraints rowConstraints1 = new RowConstraints();
         rowConstraints1.setPercentHeight(7);
@@ -62,10 +62,16 @@ public class GroupeTab extends EditorTab {
 
     private void drawMainContent() {
 
-        Label groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
+        //var toolBargroupeTitle = new ToolBar();
+        var groupeTitle = new Label("Groupe : " + groupeTimeTable.getGroupe().getNom());
         groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(26));
-        groupeTitle.getStyleClass().add("groupe-title-main");
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
+        groupeTitle.getStyleClass().add("groupe-title-main");
+        //var space=new Region();
+        //HBox.setHgrow(space,Priority.ALWAYS);
+        //toolBargroupeTitle.getItems().addAll(groupeTitle, new Separator(),space);
+        //var lblMasseHoraire = new Label("09 h 30 min");
+        //toolBargroupeTitle.getItems().addAll(new Separator(), lblMasseHoraire);
         grid.add(groupeTitle, 0, 0, 2, 1);
         var box = new VBox(groupeTimeTable);
         box.setAlignment(Pos.CENTER);
@@ -105,7 +111,7 @@ public class GroupeTab extends EditorTab {
 
     private void resize() {
 
-        var scaleX = (grid.getWidth() - grid.getWidth()*14/100) / 1150;
+        var scaleX = (grid.getWidth() - grid.getWidth() * 14 / 100) / 1150;
         var scaleY = grid.getHeight() / 750;
         var scale = Math.min(scaleX, scaleY);
 
@@ -118,7 +124,6 @@ public class GroupeTab extends EditorTab {
         groupeTimeTable.setScaleX(scale);
         groupeTimeTable.setScaleY(scale);
     }
-
 
 
     private void drawRigthSidebar() {

@@ -20,7 +20,7 @@ public class EspaceTimeTablePrint extends TimeTablePrint {
         var grid = new GridPane();
 
         grid.add(new Text("Type"), 0, 0);
-        grid.add(new Text("nom"), 0, 1);
+        grid.add(new Text("Nom"), 0, 1);
 
         grid.add(new Text(" : " + espace.getType()), 1, 0);
         grid.add(new Text(" : " + espace.getNom()), 1, 1);

@@ -126,11 +126,6 @@ public abstract class TimeTableView extends Pane {
             for (var s2 : seances) {
                 if (chevauchement(s1, s2)) {
                     ch = true;
-                    /*
-                    if(s1.getType().equals("FAD")&& s2.getType().equals("FAD") && s1.getDebut().equals(s2.getDebut()) && s1.getFin().equals(s2.getFin())){
-
-                    }
-                     */
                     break;
                 }
             }

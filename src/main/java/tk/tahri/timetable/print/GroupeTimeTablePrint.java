@@ -37,7 +37,7 @@ public class GroupeTimeTablePrint extends TimeTablePrint {
 
         grid.add(new Text(" : " + groupe.getFiliere().getAbreviation()), 1, 0);
         grid.add(new Text(" : " + groupe.getNom()), 1, 1);
-        grid.add(new Text(" : " + groupe.getAnnee()), 1, 2);
+        grid.add(new Text(" : " + groupe.getAnnee()+"A"), 1, 2);
         return grid;
     }
 

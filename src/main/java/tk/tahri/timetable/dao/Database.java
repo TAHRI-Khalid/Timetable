@@ -47,8 +47,11 @@ public class Database {
         String sql_create_etablissment = """
                 CREATE TABLE IF NOT EXISTS etablissement (
                 id integer PRIMARY KEY AUTOINCREMENT,
+                direction text NOT NULL,
+                complexe text NOT NULL,
                 nom text NOT NULL,
                 abreviation text NOT NULL,
+                annee text NOT NULL,
                 code text,
                 dateDebut text,
                 dateFin text);
@@ -111,7 +114,17 @@ public class Database {
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
             statement.execute(sql_create_etablissment);
-            statement.execute("INSERT INTO etablissement VALUES (null,'Institut Spécialisé de Technologie Appliquée Berkane','ISTA Berkane','S140',null,null)");
+            statement.execute("""
+                    INSERT INTO etablissement 
+                    VALUES (null,
+                        'DR Oriental',
+                        'CF Berkane',
+                        'Institut Spécialisé de Technologie Appliquée Berkane',
+                        'ISTA Berkane',
+                        '2021/2022',
+                        'S140',
+                        null,
+                        null)""");
             statement.execute(sql_create_espace);
             statement.execute(sql_create_filiere);
             statement.execute(sql_create_groupe);
@@ -133,9 +146,12 @@ public class Database {
 
             if (rs.next()) {
                 etab.setId(rs.getLong("id"));
+                etab.setDirection(rs.getString("direction"));
+                etab.setComplexe(rs.getString("complexe"));
                 etab.setNom(rs.getString("nom"));
                 etab.setAbreviation(rs.getString("abreviation"));
                 etab.setCode(rs.getString("code"));
+                etab.setAnneeDeFormation(rs.getString("annee"));
                 var d1 = rs.getString("dateDebut");
                 if (d1 != null) {
                     etab.setDateDebut(LocalDate.parse(d1));
@@ -300,6 +316,7 @@ public class Database {
         }
         return false;
     }
+
     public boolean isEspaceHasSeances(long idEspace) {
         String sql = "SELECT * FROM seance WHERE idEspace=%d".formatted(idEspace);
         try (Connection conn = DriverManager.getConnection(url);
@@ -311,6 +328,7 @@ public class Database {
         }
         return false;
     }
+
     public boolean isGroupeHasSeances(long idGroupe) {
         String sql = "SELECT * FROM seance_groupe WHERE idGroupe=%d".formatted(idGroupe);
         try (Connection conn = DriverManager.getConnection(url);
@@ -399,6 +417,7 @@ public class Database {
                 """.formatted(espace.getId());
         return getSeances(sql);
     }
+
     public List<Seance> getSeances() {
         String sql = """
                 SELECT
@@ -411,6 +430,7 @@ public class Database {
                 """;
         return getSeances(sql);
     }
+
     private List<Seance> getSeances(String sql) {
         var list = new ArrayList<Seance>();
         try (Connection conn = DriverManager.getConnection(url);
@@ -509,7 +529,6 @@ public class Database {
         }
         return dashboard;
     }
-
 
 
 }

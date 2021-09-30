@@ -31,8 +31,6 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         seances.addAll(Database.getInstance().getSeances(groupe));
     }
 
-
-
     @Override
     protected void refreshView(Seance seance) {
         formateurTimetable.setFormateur(seance.getFormateur());
@@ -48,6 +46,4 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     public void setGroupe(Groupe groupe) {
         this.groupe = groupe;
     }
-
-
 }

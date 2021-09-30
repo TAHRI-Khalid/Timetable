@@ -6,7 +6,7 @@
 
     <groupId>tk.tahri</groupId>
     <artifactId>TimeTable</artifactId>
-    <version>1.5.1</version>
+    <version>1.6.1</version>
     <name>TimeTable</name>
 
     <properties>
@@ -43,7 +43,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.6</version>
+                <version>0.0.7</version>
                 <executions>
                     <execution>
                         <id>default-cli</id>

@@ -13,6 +13,7 @@ import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.PrintTimeTableView;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public abstract class TimeTablePrint extends VBox {
@@ -51,7 +52,7 @@ public abstract class TimeTablePrint extends VBox {
         vBox.setAlignment(Pos.CENTER);
         var lblTitle = new Label("EMPLOI DU TEMPS : " + title);
         lblTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 20");
-        var lblAnneeDeFormation = new Label("ANNEE DE FORMATION : 2020/2021");
+        var lblAnneeDeFormation = new Label("ANNEE DE FORMATION : " + etablissement.getAnneeDeFormation());
         lblAnneeDeFormation.setStyle("-fx-font-weight: bold; -fx-font-size: 14");
         vBox.getChildren().addAll(lblTitle, lblAnneeDeFormation);
         hBox.getChildren().add(vBox);
@@ -66,24 +67,26 @@ public abstract class TimeTablePrint extends VBox {
         hBox.getStyleClass().add("timetable-info");
         var grid = new GridPane();
 
-        grid.add(new Text("DR"), 0, 0);
+        grid.add(new Text("Direction"), 0, 0);
         grid.add(new Text("Complexe"), 0, 1);
         grid.add(new Text("Etablissement"), 0, 2);
 
-        grid.add(new Text(" : DRO"), 1, 0);
-        grid.add(new Text(" : Complexe Berkane"), 1, 1);
+        grid.add(new Text(" : " + etablissement.getDirection()), 1, 0);
+        grid.add(new Text(" : " + etablissement.getComplexe()), 1, 1);
         grid.add(new Text(" : " + etablissement.getAbreviation()), 1, 2);
 
         hBox.getChildren().add(grid);
         hBox.getChildren().addAll(gridPane);
 
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         grid = new GridPane();
         grid.add(new Text("Date d'effet"), 0, 0);
-        grid.add(new Text(" : " + etablissement.getDateDebut()), 1, 0);
+        grid.add(new Text(" : " + dtf.format(etablissement.getDateDebut())), 1, 0);
 
         if (etablissement.getDateFin() != null) {
             grid.add(new Text("Date de fin"), 0, 1);
-            grid.add(new Text(" : " + etablissement.getDateFin()), 1, 1);
+            grid.add(new Text(" : " + dtf.format(etablissement.getDateFin())), 1, 1);
         }
         var duration = printTimeTableView.getDuration();
         grid.add(new Text("Masse horaire"), 0, 2);
