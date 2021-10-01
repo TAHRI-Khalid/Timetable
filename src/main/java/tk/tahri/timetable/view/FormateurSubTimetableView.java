@@ -6,14 +6,16 @@ import tk.tahri.timetable.dao.Database;
 
 public class FormateurSubTimetableView extends SubTimeTableView {
     private Formateur formateur;
-    public FormateurSubTimetableView( ) {
-       super(SeanceType.FORMATEUR);
+
+    public FormateurSubTimetableView() {
+        super(SeanceType.FORMATEUR);
     }
 
     @Override
     public void loadData() {
-        if(formateur!=null ){
+        if (formateur != null) {
             seances.addAll(Database.getInstance().getSeances(formateur));
+            this.getTitleToolBar().setMasseHoraire(this.getDuration());
         }
     }
 
@@ -23,6 +25,6 @@ public class FormateurSubTimetableView extends SubTimeTableView {
 
     public void setFormateur(Formateur formateur) {
         this.formateur = formateur;
-        super.Titre.setText("Fromateur : "+formateur.toString());
+        super.getTitleToolBar().setTitle(formateur.toString());
     }
 }

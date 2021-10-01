@@ -34,6 +34,7 @@ public abstract class TimeTableView extends Pane {
     protected int thickStroke = 3;
     protected int thinStroke = 1;
     protected boolean dashedLine = true;
+    protected TitleToolBar titleToolBar;
     protected Label Titre;
     protected final SeanceType type;
     protected double timeHeaderX = tableX + 5;
@@ -165,4 +166,11 @@ public abstract class TimeTableView extends Pane {
         return Duration.of(sec, ChronoUnit.SECONDS);
     }
 
+    public TitleToolBar getTitleToolBar() {
+        return titleToolBar;
+    }
+
+    public void setTitleToolBar(TitleToolBar titleToolBar) {
+        this.titleToolBar = titleToolBar;
+    }
 }

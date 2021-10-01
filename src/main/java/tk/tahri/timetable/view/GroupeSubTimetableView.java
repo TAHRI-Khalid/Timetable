@@ -15,6 +15,7 @@ public class GroupeSubTimetableView extends SubTimeTableView {
     public void loadData() {
         if (groupe != null) {
             seances.addAll(Database.getInstance().getSeances(groupe));
+            this.getTitleToolBar().setMasseHoraire(this.getDuration());
         }
     }
 
@@ -24,7 +25,6 @@ public class GroupeSubTimetableView extends SubTimeTableView {
 
     public void setGroupe(Groupe groupe) {
         this.groupe = groupe;
-        super.Titre.setText("Groupe : " + groupe.getNom());
-
+        super.getTitleToolBar().setTitle(groupe.getNom());
     }
 }

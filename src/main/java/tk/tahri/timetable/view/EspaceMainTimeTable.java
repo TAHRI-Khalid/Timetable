@@ -14,12 +14,15 @@ public class EspaceMainTimeTable extends MainTimeTableView {
     private final GroupeSubTimetableView groupeTimetable;
     private final FormateurSubTimetableView formateurTimetable;
 
-    public EspaceMainTimeTable(Espace espace, GroupeSubTimetableView groupeTimetable, FormateurSubTimetableView formateurTimetable) {
+    public EspaceMainTimeTable(Espace espace,TitleToolBar titleToolBar, GroupeSubTimetableView groupeTimetable, FormateurSubTimetableView formateurTimetable) {
         super(SeanceType.ESPACE);
         this.groupeTimetable = groupeTimetable;
         this.formateurTimetable = formateurTimetable;
         this.espace = espace;
+        this.setTitleToolBar(titleToolBar);
         loadSeanceViews(true);
+        this.getTitleToolBar().setTitle("Espace : " + espace.getNom());
+        this.getTitleToolBar().setMasseHoraire(this.getDuration());
     }
 
     @Override
@@ -34,6 +37,7 @@ public class EspaceMainTimeTable extends MainTimeTableView {
 
     @Override
     protected void refreshView(Seance seance) {
+        this.getTitleToolBar().setMasseHoraire(this.getDuration());
         groupeTimetable.setGroupe(seance.getGroupes().get(0));
         groupeTimetable.loadSeanceViews(false);
         formateurTimetable.setFormateur(seance.getFormateur());

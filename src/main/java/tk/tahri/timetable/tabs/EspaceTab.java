@@ -55,7 +55,13 @@ public class EspaceTab extends EditorTab {
 
         groupeTimeTable = new GroupeSubTimetableView();
         formateurTimetable = new FormateurSubTimetableView();
-        espaceTimeTable = new EspaceMainTimeTable(espace, groupeTimeTable, formateurTimetable);
+
+
+        var espaceToolBar = new TitleToolBar();
+        espaceToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
+        espaceToolBar.getStyleClass().add("espace-title-main");
+        espaceTimeTable = new EspaceMainTimeTable(espace,espaceToolBar, groupeTimeTable, formateurTimetable);
+        grid.add(espaceToolBar, 0, 0, 2, 1);
 
         drawMainContent();
         drawRigthSidebar();
@@ -63,11 +69,6 @@ public class EspaceTab extends EditorTab {
 
     private void drawMainContent() {
 
-        Label espaceTitle = new Label("Espace : " + espaceTimeTable.getEspace());
-        espaceTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.HOME).color(Color.WHITE).size(26));
-        espaceTitle.setMaxWidth(Double.MAX_VALUE);
-        espaceTitle.getStyleClass().add("espace-title-main");
-        grid.add(espaceTitle, 0, 0, 2, 1);
         var box = new VBox(espaceTimeTable);
         box.setAlignment(Pos.CENTER);
         var box2 = new HBox(box);
@@ -75,24 +76,26 @@ public class EspaceTab extends EditorTab {
         grid.add(box2, 0, 1, 2, 1);
 
 
-        Label groupeTitle = new Label("Groupe : ");
-        groupeTimeTable.setTitre(groupeTitle);
-        groupeTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(18));
-        groupeTitle.setMaxWidth(Double.MAX_VALUE);
-        groupeTitle.getStyleClass().add("groupe-title-sub");
-        grid.add(groupeTitle, 0, 2);
+        var groupeToolBar=new TitleToolBar();
+        groupeToolBar.setTitle("Groupe : ");
+        groupeTimeTable.setTitleToolBar(groupeToolBar);
+        groupeToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(18));
+        groupeToolBar.getStyleClass().add("groupe-title-sub");
+
+        grid.add(groupeToolBar, 0, 2);
         box = new VBox(groupeTimeTable);
         box.setAlignment(Pos.CENTER);
         box2 = new HBox(box);
         box2.setAlignment(Pos.CENTER);
         grid.add(box2, 0, 3);
 
-        Label formateurTitle = new Label("Formateur : ");
-        formateurTimetable.setTitre(formateurTitle);
-        formateurTitle.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(18));
-        formateurTitle.setMaxWidth(Double.MAX_VALUE);
-        formateurTitle.getStyleClass().add("formateur-title-sub");
-        grid.add(formateurTitle, 1, 2);
+        var formateurToolBar = new TitleToolBar();
+        formateurToolBar.setTitle("Fromateur :");
+        formateurTimetable.setTitleToolBar(formateurToolBar);
+        formateurToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(18));
+        formateurToolBar.getStyleClass().add("formateur-title-sub");
+        grid.add(formateurToolBar, 1, 2);
+
         box = new VBox(formateurTimetable);
         box.setAlignment(Pos.CENTER);
         box2 = new HBox(box);

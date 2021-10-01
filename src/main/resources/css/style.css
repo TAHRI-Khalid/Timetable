@@ -46,7 +46,7 @@
 }
 
 .espace-title-main, .groupe-title-main, .formateur-title-main {
-    -fx-padding: 5 30 5 30;
+    -fx-padding: 5 20 5 20;
     -fx-background-insets: 0 10 0 10;
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -57,17 +57,22 @@
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #fff;
-    -fx-padding: 0 30 0 30;
+    -fx-padding: 0 20 0 20;
 }
 
 .formateur-title-sub, .groupe-title-sub, .espace-title-sub {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #fff;
-    -fx-padding: 5 25 5 25;
     -fx-background-insets: 0 10 0 10;
+    -fx-padding: 3 20 3 20;
 }
-
+.formateur-title-sub Label, .groupe-title-sub Label, .espace-title-sub Label{
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #fff;
+    -fx-padding: 0 20 0 20;
+}
 .espace-title-main, .espace-title-sub, .espace-seance-view, .espace-view {
     -fx-background-color: #8D9AA6;
 }

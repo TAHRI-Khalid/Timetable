@@ -14,6 +14,7 @@ public class EspaceSubTimetableView extends SubTimeTableView {
     public void loadData() {
         if (espace != null) {
             seances.addAll(Database.getInstance().getSeances(espace));
+            this.getTitleToolBar().setMasseHoraire(this.getDuration());
         }
     }
 
@@ -23,6 +24,6 @@ public class EspaceSubTimetableView extends SubTimeTableView {
 
     public void setEspace(Espace espace) {
         this.espace = espace;
-        super.Titre.setText("Espace : "+espace.toString());
+        super.getTitleToolBar().setTitle(espace.toString());
     }
 }
