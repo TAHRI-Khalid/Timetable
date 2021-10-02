@@ -3,11 +3,13 @@ package tk.tahri.timetable.tabs;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.SeanceView;
@@ -81,14 +83,17 @@ public class MatriceTab extends EditorTab {
         martix.getChildren().removeIf(node -> node instanceof VBox && GridPane.getRowIndex(node) >= 2);
         var allSeances = Database.getInstance().getSeances();
 
-        var objects = switch (type) {
+        var list = switch (type) {
             case GROUPE -> Database.getInstance().getGroupes();
             case ESPACE -> Database.getInstance().getEspaces();
             case FORMATEUR -> Database.getInstance().getFormateurs();
         };
 
-        for (int i = 0; i < objects.size(); i++) {
-            var vBox = new VBox(new Text(objects.get(i).toString()));
+        for (int i = 0; i < list.size(); i++) {
+            var lbl=new Label(list.get(i).toString());
+            lbl.setWrapText(true);
+            lbl.setTextAlignment(TextAlignment.CENTER);
+            var vBox = new VBox(lbl);
             vBox.setStyle("-fx-font-size: 18");
             if (i % 2 == 0) {
                 vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -99,9 +104,9 @@ public class MatriceTab extends EditorTab {
             martix.add(vBox, 0, i + 2);
 
             var seances = switch (type) {
-                case GROUPE -> Database.getInstance().getSeances((Groupe) objects.get(i));
-                case ESPACE -> Database.getInstance().getSeances((Espace) objects.get(i));
-                case FORMATEUR -> Database.getInstance().getSeances((Formateur) objects.get(i));
+                case GROUPE -> Database.getInstance().getSeances((Groupe) list.get(i));
+                case ESPACE -> Database.getInstance().getSeances((Espace) list.get(i));
+                case FORMATEUR -> Database.getInstance().getSeances((Formateur) list.get(i));
             };
 
             for (var seance : seances) {

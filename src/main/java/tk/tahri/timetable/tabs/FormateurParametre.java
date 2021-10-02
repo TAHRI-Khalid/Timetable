@@ -18,7 +18,6 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.FormateurTimeTablePrint;
-
 import java.util.Objects;
 
 public class FormateurParametre extends Tab {
@@ -63,7 +62,7 @@ public class FormateurParametre extends Tab {
         grid.add(txtMatricule, 1, 2);
 
         grid.add(new Label("Type : "), 0, 3);
-        comboType = new ComboBox<String>();
+        comboType = new ComboBox<>();
         GridPane.setHgrow(comboType, Priority.ALWAYS);
         comboType.getItems().addAll(Formateur.Types);
         comboType.getSelectionModel().select(0);
@@ -96,7 +95,6 @@ public class FormateurParametre extends Tab {
 
         var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
-
 
         var colPrint = new TableColumn<Formateur, Long>("Imprimer");
         colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));

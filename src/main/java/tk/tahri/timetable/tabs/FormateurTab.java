@@ -59,7 +59,7 @@ public class FormateurTab extends EditorTab {
         var formateurToolBar = new TitleToolBar();
         formateurToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
         formateurToolBar.getStyleClass().add("formateur-title-main");
-        formateurTimeTable = new FormateurMainTimeTable(formateur,formateurToolBar, groupeTimeTable, espaceTimeTable);
+        formateurTimeTable = new FormateurMainTimeTable(formateur, formateurToolBar, groupeTimeTable, espaceTimeTable);
         grid.add(formateurToolBar, 0, 0, 2, 1);
 
         drawMainContent();
@@ -74,7 +74,7 @@ public class FormateurTab extends EditorTab {
         box2.setAlignment(Pos.CENTER);
         grid.add(box2, 0, 1, 2, 1);
 
-        var groupeToolBar=new TitleToolBar();
+        var groupeToolBar = new TitleToolBar();
         groupeToolBar.setTitle("Groupe : ");
         groupeTimeTable.setTitleToolBar(groupeToolBar);
         groupeToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(18));
@@ -211,6 +211,12 @@ public class FormateurTab extends EditorTab {
     protected void selectionChanged() {
         if (this.isSelected()) {
             formateurTimeTable.loadSeanceViews(true);
+            if (espaceTimeTable.getEspace() != null) {
+                espaceTimeTable.loadSeanceViews(false);
+            }
+            if (groupeTimeTable.getGroupe() != null) {
+                groupeTimeTable.loadSeanceViews(false);
+            }
             loadGroupes();
             loadEspaces();
         }

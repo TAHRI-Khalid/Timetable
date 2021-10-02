@@ -20,7 +20,7 @@ public class FormateurMainTimeTable extends MainTimeTableView {
         this.formateur = formateur;
         this.setTitleToolBar(titleToolBar);
         loadSeanceViews(true);
-        this.getTitleToolBar().setTitle("Formateur : " + formateur.getNom());
+        this.getTitleToolBar().setTitle("Formateur : " + formateur);
         this.getTitleToolBar().setMasseHoraire(this.getDuration());
     }
 

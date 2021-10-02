@@ -4,7 +4,6 @@ import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 

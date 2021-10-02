@@ -212,6 +212,10 @@ public class GroupeTab extends EditorTab {
     protected void selectionChanged() {
         if (this.isSelected()) {
             groupeTimeTable.loadSeanceViews(true);
+            if (espaceTimeTable.getEspace() != null)
+                espaceTimeTable.loadSeanceViews(false);
+            if (formateurTimeTable.getFormateur() != null)
+                formateurTimeTable.loadSeanceViews(false);
             loadFormateurs();
             loadEspaces();
         }

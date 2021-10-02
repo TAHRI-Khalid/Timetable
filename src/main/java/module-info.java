@@ -1,4 +1,4 @@
-module timeTable {
+module timetable {
     requires java.sql;
     requires javafx.base;
     requires javafx.controls;

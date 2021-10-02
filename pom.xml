@@ -50,8 +50,8 @@
                         <configuration>
                             <stripDebug>true</stripDebug>
                             <compress>2</compress>
-                            <launcher>timeTable</launcher>
-                            <jlinkImageName>timeTable</jlinkImageName>
+                            <launcher>timetable</launcher>
+                            <jlinkImageName>timetable</jlinkImageName>
                             <mainClass>tk.tahri.timetable.App</mainClass>
                         </configuration>
                     </execution>
@@ -66,8 +66,8 @@
                     <appVersion>${project.version}</appVersion>
                     <vendor>tk.tahri</vendor>
                     <destination>target/dist</destination>
-                    <module>timeTable/tk.tahri.timetable.App</module>
-                    <runtimeImage>target/timeTable</runtimeImage>
+                    <module>timetable/tk.tahri.timetable.App</module>
+                    <runtimeImage>target/timetable</runtimeImage>
                     <javaOptions>
                         <option>-Dfile.encoding=UTF-8</option>
                     </javaOptions>

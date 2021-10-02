@@ -1,6 +1,5 @@
 package tk.tahri.timetable.tabs;
 
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.*;
@@ -45,16 +44,14 @@ public class DashboardTab extends EditorTab {
             lblSeance.setText(String.valueOf(d.getNombreSeances()));
 
             bc.getData().clear();
-            var series1 = new XYChart.Series();
-            d.getBarChartEspace().forEach((espace, aLong) -> {
-                series1.getData().add(new XYChart.Data(espace.getNom(), aLong / 3600));
-            });
+            var series1 = new XYChart.Series<String, Number>();
+            d.getBarChartEspace().forEach((espace, aLong) -> series1.getData().add(new XYChart.Data<>(espace.getNom(), aLong / 3600)));
             bc.getData().add(series1);
 
             var total = d.getBarChartEspace().size() * 10 * 6;
             var occupe = d.getBarChartEspace().values().stream().mapToLong(Long::longValue).sum() / 3600;
 
-            lblOccupation.setText(String.format("%.1f%%", (float)occupe / total * 100));
+            lblOccupation.setText(String.format("%.1f%%", (float) occupe / total * 100));
 
         }
     }
