@@ -11,13 +11,13 @@ public class SplashScreen extends Preloader {
     private Scene scene;
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         Pane root = new Pane();
         scene = new Scene(root, 400, 300);
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage){
         this.preloaderStage = stage;
         preloaderStage.setScene(scene);
         preloaderStage.initStyle(StageStyle.UNDECORATED);
@@ -32,7 +32,6 @@ public class SplashScreen extends Preloader {
     @Override
     public void handleStateChangeNotification(Preloader.StateChangeNotification info) {
         StateChangeNotification.Type type = info.getType();
-
         if (type == StateChangeNotification.Type.BEFORE_START) {
             preloaderStage.hide();
         }

@@ -70,19 +70,25 @@ public class SeanceView extends VBox {
             var mHeurs = new Menu("Heurs");
             var h1 = new MenuItem("01 H 00 Min");
             var h115 = new MenuItem("01 H 15 Min");
+            var h15 = new MenuItem("01 H 30 Min");
             var h2 = new MenuItem("02 H 00 Min");
             var h25 = new MenuItem("02 H 30 Min");
             var h3 = new MenuItem("03 H 00 Min");
+            var h35 = new MenuItem("03 H 30 Min");
             var h4 = new MenuItem("04 H 00 Min");
+            var h45 = new MenuItem("04 H 30 Min");
             var h5 = new MenuItem("05 H 00 Min");
-            mHeurs.getItems().addAll(h1, h115, h2, h25, h3, h4, h5);
+            mHeurs.getItems().addAll(h1, h115, h15, h2, h25, h3, h35, h4, h45, h5);
 
             h1.setOnAction(event -> this.updateTime(Duration.ofMinutes(60)));
             h115.setOnAction(event -> this.updateTime(Duration.ofMinutes(75)));
+            h15.setOnAction(event -> this.updateTime(Duration.ofMinutes(90)));
             h2.setOnAction(event -> this.updateTime(Duration.ofMinutes(120)));
             h25.setOnAction(event -> this.updateTime(Duration.ofMinutes(150)));
             h3.setOnAction(event -> this.updateTime(Duration.ofMinutes(180)));
+            h35.setOnAction(event -> this.updateTime(Duration.ofMinutes(210)));
             h4.setOnAction(event -> this.updateTime(Duration.ofMinutes(240)));
+            h45.setOnAction(event -> this.updateTime(Duration.ofMinutes(270)));
             h5.setOnAction(event -> this.updateTime(Duration.ofMinutes(300)));
 
             var mSuppr = new MenuItem("Suuprimer");

@@ -14,14 +14,12 @@ import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tabs.*;
 import tk.tahri.timetable.tools.Config;
-
 import java.io.IOException;
 import java.nio.file.*;
 
 public class Editor extends VBox {
 
     private TabPane tabpane;
-    private MenuBar menu;
     private final Menu mFichier = new Menu("Fichier");
     private final Menu mGroupe = new Menu("Groupes");
     private final Menu mFormateur = new Menu("Formateurs");
@@ -43,7 +41,7 @@ public class Editor extends VBox {
     }
 
     private void createMenu() {
-        menu = new MenuBar();
+        MenuBar menu = new MenuBar();
         menu.getMenus().addAll(mFichier, mGroupe, mFormateur, mEspace, mParametre);
 
         var mNouveau = new MenuItem("Nouveau");
@@ -77,7 +75,6 @@ public class Editor extends VBox {
         mPrintCenter.setOnAction(event -> {
             PrintTab printTab = new PrintTab("Espace d'impression");
             loadTab(printTab);
-
         });
 
         var mQuitter = new MenuItem("Quitter");
@@ -196,6 +193,7 @@ public class Editor extends VBox {
                 loadMenuGroupe();
                 loadMenuFormateur();
                 loadMenuEspace();
+                loadMenuParametre();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -211,9 +209,7 @@ public class Editor extends VBox {
             mGroupe.getItems().add(menu);
             list.stream().filter(groupe -> groupe.getFiliere().getNiveau().equals(niveau)).forEach(groupe -> {
                 var submenu = new MenuItem(groupe.getNom());
-                submenu.setOnAction(event -> {
-                    loadTab(new GroupeTab(groupe));
-                });
+                submenu.setOnAction(event -> loadTab(new GroupeTab(groupe)));
                 menu.getItems().add(submenu);
             });
         });
@@ -226,13 +222,13 @@ public class Editor extends VBox {
         list.stream().map(Formateur::getType).distinct().forEach(type -> {
             var menu = new Menu(type);
             mFormateur.getItems().add(menu);
-            list.stream().filter(formateur -> formateur.getType().equals(type)).forEach(formateur -> {
-                var submenu = new MenuItem(formateur.toString());
-                submenu.setOnAction(event -> {
-                    loadTab(new FormateurTab(formateur));
-                });
-                menu.getItems().add(submenu);
-            });
+            for (Formateur formateur : list) {
+                if (formateur.getType().equals(type)) {
+                    var submenu = new MenuItem(formateur.toString());
+                    submenu.setOnAction(event -> loadTab(new FormateurTab(formateur)));
+                    menu.getItems().add(submenu);
+                }
+            }
         });
 
     }
@@ -243,13 +239,13 @@ public class Editor extends VBox {
         list.stream().map(Espace::getType).distinct().forEach(type -> {
             var menu = new Menu(type);
             mEspace.getItems().add(menu);
-            list.stream().filter(espace -> espace.getType().equals(type)).forEach(espace -> {
-                var submenu = new MenuItem(espace.getNom());
-                submenu.setOnAction(event -> {
-                    loadTab(new EspaceTab(espace));
-                });
-                menu.getItems().add(submenu);
-            });
+            for (Espace espace : list) {
+                if (espace.getType().equals(type)) {
+                    var submenu = new MenuItem(espace.getNom());
+                    submenu.setOnAction(event -> loadTab(new EspaceTab(espace)));
+                    menu.getItems().add(submenu);
+                }
+            }
         });
 
     }
@@ -258,42 +254,30 @@ public class Editor extends VBox {
         mParametre.getItems().clear();
 
         var mEtablissement = new MenuItem("Etablissement");
-        mEtablissement.setOnAction(event -> {
-            loadTab(new EtablissementParametre(this));
-        });
+        mEtablissement.setOnAction(event -> loadTab(new EtablissementParametre(this)));
         var mFiliere = new MenuItem("Filières");
-        mFiliere.setOnAction(event -> {
-            loadTab(new FiliereParametre(this));
-        });
+        mFiliere.setOnAction(event -> loadTab(new FiliereParametre(this)));
 
         var mParamGroupe = new MenuItem("Groupes");
         var gkeyCombination = new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN);
         mParamGroupe.setAccelerator(gkeyCombination);
-        mParamGroupe.setOnAction(event -> {
-            loadTab(new GroupeParametre(this));
-        });
+        mParamGroupe.setOnAction(event -> loadTab(new GroupeParametre(this)));
 
         var mParamFormateur = new MenuItem("Formateurs");
         var fkeyCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
         mParamFormateur.setAccelerator(fkeyCombination);
-        mParamFormateur.setOnAction(event -> {
-            loadTab(new FormateurParametre(this));
-        });
+        mParamFormateur.setOnAction(event -> loadTab(new FormateurParametre(this)));
 
         var mParamEspace = new MenuItem("Espace");
         var ekeyCombination = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
         mParamEspace.setAccelerator(ekeyCombination);
-        mParamEspace.setOnAction(event -> {
-            loadTab(new EspaceParametre(this));
-        });
+        mParamEspace.setOnAction(event -> loadTab(new EspaceParametre(this)));
 
         var mMatrice = new MenuItem("Matrice");
-        mMatrice.setOnAction(event -> {
-            loadTab(new MatriceTab());
-        });
+        mMatrice.setOnAction(event -> loadTab(new MatriceTab()));
 
 
-        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace,mMatrice);
+        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace, mMatrice);
 
     }
 

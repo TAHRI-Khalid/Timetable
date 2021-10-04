@@ -87,5 +87,4 @@ public class App extends Application {
         System.setProperty("javafx.preloader", SplashScreen.class.getCanonicalName());
         launch(args);
     }
-
 }
