@@ -2,8 +2,10 @@ module timetable {
     requires java.sql;
     requires javafx.base;
     requires javafx.controls;
+    requires javafx.swing;
     requires org.controlsfx.controls;
     requires org.xerial.sqlitejdbc;
+    requires jakarta.mail;
 
     exports tk.tahri.timetable;
     exports tk.tahri.timetable.dao;

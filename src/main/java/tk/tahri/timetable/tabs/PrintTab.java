@@ -3,7 +3,6 @@ package tk.tahri.timetable.tabs;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
 import javafx.print.Paper;
@@ -24,8 +23,6 @@ import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.EspaceTimeTablePrint;
 import tk.tahri.timetable.print.FormateurTimeTablePrint;
 import tk.tahri.timetable.print.GroupeTimeTablePrint;
-import tk.tahri.timetable.tools.Config;
-
 import java.util.stream.IntStream;
 
 public class PrintTab extends EditorTab {
@@ -46,7 +43,6 @@ public class PrintTab extends EditorTab {
         groupeTitle.setMaxWidth(Double.MAX_VALUE);
         groupeTitle.getStyleClass().add("groupe-title-main");
         vBox.getChildren().add(groupeTitle);
-
 
         GridPane grid = new GridPane();
         grid.setVgap(15);

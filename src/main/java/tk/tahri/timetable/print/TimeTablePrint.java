@@ -1,18 +1,18 @@
 package tk.tahri.timetable.print;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.PrintTimeTableView;
-
+import tk.tahri.timetable.view.SeanceView;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -25,7 +25,6 @@ public abstract class TimeTablePrint extends VBox {
         this.printTimeTableView = printTimeTableView;
         this.printTimeTableView.loadSeanceViews(false);
         this.setAlignment(Pos.TOP_CENTER);
-        this.getStylesheets().add(getClass().getResource("/css/print.css").toString());
         etablissement = Database.getInstance().getItablissment();
     }
 
@@ -34,8 +33,8 @@ public abstract class TimeTablePrint extends VBox {
         var logo = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png"))));
         logo.setPreserveRatio(true);
         logo.setFitHeight(50);
-        var titreAr = new Label("مكتب التكوين المهني وإنعاش الشغل");
-        var titreFr = new Label("Office de la Formation Professionnelle et de la Promotion du Travail");
+        var titreAr = new Text("مكتب التكوين المهني وإنعاش الشغل");
+        var titreFr = new Text("Office de la Formation Professionnelle et de la Promotion du Travail");
         var vBox = new VBox(10);
         HBox.setHgrow(vBox, Priority.ALWAYS);
         vBox.setAlignment(Pos.CENTER);
@@ -50,21 +49,20 @@ public abstract class TimeTablePrint extends VBox {
         HBox.setHgrow(hBox, Priority.ALWAYS);
         var vBox = new VBox();
         vBox.setAlignment(Pos.CENTER);
-        var lblTitle = new Label("EMPLOI DU TEMPS : " + title);
-        lblTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 20");
-        var lblAnneeDeFormation = new Label("ANNEE DE FORMATION : " + etablissement.getAnneeDeFormation());
-        lblAnneeDeFormation.setStyle("-fx-font-weight: bold; -fx-font-size: 14");
+        var lblTitle = new Text("EMPLOI DU TEMPS : " + title);
+        lblTitle.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 16));
+        var lblAnneeDeFormation = new Text("ANNEE DE FORMATION : " + etablissement.getAnneeDeFormation());
+        lblAnneeDeFormation.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 14));
         vBox.getChildren().addAll(lblTitle, lblAnneeDeFormation);
         hBox.getChildren().add(vBox);
         return hBox;
     }
 
     protected HBox info(GridPane... gridPane) {
-        var hBox = new HBox();
+        var hBox = new HBox(15);
         HBox.setHgrow(hBox, Priority.ALWAYS);
         hBox.setAlignment(Pos.TOP_CENTER);
 
-        hBox.getStyleClass().add("timetable-info");
         var grid = new GridPane();
 
         grid.add(new Text("Direction"), 0, 0);
@@ -99,6 +97,20 @@ public abstract class TimeTablePrint extends VBox {
     protected HBox body() {
         var hBox = new HBox();
         hBox.setAlignment(Pos.TOP_CENTER);
+
+        printTimeTableView.getChildren().stream().filter(node -> node instanceof SeanceView).forEach(node -> {
+            var sv = (SeanceView) node;
+            sv.getStyleClass().clear();
+            sv.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(7), Insets.EMPTY)));
+            sv.setAlignment(Pos.CENTER);
+            sv.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(7), new BorderWidths(1.5))));
+            sv.getChildren().stream().filter(n -> n instanceof Text).forEach(txt -> {
+                var text = (Text) txt;
+                text.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 11));
+                text.setFill(Color.BLACK);
+            });
+        });
+
         hBox.getChildren().add(printTimeTableView);
         return hBox;
     }

@@ -20,6 +20,8 @@ public class EtablissementParametre extends Tab {
     private final TextField txtComplexe;
     private final TextField txtNom;
     private final TextField txtAbreviation;
+    private final PasswordField txtPassword;
+    private final TextField txtMail;
     private final TextField txtCode;
     private final TextField txtAnneeDeFormation;
     private final DatePicker datePickerDebut;
@@ -54,7 +56,7 @@ public class EtablissementParametre extends Tab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 2);
 
-        grid.add(new Label("abreviation : "), 0, 3);
+        grid.add(new Label("Abreviation : "), 0, 3);
         txtAbreviation = new TextField();
         GridPane.setHgrow(txtAbreviation, Priority.ALWAYS);
         grid.add(txtAbreviation, 1, 3);
@@ -64,20 +66,30 @@ public class EtablissementParametre extends Tab {
         GridPane.setHgrow(txtCode, Priority.ALWAYS);
         grid.add(txtCode, 1, 4);
 
-        grid.add(new Label("Année de formation : "), 0, 5);
+        grid.add(new Label("E-Mail : "), 0, 5);
+        txtMail = new TextField();
+        GridPane.setHgrow(txtMail, Priority.ALWAYS);
+        grid.add(txtMail, 1, 5);
+
+        grid.add(new Label("Mot de Passe : "), 0, 6);
+        txtPassword = new PasswordField();
+        GridPane.setHgrow(txtPassword, Priority.ALWAYS);
+        grid.add(txtPassword, 1, 6);
+
+        grid.add(new Label("Année de formation : "), 0, 7);
         txtAnneeDeFormation = new TextField();
         GridPane.setHgrow(txtAnneeDeFormation, Priority.ALWAYS);
-        grid.add(txtAnneeDeFormation, 1, 5);
+        grid.add(txtAnneeDeFormation, 1, 7);
 
-        grid.add(new Label("Date début : "), 0, 6);
+        grid.add(new Label("Date début : "), 0, 8);
         datePickerDebut = new DatePicker();
         GridPane.setHgrow(datePickerDebut, Priority.ALWAYS);
-        grid.add(datePickerDebut, 1, 6);
+        grid.add(datePickerDebut, 1, 8);
 
-        grid.add(new Label("Date fin : "), 0, 7);
+        grid.add(new Label("Date fin : "), 0, 9);
         datePickerFin = new DatePicker();
         GridPane.setHgrow(datePickerFin, Priority.ALWAYS);
-        grid.add(datePickerFin, 1, 7);
+        grid.add(datePickerFin, 1, 9);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -112,10 +124,12 @@ public class EtablissementParametre extends Tab {
         txtNom.setText(etablissement.getNom());
         datePickerDebut.setValue(etablissement.getDateDebut());
         datePickerFin.setValue(etablissement.getDateFin());
+        txtMail.setText(etablissement.getUsername());
+        txtPassword.setText(etablissement.getPassword());
     }
 
     private void saveForm() {
-        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=? ,abreviation=? ,code=?,annee=?,dateDebut=?, dateFin=? WHERE id=?",
+        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?, dateDebut=?, dateFin=? WHERE id=?",
                 txtDirection.getText(),
                 txtComplexe.getText(),
                 txtNom.getText(),

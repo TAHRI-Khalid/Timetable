@@ -18,6 +18,7 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.FormateurTimeTablePrint;
+
 import java.util.Objects;
 
 public class FormateurParametre extends Tab {
@@ -27,6 +28,7 @@ public class FormateurParametre extends Tab {
     private final TextField txtNom;
     private final TextField txtPrenom;
     private final TextField txtMatricule;
+    private final TextField txtMail;
     private final ComboBox<String> comboType;
     private final Editor editor;
 
@@ -41,7 +43,6 @@ public class FormateurParametre extends Tab {
         formateurTitle.setMaxWidth(Double.MAX_VALUE);
         formateurTitle.getStyleClass().add("formateur-title-main");
 
-
         var grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
@@ -51,22 +52,27 @@ public class FormateurParametre extends Tab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 0);
 
-        grid.add(new Label("Prénom : "), 0, 1);
+        grid.add(new Label("Prénom : "), 2, 0);
         txtPrenom = new TextField();
         GridPane.setHgrow(txtPrenom, Priority.ALWAYS);
-        grid.add(txtPrenom, 1, 1);
+        grid.add(txtPrenom, 3, 0);
 
-        grid.add(new Label("Matricule : "), 0, 2);
+        grid.add(new Label("Matricule : "), 0, 1);
         txtMatricule = new TextField();
         GridPane.setHgrow(txtMatricule, Priority.ALWAYS);
-        grid.add(txtMatricule, 1, 2);
+        grid.add(txtMatricule, 1, 1);
 
-        grid.add(new Label("Type : "), 0, 3);
+        grid.add(new Label("E-Mail : "), 2, 1);
+        txtMail = new TextField();
+        GridPane.setHgrow(txtMail, Priority.ALWAYS);
+        grid.add(txtMail, 3, 1);
+
+        grid.add(new Label("Type : "), 0, 2);
         comboType = new ComboBox<>();
         GridPane.setHgrow(comboType, Priority.ALWAYS);
         comboType.getItems().addAll(Formateur.Types);
         comboType.getSelectionModel().select(0);
-        grid.add(comboType, 1, 3);
+        grid.add(comboType, 1, 2);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
@@ -92,6 +98,9 @@ public class FormateurParametre extends Tab {
 
         var colMatricule = new TableColumn<Formateur, String>("Matricule");
         colMatricule.setCellValueFactory(new PropertyValueFactory<>("matricule"));
+
+        var colMail = new TableColumn<Formateur, String>("E-Mail");
+        colMail.setCellValueFactory(new PropertyValueFactory<>("mail"));
 
         var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
@@ -150,7 +159,7 @@ public class FormateurParametre extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule,colMail, colType, colPrint, colUpdate, colDelete);
         loadData();
         vBox.getChildren().addAll(formateurTitle, grid, hBox, table);
         setContent(vBox);
@@ -182,6 +191,7 @@ public class FormateurParametre extends Tab {
         txtNom.clear();
         txtPrenom.clear();
         txtMatricule.clear();
+        txtMail.clear();
         formateur = null;
     }
 
@@ -202,7 +212,7 @@ public class FormateurParametre extends Tab {
     }
 
     private void deleteItem(long id) {
-        if(!Database.getInstance().isFormateurHasSeances(id)){
+        if (!Database.getInstance().isFormateurHasSeances(id)) {
             Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
             loadData();
         }
@@ -216,6 +226,7 @@ public class FormateurParametre extends Tab {
                     txtNom.setText(e.getNom());
                     txtMatricule.setText(e.getMatricule());
                     txtPrenom.setText(e.getPrenom());
+                    txtMail.setText(e.getMail());
                     comboType.getSelectionModel().select(e.getType());
                 });
     }

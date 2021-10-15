@@ -10,6 +10,8 @@ public class Etablissement {
     private String nom;
     private String abreviation;
     private String anneeDeFormation;
+    private String username;
+    private String password;
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
@@ -86,6 +88,22 @@ public class Etablissement {
 
     public void setDateFin(LocalDate dateFin) {
         this.dateFin = dateFin;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

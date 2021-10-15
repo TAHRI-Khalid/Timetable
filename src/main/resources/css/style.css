@@ -34,15 +34,11 @@
     -fx-padding: 5px;
 }
 
-.formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-viewgroupe-title-main {
+.formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-view {
     -fx-background-radius: 7.0;
     -fx-alignment: center;
-}
-
-.formateur-seance-view Label, .espace-seance-view Label, .groupe-seance-view Label, .chevauchement-seance-view Label {
-    -fx-text-fill: #fff;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
-    -fx-font-size: 13px;
 }
 
 .espace-title-main, .groupe-title-main, .formateur-title-main {

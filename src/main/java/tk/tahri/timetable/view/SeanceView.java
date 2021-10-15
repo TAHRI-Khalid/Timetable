@@ -1,19 +1,15 @@
 package tk.tahri.timetable.view;
 
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
-
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,11 +21,13 @@ public class SeanceView extends VBox {
 
     public SeanceView(Seance seance) {
         this.seance = seance;
-        this.setSpacing(5);
-        this.getChildren().addAll(new Label(seance.getFormateur().toString()));
-        this.getChildren().addAll(new Label(seance.getGroupes().get(0).getNom()));
-        this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace().getNom()));
-        this.setBackground(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.setSpacing(3);
+        this.getChildren().addAll(new Text(seance.getFormateur().toString()));
+        this.getChildren().addAll(new Text(seance.getGroupes().get(0).getNom()));
+        this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace().getNom()));
+        this.getChildren().forEach(txt->{
+            ((Text)txt).setFill(Color.WHITE);
+        });
     }
 
     public SeanceView(Seance seance, double width, double height, boolean draggable, SeanceType type) {
@@ -37,30 +35,33 @@ public class SeanceView extends VBox {
         switch (type) {
             case FORMATEUR -> {
                 if (seance.getType().equals("FP")) {
-                    this.getChildren().add(new Label(seance.getGroupes().get(0).toString()));
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
+                    this.getChildren().add(new Text(seance.getGroupes().get(0).toString()));
+                    this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace()));
                 } else {
-                    this.getChildren().addAll(new Label(seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
+                    this.getChildren().addAll(new Text(seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace()));
                 }
             }
             case GROUPE -> {
-                this.getChildren().addAll(new Label(seance.getFormateur().toString()));
+                this.getChildren().addAll(new Text(seance.getFormateur().toString()));
                 if (seance.getType().equals("FP")) {
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getEspace()));
+                    this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace()));
                 } else {
-                    this.getChildren().add(new Label("[" + seance.getType() + "]"));
+                    this.getChildren().add(new Text("[" + seance.getType() + "]"));
                 }
             }
             case ESPACE -> {
-                this.getChildren().addAll(new Label(seance.getFormateur().toString()));
+                this.getChildren().addAll(new Text(seance.getFormateur().toString()));
                 if (seance.getType().equals("FP")) {
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).toString()));
+                    this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getGroupes().get(0).toString()));
                 } else {
-                    this.getChildren().add(new Label("[" + seance.getType() + "] : " + seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
+                    this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getGroupes().get(0).getFiliere().getAbreviation() + " " + seance.getGroupes().get(0).getAnnee() + "A"));
                 }
             }
         }
+        this.getChildren().forEach(txt->{
+            ((Text)txt).setFill(Color.WHITE);
+        });
         this.setPrefSize(seance.getDuree() / 15 * width, height);
 
         if (draggable) {

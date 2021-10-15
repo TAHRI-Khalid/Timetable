@@ -17,6 +17,7 @@ import tk.tahri.timetable.tools.Config;
 import java.io.IOException;
 import java.nio.file.*;
 
+
 public class Editor extends VBox {
 
     private TabPane tabpane;
@@ -77,12 +78,18 @@ public class Editor extends VBox {
             loadTab(printTab);
         });
 
+        var mMailCenter = new MenuItem("Espace mail");
+        mMailCenter.setOnAction(event -> {
+            MailTab mailTab=new MailTab("Espace mail");
+            loadTab(mailTab);
+        });
+
         var mQuitter = new MenuItem("Quitter");
         var qkeyCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
         mQuitter.setAccelerator(qkeyCombination);
         mQuitter.setOnAction(event -> ((Stage) this.getScene().getWindow()).close());
 
-        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, new SeparatorMenuItem(), mQuitter);
+        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, mMailCenter, new SeparatorMenuItem(), mQuitter);
 
         if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();
@@ -93,6 +100,7 @@ public class Editor extends VBox {
 
         getChildren().addAll(menu);
     }
+
 
 
     private void onMenuNew() {
@@ -275,7 +283,6 @@ public class Editor extends VBox {
 
         var mMatrice = new MenuItem("Matrice");
         mMatrice.setOnAction(event -> loadTab(new MatriceTab()));
-
 
         mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace, mMatrice);
 

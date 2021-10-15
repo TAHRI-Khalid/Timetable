@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,12 +26,33 @@ public class MatriceTab extends EditorTab {
     public MatriceTab() {
         super("Matrice");
         type = SeanceType.GROUPE;
-        ScrollPane scrollPane = new ScrollPane();
-        setContent(scrollPane);
+        var parent = new VBox();
+        var scrollPane = new ScrollPane();
+        var hBox = new HBox();
+        var slide = new Slider();
         martix = new GridPane();
+        HBox content = new HBox(martix);
+        content.setAlignment(Pos.TOP_LEFT);
+        martix.setAlignment(Pos.TOP_LEFT);
+        scrollPane.setContent(content);
+        hBox.getChildren().add(slide);
+
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        hBox.setAlignment(Pos.CENTER_RIGHT);
+        slide.setMax(1);
+        slide.setMin(0.1);
+        slide.setValue(1);
+        slide.valueProperty().addListener( (observableValue, number, t1) -> {
+            martix.setScaleX(number.doubleValue());
+            martix.setScaleY(number.doubleValue());
+        });
+        parent.getChildren().addAll(scrollPane, hBox);
+        setContent(parent);
+
         martix.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        scrollPane.setContent(martix);
         martix.setPadding(new Insets(25));
         martix.setGridLinesVisible(true);
 
@@ -90,7 +112,7 @@ public class MatriceTab extends EditorTab {
         };
 
         for (int i = 0; i < list.size(); i++) {
-            var lbl=new Label(list.get(i).toString());
+            var lbl = new Label(list.get(i).toString());
             lbl.setWrapText(true);
             lbl.setTextAlignment(TextAlignment.CENTER);
             var vBox = new VBox(lbl);

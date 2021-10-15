@@ -10,6 +10,7 @@ public class Formateur {
     private String nom;
     private String prenom;
     private String matricule;
+    private String mail;
     private String type;
 
     public Formateur() {
@@ -68,6 +69,14 @@ public class Formateur {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     @Override

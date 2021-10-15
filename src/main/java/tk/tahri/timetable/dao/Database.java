@@ -53,6 +53,8 @@ public class Database {
                 abreviation text NOT NULL,
                 annee text NOT NULL,
                 code text,
+                username text,
+                password text,
                 dateDebut text,
                 dateFin text);
                 """;
@@ -87,7 +89,8 @@ public class Database {
                 id integer PRIMARY KEY AUTOINCREMENT,
                 nom text NOT NULL,
                 prenom text NOT NULL,
-                matricule text NOT NULL,
+                matricule text,
+                mail text,
                 type text NOT NULL);
                 """;
         String sql_create_seance = """
@@ -151,6 +154,9 @@ public class Database {
                 etab.setNom(rs.getString("nom"));
                 etab.setAbreviation(rs.getString("abreviation"));
                 etab.setCode(rs.getString("code"));
+                etab.setUsername(rs.getString("username"));
+                etab.setPassword(rs.getString("password"));
+
                 etab.setAnneeDeFormation(rs.getString("annee"));
                 var d1 = rs.getString("dateDebut");
                 if (d1 != null) {
@@ -200,6 +206,7 @@ public class Database {
                 formateur.setNom(rs.getString("nom"));
                 formateur.setPrenom(rs.getString("prenom"));
                 formateur.setMatricule(rs.getString("matricule"));
+                formateur.setMail(rs.getString("mail"));
                 formateur.setType(rs.getString("type"));
                 list.add(formateur);
             }
