@@ -16,19 +16,21 @@ public class Formateur {
     public Formateur() {
     }
 
-    public Formateur(String nom, String prenom, String matricule, String type) {
+    public Formateur(String nom, String prenom, String matricule, String mail, String type) {
         this.nom = nom;
         this.prenom = prenom;
         this.matricule = matricule;
         this.type = type;
+        this.mail = mail;
     }
 
-    public Formateur(Long id, String nom, String prenom, String matricule, String type) {
+    public Formateur(Long id, String nom, String prenom, String matricule, String mail, String type) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
         this.matricule = matricule;
         this.type = type;
+        this.mail = mail;
     }
 
     public Long getId() {

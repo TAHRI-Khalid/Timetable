@@ -22,7 +22,7 @@ import tk.tahri.timetable.print.GroupeTimeTablePrint;
 
 import java.util.Objects;
 
-public class FiliereParametre extends Tab {
+public class FiliereParametre extends EditorTab {
 
     private final Editor editor;
     private Filiere filiere;
@@ -215,5 +215,15 @@ public class FiliereParametre extends Tab {
                     comboSecteur.getSelectionModel().select(e.getSecteur());
                     comboType.getSelectionModel().select(e.getType());
                 });
+    }
+
+    @Override
+    protected void selectionChanged() {
+
+    }
+
+    @Override
+    public void print() {
+
     }
 }

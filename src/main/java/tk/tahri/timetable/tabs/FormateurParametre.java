@@ -198,13 +198,13 @@ public class FormateurParametre extends Tab {
     private void saveForm() {
         if (!txtNom.getText().trim().isEmpty()) {
             if (formateur == null) {
-                formateur = new Formateur(txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("INSERT INTO formateur VALUES(null,?,?,?,?)",
-                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType());
+                formateur = new Formateur(txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(),txtMail.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("INSERT INTO formateur (nom, prenom, matricule,mail, type) VALUES(?,?,?,?,?)",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(),formateur.getMail(), formateur.getType());
             } else {
-                formateur = new Formateur(formateur.getId(), txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(), comboType.getSelectionModel().getSelectedItem());
-                Database.getInstance().execute("UPDATE formateur SET nom=? ,prenom=? ,matricule=? ,type=? WHERE id=?",
-                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(), formateur.getType(), String.valueOf(formateur.getId()));
+                formateur = new Formateur(formateur.getId(), txtNom.getText(), txtPrenom.getText(), txtMatricule.getText(),txtMail.getText(), comboType.getSelectionModel().getSelectedItem());
+                Database.getInstance().execute("UPDATE formateur SET nom=? ,prenom=? ,matricule=? ,mail=?,type=? WHERE id=?",
+                        formateur.getNom(), formateur.getPrenom(), formateur.getMatricule(),formateur.getMail(), formateur.getType(), String.valueOf(formateur.getId()));
             }
             loadData();
             clearForm();

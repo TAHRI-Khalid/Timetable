@@ -22,7 +22,7 @@ import tk.tahri.timetable.print.GroupeTimeTablePrint;
 
 import java.util.Objects;
 
-public class GroupeParametre extends Tab {
+public class GroupeParametre extends EditorTab {
 
     private final Editor editor;
     private Groupe groupe;
@@ -225,5 +225,15 @@ public class GroupeParametre extends Tab {
                     comboFiliere.getSelectionModel().select(e.getFiliere());
                     comboAnnee.getSelectionModel().select(e.getAnnee() - 1);
                 });
+    }
+
+    @Override
+    protected void selectionChanged() {
+
+    }
+
+    @Override
+    public void print() {
+
     }
 }

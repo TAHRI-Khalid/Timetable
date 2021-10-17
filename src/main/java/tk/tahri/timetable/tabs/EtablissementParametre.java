@@ -13,7 +13,7 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
 
-public class EtablissementParametre extends Tab {
+public class EtablissementParametre extends EditorTab {
 
     private Etablissement etablissement;
     private final TextField txtDirection;
@@ -129,16 +129,28 @@ public class EtablissementParametre extends Tab {
     }
 
     private void saveForm() {
-        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?, dateDebut=?, dateFin=? WHERE id=?",
+        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?,username=?,password=?, dateDebut=?, dateFin=? WHERE id=?",
                 txtDirection.getText(),
                 txtComplexe.getText(),
                 txtNom.getText(),
                 txtAbreviation.getText(),
                 txtCode.getText(),
                 txtAnneeDeFormation.getText(),
+                txtMail.getText(),
+                txtPassword.getText(),
                 datePickerDebut.getEditor().getText().isEmpty() ? null : datePickerDebut.getValue().toString(),
                 datePickerFin.getEditor().getText().isEmpty() ? null : datePickerFin.getValue().toString(),
                 String.valueOf(etablissement.getId()));
         loadData();
+    }
+
+    @Override
+    protected void selectionChanged() {
+
+    }
+
+    @Override
+    public void print() {
+
     }
 }

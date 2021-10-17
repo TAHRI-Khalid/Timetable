@@ -21,7 +21,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class EspaceParametre extends Tab {
+public class EspaceParametre extends EditorTab {
 
     private Espace espace;
     private final TableView<Espace> table;
@@ -195,5 +195,15 @@ public class EspaceParametre extends Tab {
                     txtNom.setText(e.getNom());
                     comboType.getSelectionModel().select(e.getType());
                 });
+    }
+
+    @Override
+    protected void selectionChanged() {
+
+    }
+
+    @Override
+    public void print() {
+
     }
 }

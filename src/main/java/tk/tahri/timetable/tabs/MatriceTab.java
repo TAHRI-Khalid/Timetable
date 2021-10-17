@@ -11,6 +11,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Scale;
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.SeanceView;
@@ -26,29 +27,27 @@ public class MatriceTab extends EditorTab {
     public MatriceTab() {
         super("Matrice");
         type = SeanceType.GROUPE;
+
         var parent = new VBox();
-        var scrollPane = new ScrollPane();
-        var hBox = new HBox();
-        var slide = new Slider();
+        var body = new ScrollPane();
+        body.setFitToWidth(true);
+        body.setFitToHeight(true);
         martix = new GridPane();
-        HBox content = new HBox(martix);
-        content.setAlignment(Pos.TOP_LEFT);
-        martix.setAlignment(Pos.TOP_LEFT);
-        scrollPane.setContent(content);
-        hBox.getChildren().add(slide);
-
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        hBox.setAlignment(Pos.CENTER_RIGHT);
+        body.setContent(martix);
+        var footer = new HBox();
+        var slide = new Slider();
+        footer.getChildren().add(slide);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        slide.setPadding(new Insets(10));
         slide.setMax(1);
         slide.setMin(0.1);
         slide.setValue(1);
-        slide.valueProperty().addListener( (observableValue, number, t1) -> {
-            martix.setScaleX(number.doubleValue());
-            martix.setScaleY(number.doubleValue());
+        slide.valueProperty().addListener((observableValue, number, t1) -> {
+            martix.getTransforms().clear();
+            martix.getTransforms().add(new Scale(number.doubleValue(), number.doubleValue()));
         });
-        parent.getChildren().addAll(scrollPane, hBox);
+
+        parent.getChildren().addAll(body, footer);
         setContent(parent);
 
         martix.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -163,14 +162,10 @@ public class MatriceTab extends EditorTab {
                 case FORMATEUR -> new FormateurTab(seance.getFormateur());
                 case ESPACE -> new EspaceTab(seance.getEspace());
             };
-            this.getTabPane().getTabs().stream()
-                    .filter(t -> t.getText().equals(tab.getText()))
-                    .findFirst()
-                    .ifPresentOrElse(this.getTabPane().getSelectionModel()::select,
-                            () -> {
-                                this.getTabPane().getTabs().add(tab);
-                                this.getTabPane().getSelectionModel().select(tab);
-                            });
+            this.getTabPane().getTabs().stream().filter(t -> t.getText().equals(tab.getText())).findFirst().ifPresentOrElse(this.getTabPane().getSelectionModel()::select, () -> {
+                this.getTabPane().getTabs().add(tab);
+                this.getTabPane().getSelectionModel().select(tab);
+            });
         }
     }
 
@@ -184,9 +179,7 @@ public class MatriceTab extends EditorTab {
             return false;
         } else if (s1.getJour().getValue() != s2.getJour().getValue()) {
             return false;
-        } else if (s1.getFormateur().getId() != s2.getFormateur().getId() &&
-                s1.getEspace().getId() != s2.getEspace().getId() &&
-                s1.getGroupes().stream().map(Groupe::getId).noneMatch(s2.getGroupes().stream().map(Groupe::getId).collect(Collectors.toList())::contains)) {
+        } else if (s1.getFormateur().getId() != s2.getFormateur().getId() && s1.getEspace().getId() != s2.getEspace().getId() && s1.getGroupes().stream().map(Groupe::getId).noneMatch(s2.getGroupes().stream().map(Groupe::getId).collect(Collectors.toList())::contains)) {
             return false;
         } else if (s2.getDebut().toSecondOfDay() < s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getDebut().toSecondOfDay()) {
             return true;
