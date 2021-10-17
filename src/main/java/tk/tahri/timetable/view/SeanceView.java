@@ -1,5 +1,6 @@
 package tk.tahri.timetable.view;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
@@ -21,7 +22,8 @@ public class SeanceView extends VBox {
 
     public SeanceView(Seance seance) {
         this.seance = seance;
-        this.setSpacing(3);
+        this.setSpacing(0);
+        this.setPadding(new Insets(3));
         this.getChildren().addAll(new Text(seance.getFormateur().toString()));
         this.getChildren().addAll(new Text(seance.getGroupes().get(0).getNom()));
         this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace().getNom()));

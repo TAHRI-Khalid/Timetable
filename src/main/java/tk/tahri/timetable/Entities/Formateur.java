@@ -6,7 +6,7 @@ import java.util.List;
 public class Formateur {
     public static final List<String> Types = Arrays.asList("Permanent", "Vacataire");
 
-    private Long id;
+    private long id;
     private String nom;
     private String prenom;
     private String matricule;
@@ -33,11 +33,11 @@ public class Formateur {
         this.mail = mail;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

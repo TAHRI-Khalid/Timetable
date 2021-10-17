@@ -2,27 +2,32 @@ package tk.tahri.timetable.tabs;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
+import javafx.stage.FileChooser;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.SeanceView;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MatriceTab extends EditorTab {
     protected final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
     private final GridPane martix;
     private SeanceType type;
+    private List<Seance> allSeances;
 
     public MatriceTab() {
         super("Matrice");
@@ -34,11 +39,34 @@ public class MatriceTab extends EditorTab {
         body.setFitToHeight(true);
         martix = new GridPane();
         body.setContent(martix);
-        var footer = new HBox();
+
+        var toolBar = new ToolBar();
+        toolBar.getItems().add(new Label("Filter : "));
+        var combo = new ComboBox<SeanceType>();
+        combo.getItems().addAll(SeanceType.values());
+        combo.getSelectionModel().select(0);
+        combo.setOnAction(event -> {
+            this.type = combo.getSelectionModel().getSelectedItem();
+            selectionChanged();
+        });
+        toolBar.getItems().add(combo);
+        toolBar.getItems().add(new Separator());
+
+        toolBar.getItems().add(new Label("Exportation : "));
+        var btn = new Button("Semaine");
+        btn.setOnAction(actionEvent -> exportToExcel("semaine"));
+        toolBar.getItems().add(btn);
+        MenuButton menuButton = new MenuButton("Jour");
+        for (var day : days) {
+            MenuItem menuItem = new MenuItem(day);
+            menuItem.setOnAction(actionEvent -> exportToExcel(day));
+            menuButton.getItems().add(menuItem);
+        }
+        toolBar.getItems().add(menuButton);
+        toolBar.getItems().add(new Separator());
+        toolBar.getItems().add(new Label("Zoom : "));
         var slide = new Slider();
-        footer.getChildren().add(slide);
-        footer.setAlignment(Pos.CENTER_RIGHT);
-        slide.setPadding(new Insets(10));
+        toolBar.getItems().add(slide);
         slide.setMax(1);
         slide.setMin(0.1);
         slide.setValue(1);
@@ -46,13 +74,24 @@ public class MatriceTab extends EditorTab {
             martix.getTransforms().clear();
             martix.getTransforms().add(new Scale(number.doubleValue(), number.doubleValue()));
         });
+        btn = new Button("Adapter");
+        btn.setOnAction(actionEvent -> {
 
-        parent.getChildren().addAll(body, footer);
+            if( martix.getWidth() > parent.getWidth()){
+
+                var coef =  (parent.getWidth()-20) /martix.getWidth() ;
+                martix.getTransforms().clear();
+                martix.getTransforms().add(new Scale(coef, coef));
+            }
+
+
+        });
+        toolBar.getItems().add(btn);
+        parent.getChildren().addAll(toolBar, body);
         setContent(parent);
 
         martix.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        martix.setPadding(new Insets(25));
+        martix.setPadding(new Insets(10));
         martix.setGridLinesVisible(true);
 
         martix.getColumnConstraints().add(new ColumnConstraints(150));
@@ -62,15 +101,7 @@ public class MatriceTab extends EditorTab {
         }
 
         var vBox = new VBox();
-        var combo = new ComboBox<SeanceType>();
-        combo.getItems().addAll(SeanceType.values());
-        combo.getSelectionModel().select(0);
-        combo.setOnAction(event -> {
-            this.type = combo.getSelectionModel().getSelectedItem();
-            selectionChanged();
-        });
-        vBox.getChildren().add(combo);
-        vBox.setAlignment(Pos.CENTER);
+        vBox.setStyle("-fx-background-color:#fff");
         martix.add(vBox, 0, 0, 1, 2);
 
         for (int i = 0; i < days.length; i++) {
@@ -98,11 +129,65 @@ public class MatriceTab extends EditorTab {
         }
     }
 
+    private void exportToExcel(String day) {
+        List<Seance> list;
+        if (day.equals("semaine")) {
+            list = allSeances.stream()
+                    .sorted(Comparator.comparing(Seance::getJour)).toList();
+        } else {
+            var index = Arrays.binarySearch(days, day);
+            list = allSeances.stream()
+                    .filter(seance -> seance.getJour().getValue() == index + 1)
+                    .sorted(Comparator.comparing(Seance::getDebut)).toList();
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export To Excel");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Fichier Excel", "*.xlsx")
+        );
+        fileChooser.setInitialFileName(day + ".xlsx");
+        var file = fileChooser.showSaveDialog(martix.getScene().getWindow());
+
+        if (file != null) {
+            try (var workbook = new XSSFWorkbook();
+                 var outputStream = new FileOutputStream(file)) {
+                var sheet = workbook.createSheet(day);
+
+                var row = sheet.createRow(0);
+                row.createCell(0).setCellValue("Jour");
+                row.createCell(1).setCellValue("début");
+                row.createCell(2).setCellValue("Fin");
+                row.createCell(3).setCellValue("Durée");
+                row.createCell(4).setCellValue("Type");
+                row.createCell(5).setCellValue("Formateur");
+                row.createCell(6).setCellValue("Groupe");
+                row.createCell(7).setCellValue("Espace");
+
+                for (int line = 0; line < list.size(); line++) {
+                    row = sheet.createRow(line + 1);
+                    row.createCell(0).setCellValue(days[list.get(line).getJour().getValue() - 1]);
+                    row.createCell(1).setCellValue(list.get(line).getDebut().toString());
+                    row.createCell(2).setCellValue(list.get(line).getFin().toString());
+                    row.createCell(3).setCellValue(list.get(line).getDuree());
+                    row.createCell(4).setCellValue(list.get(line).getType());
+                    row.createCell(5).setCellValue(list.get(line).getFormateur().toString());
+                    row.createCell(6).setCellValue(list.get(line).getGroupes().toString());
+                    row.createCell(7).setCellValue(list.get(line).getEspace().toString());
+                }
+
+                workbook.write(outputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     protected void selectionChanged() {
         if (!this.isSelected()) return;
         martix.getChildren().removeIf(node -> node instanceof VBox && GridPane.getRowIndex(node) >= 2);
-        var allSeances = Database.getInstance().getSeances();
+        allSeances = Database.getInstance().getSeances();
 
         var list = switch (type) {
             case GROUPE -> Database.getInstance().getGroupes();
