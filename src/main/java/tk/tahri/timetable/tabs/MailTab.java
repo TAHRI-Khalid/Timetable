@@ -121,6 +121,8 @@ public class MailTab extends EditorTab {
         service.setOnFailed(workerStateEvent -> {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Envoi du message impossible. Vérifiez votre réseau et réessaye.");
             alert.show();
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
         });
         service.start();
     }

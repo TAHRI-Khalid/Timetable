@@ -108,7 +108,7 @@ public class GroupeTab extends EditorTab {
 
     private void resize() {
 
-        var scaleX = (grid.getWidth() - grid.getWidth() * 14 / 100) / 1150;
+        var scaleX = grid.getWidth()/1300;
         var scaleY = grid.getHeight() / 750;
         var scale = Math.min(scaleX, scaleY);
 

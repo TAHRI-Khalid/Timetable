@@ -6,6 +6,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
@@ -62,9 +63,12 @@ public class SeanceView extends VBox {
             }
         }
         this.getChildren().forEach(txt->{
-            ((Text)txt).setFill(Color.WHITE);
+            var text=(Text)txt;
+            text.setFill(Color.WHITE);
+            text.setWrappingWidth(seance.getDuree() / 15.0 * width);
+            text.setTextAlignment(TextAlignment.CENTER);
         });
-        this.setPrefSize(seance.getDuree() / 15 * width, height);
+        this.setPrefSize(seance.getDuree() / 15.0 * width, height);
 
         if (draggable) {
             AtomicBoolean isDragging = new AtomicBoolean(false);

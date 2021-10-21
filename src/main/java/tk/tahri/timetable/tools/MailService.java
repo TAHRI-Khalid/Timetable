@@ -60,34 +60,29 @@ public class MailService extends Service<Formateur> {
                 int i = 0;
                 for (var entry : map.entrySet()) {
 
-                    try {
-                        var file = new File(tmpdir + "/" + entry.getKey() + ".png");
-                        ImageIO.write(SwingFXUtils.fromFXImage(entry.getValue(), null), "PNG", file);
+                    var file = new File(tmpdir + "/" + entry.getKey() + ".png");
+                    ImageIO.write(SwingFXUtils.fromFXImage(entry.getValue(), null), "PNG", file);
 
-                        Message message = new MimeMessage(session);
-                        message.setFrom(new InternetAddress(etablissement.getUsername()));
-                        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(entry.getKey().getMail()));
-                        message.setSubject(mailSubject);
-                        message.setText(mailMessage);
+                    Message message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress(etablissement.getUsername()));
+                    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(entry.getKey().getMail()));
+                    message.setSubject(mailSubject);
+                    message.setText(mailMessage);
 
-                        BodyPart messageBodyPart = new MimeBodyPart();
-                        messageBodyPart.setText(mailMessage);
+                    BodyPart messageBodyPart = new MimeBodyPart();
+                    messageBodyPart.setText(mailMessage);
 
-                        Multipart multipart = new MimeMultipart("related");
-                        multipart.addBodyPart(messageBodyPart);
+                    Multipart multipart = new MimeMultipart("related");
+                    multipart.addBodyPart(messageBodyPart);
 
-                        MimeBodyPart imgPart = new MimeBodyPart();
-                        imgPart.attachFile(file);
-                        multipart.addBodyPart(imgPart);
-                        message.setContent(multipart);
-                        Transport.send(message);
-                        i++;
-                        updateProgress(i, map.size());
-                        updateValue(entry.getKey());
-
-                    } catch (MessagingException | IOException e) {
-                        e.printStackTrace();
-                    }
+                    MimeBodyPart imgPart = new MimeBodyPart();
+                    imgPart.attachFile(file);
+                    multipart.addBodyPart(imgPart);
+                    message.setContent(multipart);
+                    Transport.send(message);
+                    i++;
+                    updateProgress(i, map.size());
+                    updateValue(entry.getKey());
                 }
                 return null;
             }

@@ -120,6 +120,11 @@ public abstract class TimeTableView extends Pane {
             case FORMATEUR -> "formateur-seance-view";
             case ESPACE -> "espace-seance-view";
         };
+        var chevechementStyle = "chevauchement-seance-view";
+        if (this instanceof SubTimeTableView view) {
+            style = "sub-".concat(style);
+            chevechementStyle = "sub-".concat(chevechementStyle);
+        }
         loadData();
         for (var s1 : seances) {
             var sv = new SeanceView(s1, colWidth, rowHeight, draggable, type);
@@ -130,9 +135,9 @@ public abstract class TimeTableView extends Pane {
                     break;
                 }
             }
-            sv.getStyleClass().add(ch ? "chevauchement-seance-view" : style);
+            sv.getStyleClass().add(ch ? chevechementStyle : style);
             this.getChildren().add(sv);
-            sv.setTranslateX((((s1.getDebut().toSecondOfDay() - LocalTime.of(8, 30).toSecondOfDay()) / (60 * 15)) * colWidth) + tableX);
+            sv.setTranslateX((((s1.getDebut().toSecondOfDay() - LocalTime.of(8, 30).toSecondOfDay()) / (60.0 * 15.0)) * colWidth) + tableX);
             sv.setTranslateY(((s1.getJour().getValue() - 1) * rowHeight) + tableY);
         }
     }

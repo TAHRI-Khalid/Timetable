@@ -37,20 +37,25 @@
 .formateur-seance-view, .espace-seance-view, .groupe-seance-view, .chevauchement-seance-view {
     -fx-background-radius: 7.0;
     -fx-alignment: center;
-    -fx-font-size: 12px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
-
+.sub-formateur-seance-view, .sub-espace-seance-view, .sub-groupe-seance-view, .sub-chevauchement-seance-view {
+    -fx-background-radius: 5.0;
+    -fx-alignment: center;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+}
 .espace-title-main, .groupe-title-main, .formateur-title-main {
-    -fx-padding: 5 20 5 20;
+    -fx-padding: 3 20 3 20;
     -fx-background-insets: 0 10 0 10;
-    -fx-font-size: 24px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #fff;
 }
 
 .espace-title-main Label, .groupe-title-main Label, .formateur-title-main Label{
-    -fx-font-size: 24px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #fff;
     -fx-padding: 0 20 0 20;
@@ -69,31 +74,31 @@
     -fx-text-fill: #fff;
     -fx-padding: 0 20 0 20;
 }
-.espace-title-main, .espace-title-sub, .espace-seance-view, .espace-view {
+.espace-title-main, .espace-title-sub, .espace-seance-view,.sub-espace-seance-view, .espace-view {
     -fx-background-color: #8D9AA6;
 }
 
-.groupe-title-main, .groupe-title-sub, .groupe-seance-view, .groupe-view {
+.groupe-title-main, .groupe-title-sub, .groupe-seance-view, .sub-groupe-seance-view, .groupe-view {
     -fx-background-color: #1C588C;
 }
 
-.formateur-title-main, .formateur-title-sub, .formateur-seance-view, .formateur-view {
+.formateur-title-main, .formateur-title-sub, .formateur-seance-view,.sub-formateur-seance-view, .formateur-view {
     -fx-background-color: #038C4C;
 }
 
-.formateur-seance-view:hover, .formateur-view:hover {
+.formateur-seance-view:hover,.sub-formateur-seance-view:hover, .formateur-view:hover {
     -fx-background-color: #025d31;
 }
 
-.espace-seance-view:hover, .espace-view:hover {
+.espace-seance-view:hover,.sub-espace-seance-view:hover, .espace-view:hover {
     -fx-background-color: #666e78;
 }
 
-.groupe-seance-view:hover, .groupe-view:hover {
+.groupe-seance-view:hover,.sub-groupe-seance-view:hover, .groupe-view:hover {
     -fx-background-color: #144164;
 }
 
-.chevauchement-seance-view {
+.chevauchement-seance-view,.sub-chevauchement-seance-view  {
     -fx-background-color: #b71c1c;
 }
 

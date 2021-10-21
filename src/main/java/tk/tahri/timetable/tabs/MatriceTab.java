@@ -10,18 +10,16 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tk.tahri.timetable.Entities.*;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.view.SeanceView;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MatriceTab extends EditorTab {
     protected final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
@@ -76,15 +74,14 @@ public class MatriceTab extends EditorTab {
         });
         btn = new Button("Adapter");
         btn.setOnAction(actionEvent -> {
-
-            if( martix.getWidth() > parent.getWidth()){
-
-                var coef =  (parent.getWidth()-20) /martix.getWidth() ;
+            if (martix.getWidth() > parent.getWidth()) {
+                var coef = (parent.getWidth() - 20) / martix.getWidth();
+                slide.setValue(coef);
                 martix.getTransforms().clear();
                 martix.getTransforms().add(new Scale(coef, coef));
+                body.setVvalue(0);
+                body.setHvalue(0);
             }
-
-
         });
         toolBar.getItems().add(btn);
         parent.getChildren().addAll(toolBar, body);
@@ -142,41 +139,28 @@ public class MatriceTab extends EditorTab {
         }
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export To Excel");
+        fileChooser.setTitle("Export To CSV");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Fichier Excel", "*.xlsx")
+                new FileChooser.ExtensionFilter("Fichier CSV", "*.csv")
         );
-        fileChooser.setInitialFileName(day + ".xlsx");
+        fileChooser.setInitialFileName(day + ".csv");
         var file = fileChooser.showSaveDialog(martix.getScene().getWindow());
 
         if (file != null) {
-            try (var workbook = new XSSFWorkbook();
-                 var outputStream = new FileOutputStream(file)) {
-                var sheet = workbook.createSheet(day);
-
-                var row = sheet.createRow(0);
-                row.createCell(0).setCellValue("Jour");
-                row.createCell(1).setCellValue("début");
-                row.createCell(2).setCellValue("Fin");
-                row.createCell(3).setCellValue("Durée");
-                row.createCell(4).setCellValue("Type");
-                row.createCell(5).setCellValue("Formateur");
-                row.createCell(6).setCellValue("Groupe");
-                row.createCell(7).setCellValue("Espace");
-
-                for (int line = 0; line < list.size(); line++) {
-                    row = sheet.createRow(line + 1);
-                    row.createCell(0).setCellValue(days[list.get(line).getJour().getValue() - 1]);
-                    row.createCell(1).setCellValue(list.get(line).getDebut().toString());
-                    row.createCell(2).setCellValue(list.get(line).getFin().toString());
-                    row.createCell(3).setCellValue(list.get(line).getDuree());
-                    row.createCell(4).setCellValue(list.get(line).getType());
-                    row.createCell(5).setCellValue(list.get(line).getFormateur().toString());
-                    row.createCell(6).setCellValue(list.get(line).getGroupes().toString());
-                    row.createCell(7).setCellValue(list.get(line).getEspace().toString());
-                }
-
-                workbook.write(outputStream);
+            StringBuffer sb = new StringBuffer();
+            sb.append("Jour;Début;Fin;Durée;Type;Formateur;Groupe;Espace").append("\n");
+            for (var s : list) {
+                sb.append(days[s.getJour().getValue() - 1]).append(";");
+                sb.append(s.getDebut()).append(";");
+                sb.append(s.getFin()).append(";");
+                sb.append(s.getDuree()).append(";");
+                sb.append(s.getType()).append(";");
+                sb.append(s.getFormateur()).append(";");
+                sb.append(s.getGroupes()).append(";");
+                sb.append(s.getEspace()).append("\n");
+            }
+            try {
+                Files.writeString(Path.of(file.getPath()), sb);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -264,7 +248,7 @@ public class MatriceTab extends EditorTab {
             return false;
         } else if (s1.getJour().getValue() != s2.getJour().getValue()) {
             return false;
-        } else if (s1.getFormateur().getId() != s2.getFormateur().getId() && s1.getEspace().getId() != s2.getEspace().getId() && s1.getGroupes().stream().map(Groupe::getId).noneMatch(s2.getGroupes().stream().map(Groupe::getId).collect(Collectors.toList())::contains)) {
+        } else if (s1.getFormateur().getId() != s2.getFormateur().getId() && s1.getEspace().getId() != s2.getEspace().getId() && s1.getGroupes().stream().map(Groupe::getId).noneMatch(s2.getGroupes().stream().map(Groupe::getId).toList()::contains)) {
             return false;
         } else if (s2.getDebut().toSecondOfDay() < s1.getDebut().toSecondOfDay() && s2.getFin().toSecondOfDay() > s1.getDebut().toSecondOfDay()) {
             return true;

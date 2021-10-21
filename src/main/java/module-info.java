@@ -6,9 +6,6 @@ module timetable {
     requires org.controlsfx.controls;
     requires org.xerial.sqlitejdbc;
     requires jakarta.mail;
-    requires org.apache.poi.poi;
-    requires org.apache.poi.ooxml;
-    requires org.apache.commons.compress;
 
     exports tk.tahri.timetable;
     exports tk.tahri.timetable.dao;
