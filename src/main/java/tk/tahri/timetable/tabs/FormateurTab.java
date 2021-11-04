@@ -61,6 +61,7 @@ public class FormateurTab extends EditorTab {
         formateurToolBar.setIcon(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(26));
         formateurToolBar.getStyleClass().add("formateur-title-main");
         formateurTimeTable = new FormateurMainTimeTable(formateur, formateurToolBar, groupeTimeTable, espaceTimeTable);
+        //formateurTimeTable.setBackground(new Background(new BackgroundFill(Color.YELLOW,CornerRadii.EMPTY,Insets.EMPTY)));
         grid.add(formateurToolBar, 0, 0, 2, 1);
 
         drawMainContent();

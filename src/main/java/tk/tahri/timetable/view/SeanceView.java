@@ -12,11 +12,11 @@ import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
+
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SeanceView extends VBox {
-
     private final Seance seance;
     private double firstClickX;
     private double firstClickY;
@@ -28,8 +28,8 @@ public class SeanceView extends VBox {
         this.getChildren().addAll(new Text(seance.getFormateur().toString()));
         this.getChildren().addAll(new Text(seance.getGroupes().get(0).getNom()));
         this.getChildren().add(new Text("[" + seance.getType() + "] : " + seance.getEspace().getNom()));
-        this.getChildren().forEach(txt->{
-            ((Text)txt).setFill(Color.WHITE);
+        this.getChildren().forEach(txt -> {
+            ((Text) txt).setFill(Color.WHITE);
         });
     }
 
@@ -62,18 +62,28 @@ public class SeanceView extends VBox {
                 }
             }
         }
-        this.getChildren().forEach(txt->{
-            var text=(Text)txt;
+        this.setPrefSize(seance.getDuree() / 15.0 * width, height);
+        this.setMaxSize(seance.getDuree() / 15.0 * width, height);
+
+        this.getChildren().forEach(txt -> {
+            var text = (Text) txt;
+            //text.applyCss();
             text.setFill(Color.WHITE);
-            text.setWrappingWidth(seance.getDuree() / 15.0 * width);
+            var w = this.getMaxWidth() - text.getBoundsInLocal().getWidth();
+            if (w < 0) {
+                var y=text.getBoundsInLocal().getWidth()+w;
+                var length=text.getText().length();
+                text.setText(text.getText().substring(0,(int) ((y* length)/text.getBoundsInLocal().getWidth())));
+            }
+            //text.setWrappingWidth(seance.getDuree() / 15.5 * width);
             text.setTextAlignment(TextAlignment.CENTER);
         });
-        this.setPrefSize(seance.getDuree() / 15.0 * width, height);
+
 
         if (draggable) {
             AtomicBoolean isDragging = new AtomicBoolean(false);
-            ContextMenu contextMenu = new ContextMenu();
 
+            ContextMenu contextMenu = new ContextMenu();
             var mHeurs = new Menu("Heurs");
             var h1 = new MenuItem("01 H 00 Min");
             var h115 = new MenuItem("01 H 15 Min");
@@ -105,11 +115,9 @@ public class SeanceView extends VBox {
 
             var mtype = new Menu("Type");
             var fad = new MenuItem("FAD : Distancielle");
-            //var fp = new MenuItem("FP : Présentielle");
             mtype.getItems().addAll(fad);
 
             fad.setOnAction(event -> updateTypeDeSeance("FAD"));
-            //fp.setOnAction(event -> updateTypeDeSeance("FP"));
 
             var mEspace = new Menu("Changer l'espace");
             var listEspaces = Database.getInstance().getEspaces();

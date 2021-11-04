@@ -1,6 +1,7 @@
 package tk.tahri.timetable.view;
 
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -128,6 +129,14 @@ public abstract class TimeTableView extends Pane {
         loadData();
         for (var s1 : seances) {
             var sv = new SeanceView(s1, colWidth, rowHeight, draggable, type);
+
+            var tooltip = new Tooltip();
+            tooltip.setText(s1.getFormateur().toString().concat("\n")
+                    .concat(s1.getGroupes().toString()).concat("\n")
+                    .concat("[" + s1.getType() + "] : " + s1.getEspace().getNom()));
+            tooltip.setFont(new Font(14));
+            Tooltip.install(sv, tooltip);
+
             var ch = false;
             for (var s2 : seances) {
                 if (chevauchement(s1, s2)) {

@@ -43,7 +43,7 @@
 .sub-formateur-seance-view, .sub-espace-seance-view, .sub-groupe-seance-view, .sub-chevauchement-seance-view {
     -fx-background-radius: 5.0;
     -fx-alignment: center;
-    -fx-font-size: 9px;
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 .espace-title-main, .groupe-title-main, .formateur-title-main {

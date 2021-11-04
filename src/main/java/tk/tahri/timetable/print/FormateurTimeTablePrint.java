@@ -1,9 +1,16 @@
 package tk.tahri.timetable.print;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.view.FormateurPrintTimeTableView;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 public class FormateurTimeTablePrint extends TimeTablePrint {
@@ -12,7 +19,7 @@ public class FormateurTimeTablePrint extends TimeTablePrint {
     public FormateurTimeTablePrint(Formateur formateur) {
         super(15, new FormateurPrintTimeTableView(formateur));
         this.formateur = formateur;
-        this.getChildren().addAll(header(), titre(formateur.toString()), info(info1(), info2()), body());
+        this.getChildren().addAll(header(), titre(formateur.toString()), info(info1(), info2()), body(),footer());
     }
 
     private GridPane info1() {
@@ -34,6 +41,15 @@ public class FormateurTimeTablePrint extends TimeTablePrint {
         grid.add(new Text(" : " + formateur.getPrenom()), 1, 2);
 
         return grid;
+    }
+    private HBox footer() {
+        var lbl=new Label("Date d’émission : "+ LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        lbl.setFont(new Font(9));
+        HBox hBox = new HBox(lbl);
+        hBox.setFillHeight(true);
+        hBox.setAlignment(Pos.BOTTOM_LEFT);
+        hBox.setPadding(new Insets(20,0,0,0));
+        return hBox;
     }
 
 }

@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
@@ -204,6 +205,14 @@ public class MatriceTab extends EditorTab {
                 var x = 1 + ((seance.getJour().getValue() - 1) * 40) + (seance.getDebut().minusHours(8).minusMinutes(30).toSecondOfDay() / (60 * 15));
                 var span = seance.getFin().minusHours(seance.getDebut().getHour()).minusMinutes(seance.getDebut().getMinute()).toSecondOfDay() / (60 * 15);
                 var sv = new SeanceView(seance);
+                var tooltip = new Tooltip();
+
+                tooltip.setText(seance.getFormateur().toString().concat("\n")
+                        .concat(seance.getGroupes().toString()).concat("\n")
+                        .concat("[" + seance.getType() + "] : " + seance.getEspace().getNom()));
+                tooltip.setFont(new Font(14));
+                Tooltip.install(sv, tooltip);
+
                 sv.setOnMouseClicked(this::onSeanceCliked);
                 var ch = false;
                 for (var s2 : allSeances) {

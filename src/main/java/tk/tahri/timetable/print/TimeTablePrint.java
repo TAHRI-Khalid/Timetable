@@ -97,7 +97,6 @@ public abstract class TimeTablePrint extends VBox {
     protected HBox body() {
         var hBox = new HBox();
         hBox.setAlignment(Pos.TOP_CENTER);
-
         printTimeTableView.getChildren().stream().filter(node -> node instanceof SeanceView).forEach(node -> {
             var sv = (SeanceView) node;
             sv.getStyleClass().clear();
