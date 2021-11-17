@@ -102,3 +102,9 @@
     -fx-background-color: #b71c1c;
 }
 
+.table-view .cell:filled{
+    -fx-alignment: center-left;
+}
+.table-view .table-cell{
+    -fx-font-size: 15;
+}

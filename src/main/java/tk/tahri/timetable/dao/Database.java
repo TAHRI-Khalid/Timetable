@@ -127,6 +127,8 @@ public class Database {
                         '2021/2022',
                         'S140',
                         null,
+                        null,
+                        null,
                         null)""");
             statement.execute(sql_create_espace);
             statement.execute(sql_create_filiere);

@@ -30,7 +30,9 @@ public class FormateurParametre extends Tab {
     private final TextField txtMatricule;
     private final TextField txtMail;
     private final ComboBox<String> comboType;
+    //private final ColorPicker colorPicker;
     private final Editor editor;
+
 
     public FormateurParametre(Editor editor) {
         super("Formateurs");
@@ -73,6 +75,10 @@ public class FormateurParametre extends Tab {
         comboType.getItems().addAll(Formateur.Types);
         comboType.getSelectionModel().select(0);
         grid.add(comboType, 1, 2);
+
+        //grid.add(new Label("Couleur : "), 2, 2);
+        //colorPicker=new ColorPicker(Color.web("#038C4C"));
+        //grid.add(colorPicker, 3, 2);
 
         var vBox = new VBox(10);
         vBox.setPadding(new Insets(20));
