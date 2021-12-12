@@ -84,7 +84,9 @@ public class SeanceView extends VBox {
             AtomicBoolean isDragging = new AtomicBoolean(false);
 
             ContextMenu contextMenu = new ContextMenu();
-            var mHeurs = new Menu("Heurs");
+            contextMenu.setStyle("-fx-font-weight: 100;");
+
+            var mHeurs = new Menu("Créneau horaire");
             var h1 = new MenuItem("01 H 00 Min");
             var h115 = new MenuItem("01 H 15 Min");
             var h15 = new MenuItem("01 H 30 Min");
@@ -108,7 +110,7 @@ public class SeanceView extends VBox {
             h45.setOnAction(event -> this.updateTime(Duration.ofMinutes(270)));
             h5.setOnAction(event -> this.updateTime(Duration.ofMinutes(300)));
 
-            var mSuppr = new MenuItem("Suuprimer");
+            var mSuppr = new MenuItem("Supprimer");
             mSuppr.setOnAction(event -> {
                 ((MainTimeTableView) this.getParent()).deleteSeance(this.getSeance());
             });

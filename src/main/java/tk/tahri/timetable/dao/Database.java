@@ -81,7 +81,8 @@ public class Database {
                 id integer PRIMARY KEY AUTOINCREMENT,
                 nom text NOT NULL,
                 annee text NOT NULL,
-                idFiliere text NOT NULL);
+                idFiliere text NOT NULL,
+                FOREIGN KEY (idFiliere) REFERENCES filiere(id));
                 """;
 
         String sql_create_formateur = """
