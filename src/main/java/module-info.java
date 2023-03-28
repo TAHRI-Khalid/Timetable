@@ -5,6 +5,7 @@ module timetable {
     requires javafx.swing;
     requires org.controlsfx.controls;
     requires org.xerial.sqlitejdbc;
+
     requires jakarta.mail;
 
     exports tk.tahri.timetable;

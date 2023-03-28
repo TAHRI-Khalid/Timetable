@@ -8,20 +8,13 @@ import jakarta.mail.internet.MimeMultipart;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Insets;
 import javafx.scene.image.WritableImage;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.Entities.Formateur;
-import tk.tahri.timetable.dao.Database;
-import tk.tahri.timetable.print.FormateurTimeTablePrint;
-
 import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 public class MailService extends Service<Formateur> {
 
@@ -48,14 +41,11 @@ public class MailService extends Service<Formateur> {
                 props.put("mail.smtp.starttls.enable", "true");
                 props.put("mail.smtp.host", "smtp.office365.com");
                 props.put("mail.smtp.port", "587");
+                props.put("mail.debug", "true");
 
                 String tmpdir = System.getProperty("java.io.tmpdir");
 
-                Session session = Session.getInstance(props, new Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(etablissement.getUsername(), etablissement.getPassword());
-                    }
-                });
+                Session session = Session.getInstance(props);
 
                 int i = 0;
                 for (var entry : map.entrySet()) {
@@ -69,17 +59,18 @@ public class MailService extends Service<Formateur> {
                     message.setSubject(mailSubject);
                     message.setText(mailMessage);
 
-                    BodyPart messageBodyPart = new MimeBodyPart();
+                    var messageBodyPart = new MimeBodyPart();
                     messageBodyPart.setText(mailMessage);
 
-                    Multipart multipart = new MimeMultipart("related");
+                    var multipart = new MimeMultipart("related");
                     multipart.addBodyPart(messageBodyPart);
 
-                    MimeBodyPart imgPart = new MimeBodyPart();
+                    var imgPart = new MimeBodyPart();
                     imgPart.attachFile(file);
                     multipart.addBodyPart(imgPart);
                     message.setContent(multipart);
-                    Transport.send(message);
+                    Transport.send(message,etablissement.getUsername(), etablissement.getPassword());
+
                     i++;
                     updateProgress(i, map.size());
                     updateValue(entry.getKey());
