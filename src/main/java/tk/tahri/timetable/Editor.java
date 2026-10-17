@@ -14,6 +14,7 @@ import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tabs.*;
 import tk.tahri.timetable.tools.Config;
+import tk.tahri.timetable.tools.NotificationService;
 import java.io.IOException;
 import java.nio.file.*;
 
@@ -28,15 +29,18 @@ public class Editor extends VBox {
     private final Menu mParametre = new Menu("Paramètres");
 
     public Editor() {
+        setStyle("-fx-background-color: #ffffff;");
         createMenu();
         createTabpane();
-        DashboardTab tab = new DashboardTab("Acceuil");
+        DashboardTab tab = new DashboardTab("Accueil");
         tabpane.getTabs().add(tab);
     }
 
     private void createTabpane() {
         tabpane = new TabPane();
-        tabpane.setSide(Side.BOTTOM);
+        tabpane.setStyle("-fx-background-color: #ffffff;");
+        tabpane.setSide(Side.TOP);
+        tabpane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         VBox.setVgrow(tabpane, Priority.ALWAYS);
         getChildren().addAll(tabpane);
     }
@@ -78,18 +82,12 @@ public class Editor extends VBox {
             loadTab(printTab);
         });
 
-        var mMailCenter = new MenuItem("Espace mail");
-        mMailCenter.setOnAction(event -> {
-            MailTab mailTab=new MailTab("Espace mail");
-            loadTab(mailTab);
-        });
-
         var mQuitter = new MenuItem("Quitter");
         var qkeyCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
         mQuitter.setAccelerator(qkeyCombination);
         mQuitter.setOnAction(event -> ((Stage) this.getScene().getWindow()).close());
 
-        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, mMailCenter, new SeparatorMenuItem(), mQuitter);
+        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, new SeparatorMenuItem(), mQuitter);
 
         if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();
@@ -107,17 +105,12 @@ public class Editor extends VBox {
         try {
             var modified = Boolean.parseBoolean(Config.getProperty("modified"));
             if (modified) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Attension");
-                alert.setContentText("le fichier a ete modifié voulez vous le sauvegarder ?");
-                ButtonType okButton = new ButtonType("Oui", ButtonBar.ButtonData.YES);
-                ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.NO);
-                alert.getButtonTypes().setAll(okButton, noButton);
-                alert.showAndWait().ifPresent(type -> {
-                    if (type == okButton) {
-                        onMenuSave();
-                    }
-                });
+                var choice = NotificationService.confirmSaveOnClose("de créer un nouveau fichier");
+                if (choice == NotificationService.SaveChoice.SAVE) {
+                    onMenuSave();
+                } else if (choice == NotificationService.SaveChoice.CANCEL) {
+                    return;
+                }
             }
 
             var dest = Files.createTempFile("temp", ".tk");
@@ -132,9 +125,10 @@ public class Editor extends VBox {
             loadMenuFormateur();
             loadMenuEspace();
             loadMenuParametre();
+            NotificationService.showInfo("Nouveau fichier", "Un nouveau projet d'emploi du temps a été initialisé.");
 
         } catch (IOException e) {
-            e.printStackTrace();
+            NotificationService.showError("Erreur", "Impossible de créer le nouveau fichier : " + e.getMessage());
         }
 
     }
@@ -148,18 +142,19 @@ public class Editor extends VBox {
                 var source = Path.of(Config.getProperty("file"));
                 Files.copy(temp, source, StandardCopyOption.REPLACE_EXISTING);
                 Config.setProperty("modified", Boolean.FALSE.toString());
+                NotificationService.showSuccess("Enregistré", "Le fichier a été enregistré avec succès.");
 
             } catch (IOException e) {
-                e.printStackTrace();
+                NotificationService.showError("Erreur d'enregistrement", "Impossible d'enregistrer le fichier : " + e.getMessage());
             }
         }
     }
 
     private void onMenuSaveAS() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Time Table");
+        fileChooser.setTitle("Time Table - Enregistrer sous");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Fichier TimeTable", "*.tk")
+                new FileChooser.ExtensionFilter("Fichier TimeTable (*.tk)", "*.tk")
         );
         var file = fileChooser.showSaveDialog(getScene().getWindow());
 
@@ -171,18 +166,29 @@ public class Editor extends VBox {
                 Files.copy(temp, source, StandardCopyOption.REPLACE_EXISTING);
                 Config.setProperty("file", source.toString());
                 Config.setProperty("modified", Boolean.FALSE.toString());
+                NotificationService.showSuccess("Enregistré sous", "Fichier sauvegardé avec succès : " + source.getFileName());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                NotificationService.showError("Erreur d'enregistrement", "Impossible de sauvegarder le fichier : " + e.getMessage());
             }
         }
     }
 
     private void onMenuOpen() {
+        var modified = Boolean.parseBoolean(Config.getProperty("modified"));
+        if (modified) {
+            var choice = NotificationService.confirmSaveOnClose("d'ouvrir un autre fichier");
+            if (choice == NotificationService.SaveChoice.SAVE) {
+                onMenuSave();
+            } else if (choice == NotificationService.SaveChoice.CANCEL) {
+                return;
+            }
+        }
+
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Ouvrir");
+        fileChooser.setTitle("Ouvrir un fichier TimeTable");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("TimeTable", "*.tk")
+                new FileChooser.ExtensionFilter("TimeTable (*.tk)", "*.tk")
         );
         var file = fileChooser.showOpenDialog(getScene().getWindow());
 
@@ -202,9 +208,10 @@ public class Editor extends VBox {
                 loadMenuFormateur();
                 loadMenuEspace();
                 loadMenuParametre();
+                NotificationService.showSuccess("Fichier ouvert", "Le fichier '" + file.getName() + "' a été ouvert avec succès.");
 
             } catch (IOException e) {
-                e.printStackTrace();
+                NotificationService.showError("Erreur d'ouverture", "Impossible d'ouvrir le fichier : " + e.getMessage());
             }
         }
     }
@@ -281,10 +288,15 @@ public class Editor extends VBox {
         mParamEspace.setAccelerator(ekeyCombination);
         mParamEspace.setOnAction(event -> loadTab(new EspaceParametre(this)));
 
+        var mCreneaux = new MenuItem("Créneaux horaires");
+        var hkeyCombination = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
+        mCreneaux.setAccelerator(hkeyCombination);
+        mCreneaux.setOnAction(event -> loadTab(new CreneauParametre(this)));
+
         var mMatrice = new MenuItem("Matrice");
         mMatrice.setOnAction(event -> loadTab(new MatriceTab()));
 
-        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace, mMatrice);
+        mParametre.getItems().addAll(mEtablissement, mFiliere, mParamGroupe, mParamFormateur, mParamEspace, mCreneaux, mMatrice);
 
     }
 

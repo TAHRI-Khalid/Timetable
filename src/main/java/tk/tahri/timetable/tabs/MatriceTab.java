@@ -111,9 +111,9 @@ public class MatriceTab extends EditorTab {
             } else {
                 vBox.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
             }
-            martix.add(vBox, (i * 40) + 1, 0, 40, 1);
-            var time = LocalTime.of(8, 30);
-            for (int j = 0; j < 10; j++) {
+            martix.add(vBox, (i * 42) + 1, 0, 42, 1);
+            var time = LocalTime.of(8, 0);
+            for (int j = 0; j < 11; j++) {
                 vBox = new VBox(new Text(time.toString()));
                 vBox.setAlignment(Pos.CENTER);
                 if (j % 2 == 0) {
@@ -121,7 +121,8 @@ public class MatriceTab extends EditorTab {
                 } else {
                     vBox.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
-                martix.add(vBox, (i * 40) + (j * 4) + 1, 1, 4, 1);
+                int span = (j == 10) ? 2 : 4;
+                martix.add(vBox, (i * 42) + (j * 4) + 1, 1, span, 1);
                 time = time.plusHours(1);
             }
         }
@@ -202,7 +203,7 @@ public class MatriceTab extends EditorTab {
 
             for (var seance : seances) {
                 var y = i + 2;
-                var x = 1 + ((seance.getJour().getValue() - 1) * 40) + (seance.getDebut().minusHours(8).minusMinutes(30).toSecondOfDay() / (60 * 15));
+                var x = 1 + ((seance.getJour().getValue() - 1) * 42) + (seance.getDebut().minusHours(8).toSecondOfDay() / (60 * 15));
                 var span = seance.getFin().minusHours(seance.getDebut().getHour()).minusMinutes(seance.getDebut().getMinute()).toSecondOfDay() / (60 * 15);
                 var sv = new SeanceView(seance);
                 var tooltip = new Tooltip();

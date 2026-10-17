@@ -10,8 +10,10 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import tk.tahri.timetable.Entities.CreneauHoraire;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
+import tk.tahri.timetable.dao.Database;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -25,7 +27,9 @@ public abstract class TimeTableView extends Pane {
     protected final List<Seance> seances = new ArrayList<>();
 
     protected final String[] days = new String[]{"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"};
-    protected final LocalTime beginTime = LocalTime.of(8, 30);
+    protected final LocalTime beginTime = LocalTime.of(8, 0);
+    protected final LocalTime endTime = LocalTime.of(18, 30);
+    protected int totalCols = (int) (ChronoUnit.MINUTES.between(beginTime, endTime) / 15); // 42
     protected double colWidth = 25;
     protected double rowHeight = 55;
     protected double tableX = colWidth * 4;
@@ -50,49 +54,118 @@ public abstract class TimeTableView extends Pane {
     protected void draw() {
 
         getChildren().clear();
-        var rec = new Rectangle(tableX, tableY, colWidth * 40, rowHeight * 6);
+        var rec = new Rectangle(tableX, tableY, colWidth * totalCols, rowHeight * 6);
         rec.setFill(Color.TRANSPARENT);
         rec.setStroke(Color.BLACK);
         rec.setStrokeWidth(thickStroke);
         this.getChildren().add(rec);
 
-        //draw times header and vertical lines
-        var time = beginTime;
-        for (int i = 0; i < 40; i++) {
-            if (!dashedLine && i % 4 != 0) {
-                continue;
-            }
-            var line = new Line(tableX + (colWidth * i), tableY, tableX + (colWidth * i), tableY + (rowHeight * 6));
-            line.setStroke(Color.BLACK);
-            line.getStrokeDashArray().addAll(5d);
-            line.setStrokeWidth(thinStroke);
+        var creneaux = Database.getInstance().getCreneaux();
 
-            if (i % 4 == 0) {
-                line.getStrokeDashArray().clear();
-                line.setStrokeWidth(thinStroke);
+        if (creneaux != null && !creneaux.isEmpty()) {
+            // Dessiner les créneaux horaires configurés
+            for (var c : creneaux) {
+                int startCol = (int) Math.max(0, ChronoUnit.MINUTES.between(beginTime, c.getHeureDebut()) / 15);
+                int endCol = (int) Math.min(totalCols, ChronoUnit.MINUTES.between(beginTime, c.getHeureFin()) / 15);
+                if (endCol <= startCol) continue;
 
-                var recTimes = new Rectangle(tableX + (colWidth * i), 0, colWidth * 4, tableY);
+                double x = tableX + (colWidth * startCol);
+                double width = colWidth * (endCol - startCol);
+
+                var recTimes = new Rectangle(x, 0, width, tableY);
                 recTimes.setFill(Color.TRANSPARENT);
                 recTimes.setStroke(Color.BLACK);
                 recTimes.setStrokeWidth(thickStroke);
                 this.getChildren().add(recTimes);
 
-                var debut = time;
-                var fin = time.plusHours(1);
-                var txt = new Text(debut + " - " + fin.toString());
+                String label = c.getNom();
+                // Si le libellé ne contient pas déjà les horaires, on peut les afficher si l'espace le permet
+                if (!label.contains(c.getHeureDebutStr())) {
+                    label = c.getNom() + " (" + c.getHeureDebutStr() + " - " + c.getHeureFinStr() + ")";
+                }
+                var txt = new Text(label);
                 txt.setFont(colHeader);
-                txt.setX(timeHeaderX + (colWidth * i));
+                if (txt.getBoundsInLocal().getWidth() > width - 4) {
+                    label = c.getNom() + " " + c.getHeureDebutStr() + "-" + c.getHeureFinStr();
+                    txt.setText(label);
+                }
+                if (txt.getBoundsInLocal().getWidth() > width - 4) {
+                    label = c.getNom();
+                    txt.setText(label);
+                }
+                double textWidth = txt.getBoundsInLocal().getWidth();
+                double textX = x + Math.max(2, (width - textWidth) / 2);
+                txt.setX(textX);
                 txt.setY(timeHeaderY);
                 this.getChildren().add(txt);
-                time = time.plusHours(1);
             }
-            if (i == 20) {
-                line.setStrokeWidth(thickStroke);
+
+            // Lignes verticales
+            for (int i = 0; i < totalCols; i++) {
+                LocalTime colTime = beginTime.plusMinutes(i * 15L);
+                boolean isBoundary = false;
+                for (var c : creneaux) {
+                    if (c.getHeureDebut().equals(colTime) || c.getHeureFin().equals(colTime)) {
+                        isBoundary = true;
+                        break;
+                    }
+                }
+
+                if (!dashedLine && !isBoundary && i % 4 != 0) {
+                    continue;
+                }
+
+                var line = new Line(tableX + (colWidth * i), tableY, tableX + (colWidth * i), tableY + (rowHeight * 6));
+                line.setStroke(Color.BLACK);
+
+                if (isBoundary || i == 20) {
+                    line.setStrokeWidth(thickStroke);
+                } else {
+                    line.getStrokeDashArray().addAll(5d);
+                    line.setStrokeWidth(thinStroke);
+                }
+                this.getChildren().add(line);
             }
-            this.getChildren().add(line);
+        } else {
+            // Mode classique par défaut (intervalles d'1 heure)
+            var time = beginTime;
+            for (int i = 0; i < totalCols; i++) {
+                if (!dashedLine && i % 4 != 0) {
+                    continue;
+                }
+                var line = new Line(tableX + (colWidth * i), tableY, tableX + (colWidth * i), tableY + (rowHeight * 6));
+                line.setStroke(Color.BLACK);
+                line.getStrokeDashArray().addAll(5d);
+                line.setStrokeWidth(thinStroke);
+
+                if (i % 4 == 0) {
+                    line.getStrokeDashArray().clear();
+                    line.setStrokeWidth(thinStroke);
+
+                    int colSpan = Math.min(4, totalCols - i);
+                    var recTimes = new Rectangle(tableX + (colWidth * i), 0, colWidth * colSpan, tableY);
+                    recTimes.setFill(Color.TRANSPARENT);
+                    recTimes.setStroke(Color.BLACK);
+                    recTimes.setStrokeWidth(thickStroke);
+                    this.getChildren().add(recTimes);
+
+                    var debut = time;
+                    var fin = time.plusMinutes(colSpan * 15L);
+                    var txt = new Text(debut + " - " + fin.toString());
+                    txt.setFont(colHeader);
+                    txt.setX(timeHeaderX + (colWidth * i));
+                    txt.setY(timeHeaderY);
+                    this.getChildren().add(txt);
+                    time = time.plusHours(1);
+                }
+                if (i == 20) {
+                    line.setStrokeWidth(thickStroke);
+                }
+                this.getChildren().add(line);
+            }
         }
 
-        //draw days header and horizontal lines
+        // Dessiner l'en-tête des jours et les lignes horizontales
         for (int i = 0; i < 6; i++) {
             var recDays = new Rectangle(0, tableY + (rowHeight * i), tableX, rowHeight);
             recDays.setFill(Color.TRANSPARENT);
@@ -106,7 +179,7 @@ public abstract class TimeTableView extends Pane {
             day.setY(dayHeaderY + (rowHeight * i));
             this.getChildren().add(day);
 
-            var line = new Line(tableX, tableY + (rowHeight * i), tableX + (colWidth * 40), tableY + (rowHeight * i));
+            var line = new Line(tableX, tableY + (rowHeight * i), tableX + (colWidth * totalCols), tableY + (rowHeight * i));
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(thinStroke);
             this.getChildren().add(line);
@@ -146,7 +219,7 @@ public abstract class TimeTableView extends Pane {
             }
             sv.getStyleClass().add(ch ? chevechementStyle : style);
             this.getChildren().add(sv);
-            sv.setTranslateX((((s1.getDebut().toSecondOfDay() - LocalTime.of(8, 30).toSecondOfDay()) / (60.0 * 15.0)) * colWidth) + tableX);
+            sv.setTranslateX((((s1.getDebut().toSecondOfDay() - beginTime.toSecondOfDay()) / (60.0 * 15.0)) * colWidth) + tableX);
             sv.setTranslateY(((s1.getJour().getValue() - 1) * rowHeight) + tableY);
         }
     }

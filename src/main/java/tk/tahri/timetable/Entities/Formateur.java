@@ -10,27 +10,24 @@ public class Formateur {
     private String nom;
     private String prenom;
     private String matricule;
-    private String mail;
     private String type;
 
     public Formateur() {
     }
 
-    public Formateur(String nom, String prenom, String matricule, String mail, String type) {
+    public Formateur(String nom, String prenom, String matricule, String type) {
         this.nom = nom;
         this.prenom = prenom;
         this.matricule = matricule;
         this.type = type;
-        this.mail = mail;
     }
 
-    public Formateur(Long id, String nom, String prenom, String matricule, String mail, String type) {
+    public Formateur(Long id, String nom, String prenom, String matricule, String type) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
         this.matricule = matricule;
         this.type = type;
-        this.mail = mail;
     }
 
     public long getId() {
@@ -71,14 +68,6 @@ public class Formateur {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
     }
 
     @Override

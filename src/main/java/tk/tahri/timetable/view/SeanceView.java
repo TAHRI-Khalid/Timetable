@@ -7,11 +7,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import tk.tahri.timetable.Entities.CreneauHoraire;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Formateur;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.tools.NotificationService;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,7 +88,20 @@ public class SeanceView extends VBox {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.setStyle("-fx-font-weight: 100;");
 
-            var mHeurs = new Menu("Créneau horaire");
+            var mCreneaux = new Menu("Créneaux officiels");
+            var listCreneaux = Database.getInstance().getCreneaux();
+            if (listCreneaux != null && !listCreneaux.isEmpty()) {
+                for (var c : listCreneaux) {
+                    var item = new MenuItem(c.getNom() + " (" + c.getHeureDebutStr() + " - " + c.getHeureFinStr() + ")");
+                    if (this.seance.getDebut().equals(c.getHeureDebut()) && this.seance.getFin().equals(c.getHeureFin())) {
+                        item.setText("✓ " + item.getText());
+                    }
+                    item.setOnAction(event -> applyCreneau(c));
+                    mCreneaux.getItems().add(item);
+                }
+            }
+
+            var mHeurs = new Menu("Ajuster la durée");
             var m45 = new MenuItem("00 H 45 Min");
             var h1 = new MenuItem("01 H 00 Min");
             var h115 = new MenuItem("01 H 15 Min");
@@ -119,7 +134,15 @@ public class SeanceView extends VBox {
 
             var mSuppr = new MenuItem("Supprimer");
             mSuppr.setOnAction(event -> {
-                ((MainTimeTableView) this.getParent()).deleteSeance(this.getSeance());
+                boolean confirm = NotificationService.confirmDestruction(
+                        "Supprimer la séance",
+                        "Confirmation de suppression",
+                        "Voulez-vous vraiment supprimer cette séance de l'emploi du temps ?"
+                );
+                if (confirm) {
+                    ((MainTimeTableView) this.getParent()).deleteSeance(this.getSeance());
+                    NotificationService.showSuccess("Séance supprimée", "La séance a été retirée de l'emploi du temps.");
+                }
             });
 
             var mtype = new Menu("Type");
@@ -181,6 +204,9 @@ public class SeanceView extends VBox {
                 });
             });
 
+            if (listCreneaux != null && !listCreneaux.isEmpty()) {
+                contextMenu.getItems().add(mCreneaux);
+            }
             contextMenu.getItems().addAll(mHeurs, mtype);
             if (type == SeanceType.FORMATEUR || type == SeanceType.GROUPE) {
                 contextMenu.getItems().add(mEspace);
@@ -221,6 +247,14 @@ public class SeanceView extends VBox {
 
     public Seance getSeance() {
         return seance;
+    }
+
+    private void applyCreneau(CreneauHoraire c) {
+        this.seance.setDebut(c.getHeureDebut());
+        this.seance.setFin(c.getHeureFin());
+        if (this.getParent() instanceof MainTimeTableView parent) {
+            parent.updateSeance(this.seance);
+        }
     }
 
     private void updateTime(Duration duration) {

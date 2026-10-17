@@ -91,7 +91,6 @@ public class Database {
                 nom text NOT NULL,
                 prenom text NOT NULL,
                 matricule text,
-                mail text,
                 type text NOT NULL);
                 """;
         String sql_create_seance = """
@@ -113,6 +112,15 @@ public class Database {
                 idSeance integer,
                 FOREIGN KEY(idGroupe) REFERENCES groupe(id),
                 FOREIGN KEY (idSeance) REFERENCES seance(id)
+                );
+                """;
+        String sql_create_creneau = """
+                CREATE TABLE IF NOT EXISTS creneau (
+                id integer PRIMARY KEY AUTOINCREMENT,
+                nom text NOT NULL,
+                heureDebut text NOT NULL,
+                heureFin text NOT NULL,
+                ordre integer DEFAULT 1
                 );
                 """;
         try (var connection = DriverManager.getConnection(url);
@@ -137,6 +145,8 @@ public class Database {
             statement.execute(sql_create_formateur);
             statement.execute(sql_create_seance);
             statement.execute(sql_create_seance_groupe);
+            statement.execute(sql_create_creneau);
+            insertDefaultCreneaux(statement);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -209,7 +219,6 @@ public class Database {
                 formateur.setNom(rs.getString("nom"));
                 formateur.setPrenom(rs.getString("prenom"));
                 formateur.setMatricule(rs.getString("matricule"));
-                formateur.setMail(rs.getString("mail"));
                 formateur.setType(rs.getString("type"));
                 list.add(formateur);
             }
@@ -540,5 +549,87 @@ public class Database {
         return dashboard;
     }
 
+    public List<CreneauHoraire> getCreneaux() {
+        var list = new ArrayList<CreneauHoraire>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS creneau (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    nom text NOT NULL,
+                    heureDebut text NOT NULL,
+                    heureFin text NOT NULL,
+                    ordre integer DEFAULT 1
+                    );
+                    """);
+
+            try (ResultSet rs = stmt.executeQuery("SELECT count(*) FROM creneau")) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    insertDefaultCreneaux(stmt);
+                }
+            }
+
+            // Migration automatique si seuls les 4 anciens créneaux temporaires sont présents
+            try (ResultSet rs = stmt.executeQuery("SELECT count(*) FROM creneau WHERE nom LIKE 'Séance %'")) {
+                if (rs.next() && rs.getInt(1) == 4) {
+                    try (ResultSet rsTotal = stmt.executeQuery("SELECT count(*) FROM creneau")) {
+                        if (rsTotal.next() && rsTotal.getInt(1) == 4) {
+                            stmt.execute("DELETE FROM creneau");
+                            insertDefaultCreneaux(stmt);
+                        }
+                    }
+                }
+            }
+
+            try (ResultSet rs = stmt.executeQuery("SELECT * FROM creneau ORDER BY ordre ASC, heureDebut ASC")) {
+                while (rs.next()) {
+                    var creneau = new CreneauHoraire();
+                    creneau.setId(rs.getLong("id"));
+                    creneau.setNom(rs.getString("nom"));
+                    String hDeb = rs.getString("heureDebut");
+                    String hFin = rs.getString("heureFin");
+                    if (hDeb != null && !hDeb.isEmpty()) {
+                        creneau.setHeureDebut(LocalTime.parse(hDeb));
+                    }
+                    if (hFin != null && !hFin.isEmpty()) {
+                        creneau.setHeureFin(LocalTime.parse(hFin));
+                    }
+                    creneau.setOrdre(rs.getInt("ordre"));
+                    list.add(creneau);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public void resetCreneauxToDefault() {
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM creneau");
+            insertDefaultCreneaux(stmt);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertDefaultCreneaux(Statement stmt) throws SQLException {
+        stmt.execute("""
+                INSERT INTO creneau (nom, heureDebut, heureFin, ordre) VALUES
+                ('8:00 - 9:00', '08:00', '09:00', 1),
+                ('9:00 - 10:00', '09:00', '10:00', 2),
+                ('10:00 - 11:00', '10:00', '11:00', 3),
+                ('11:00 - 12:00', '11:00', '12:00', 4),
+                ('12:00 - 13:00', '12:00', '13:00', 5),
+                ('Pause', '13:00', '13:30', 6),
+                ('13:30 - 14:30', '13:30', '14:30', 7),
+                ('14:30 - 15:30', '14:30', '15:30', 8),
+                ('15:30 - 16:30', '15:30', '16:30', 9),
+                ('16:30 - 17:30', '16:30', '17:30', 10),
+                ('17:30 - 18:30', '17:30', '18:30', 11)
+                """);
+    }
 
 }

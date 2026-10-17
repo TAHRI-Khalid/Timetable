@@ -1,12 +1,14 @@
 package tk.tahri.timetable.view;
 
 import javafx.scene.input.TransferMode;
+import tk.tahri.timetable.Entities.CreneauHoraire;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 public abstract class MainTimeTableView extends TimeTableView {
     private SeanceView seanceView;
@@ -28,13 +30,15 @@ public abstract class MainTimeTableView extends TimeTableView {
                     }
             );
             this.getChildren().add(seanceView);
-            seanceView.setTranslateX(mouseDragEvent.getX() - colWidth * 5);
+            double offset = (seanceView.getPrefWidth() > 0 ? seanceView.getPrefWidth() / 2.0 : colWidth * 2);
+            seanceView.setTranslateX(mouseDragEvent.getX() - offset);
             seanceView.setTranslateY(mouseDragEvent.getY() - rowHeight / 2);
             mouseDragEvent.consume();
         });
 
         this.setOnDragOver(mouseEvent -> {
-            seanceView.setTranslateX(mouseEvent.getX() - colWidth * 5);
+            double offset = (seanceView.getPrefWidth() > 0 ? seanceView.getPrefWidth() / 2.0 : colWidth * 2);
+            seanceView.setTranslateX(mouseEvent.getX() - offset);
             seanceView.setTranslateY(mouseEvent.getY() - rowHeight / 2);
             mouseEvent.acceptTransferModes(TransferMode.ANY);
             mouseEvent.consume();
@@ -58,30 +62,56 @@ public abstract class MainTimeTableView extends TimeTableView {
     }
 
     public void placeSeance(SeanceView seanceView) {
-        var x = (int) ((seanceView.getTranslateX() + (colWidth / 2) - tableX) / colWidth);
+        var duree = seanceView.getSeance().getDuree();
+        double currentWidth = (duree > 0 ? (duree / 15.0) * colWidth : colWidth * 4);
+        double centerX = seanceView.getTranslateX() + (currentWidth / 2.0);
+        var centerCol = (int) Math.round((centerX - tableX) / colWidth);
         var y = (int) ((seanceView.getTranslateY() + (rowHeight / 2) - tableY) / rowHeight);
-        seanceView.setTranslateX((x * colWidth) + tableX);
-        seanceView.setTranslateY((y * rowHeight) + tableY);
 
         y = Math.max(y, 0);
         y = Math.min(y, 5);
-
-        var duree = seanceView.getSeance().getDuree();
         seanceView.getSeance().setJour(DayOfWeek.of(y + 1));
-        LocalTime debut = LocalTime.of(8, 30).plusMinutes(x * 15);
 
-        if (debut.isBefore(LocalTime.of(8, 30))) {
-            debut = LocalTime.of(8, 30);
+        var creneaux = Database.getInstance().getCreneaux();
+        CreneauHoraire matchedCreneau = null;
+
+        if (creneaux != null && !creneaux.isEmpty()) {
+            for (var c : creneaux) {
+                int startCol = (int) (ChronoUnit.MINUTES.between(beginTime, c.getHeureDebut()) / 15);
+                int endCol = (int) (ChronoUnit.MINUTES.between(beginTime, c.getHeureFin()) / 15);
+                if (centerCol >= startCol && centerCol < endCol) {
+                    matchedCreneau = c;
+                    break;
+                }
+            }
         }
-        seanceView.getSeance().setDebut(debut);
-        LocalTime fin = seanceView.getSeance().getDebut().plusMinutes(duree);
 
-        if (fin.isAfter(LocalTime.of(18, 30))) {
-            debut = LocalTime.of(18, 30).minusMinutes(duree);
-            seanceView.getSeance().setDebut(debut);
-            seanceView.getSeance().setFin(debut.plusMinutes(duree));
+        if (matchedCreneau != null) {
+            seanceView.getSeance().setDebut(matchedCreneau.getHeureDebut());
+            seanceView.getSeance().setFin(matchedCreneau.getHeureFin());
+            int startCol = (int) (ChronoUnit.MINUTES.between(beginTime, matchedCreneau.getHeureDebut()) / 15);
+            seanceView.setTranslateX((startCol * colWidth) + tableX);
+            seanceView.setTranslateY((y * rowHeight) + tableY);
         } else {
-            seanceView.getSeance().setFin(fin);
+            var x = (int) ((seanceView.getTranslateX() + (colWidth / 2) - tableX) / colWidth);
+            x = Math.max(0, Math.min(x, totalCols - 1));
+            seanceView.setTranslateX((x * colWidth) + tableX);
+            seanceView.setTranslateY((y * rowHeight) + tableY);
+
+            LocalTime debut = beginTime.plusMinutes(x * 15L);
+            if (debut.isBefore(beginTime)) {
+                debut = beginTime;
+            }
+            seanceView.getSeance().setDebut(debut);
+            LocalTime fin = debut.plusMinutes(duree);
+            LocalTime maxFin = beginTime.plusMinutes(totalCols * 15L);
+            if (fin.isAfter(maxFin)) {
+                debut = maxFin.minusMinutes(duree);
+                seanceView.getSeance().setDebut(debut);
+                seanceView.getSeance().setFin(maxFin);
+            } else {
+                seanceView.getSeance().setFin(fin);
+            }
         }
     }
 

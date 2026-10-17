@@ -12,6 +12,7 @@ import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
+import tk.tahri.timetable.tools.NotificationService;
 
 public class EtablissementParametre extends EditorTab {
 
@@ -20,8 +21,6 @@ public class EtablissementParametre extends EditorTab {
     private final TextField txtComplexe;
     private final TextField txtNom;
     private final TextField txtAbreviation;
-    private final PasswordField txtPassword;
-    private final TextField txtMail;
     private final TextField txtCode;
     private final TextField txtAnneeDeFormation;
     private final DatePicker datePickerDebut;
@@ -38,74 +37,89 @@ public class EtablissementParametre extends EditorTab {
         formateurTitle.getStyleClass().add("formateur-title-main");
 
         var grid = new GridPane();
-        grid.setVgap(15);
-        grid.setHgap(15);
+        grid.setVgap(12);
+        grid.setHgap(20);
 
+        // Colonne 1 : Informations institutionnelles
         grid.add(new Label("Direction : "), 0, 0);
         txtDirection = new TextField();
+        txtDirection.setPromptText("Ex: Direction Régionale...");
         GridPane.setHgrow(txtDirection, Priority.ALWAYS);
         grid.add(txtDirection, 1, 0);
 
         grid.add(new Label("Complexe : "), 0, 1);
         txtComplexe = new TextField();
+        txtComplexe.setPromptText("Ex: Complexe Formation...");
         GridPane.setHgrow(txtComplexe, Priority.ALWAYS);
         grid.add(txtComplexe, 1, 1);
 
-        grid.add(new Label("Etablissement : "), 0, 2);
+        grid.add(new Label("Établissement : "), 0, 2);
         txtNom = new TextField();
+        txtNom.setPromptText("Nom de l'établissement");
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 2);
 
-        grid.add(new Label("Abreviation : "), 0, 3);
+        grid.add(new Label("Abréviation : "), 0, 3);
         txtAbreviation = new TextField();
+        txtAbreviation.setPromptText("Ex: ISTA, CFP...");
         GridPane.setHgrow(txtAbreviation, Priority.ALWAYS);
         grid.add(txtAbreviation, 1, 3);
 
         grid.add(new Label("Code : "), 0, 4);
         txtCode = new TextField();
+        txtCode.setPromptText("Code établissement");
         GridPane.setHgrow(txtCode, Priority.ALWAYS);
         grid.add(txtCode, 1, 4);
 
-        grid.add(new Label("E-Mail : "), 0, 5);
-        txtMail = new TextField();
-        GridPane.setHgrow(txtMail, Priority.ALWAYS);
-        grid.add(txtMail, 1, 5);
-
-        grid.add(new Label("Mot de Passe : "), 0, 6);
-        txtPassword = new PasswordField();
-        GridPane.setHgrow(txtPassword, Priority.ALWAYS);
-        grid.add(txtPassword, 1, 6);
-
-        grid.add(new Label("Année de formation : "), 0, 7);
+        // Colonne 2 : Année et Période
+        grid.add(new Label("Année de formation : "), 2, 0);
         txtAnneeDeFormation = new TextField();
+        txtAnneeDeFormation.setPromptText("Ex: 2026/2027");
         GridPane.setHgrow(txtAnneeDeFormation, Priority.ALWAYS);
-        grid.add(txtAnneeDeFormation, 1, 7);
+        grid.add(txtAnneeDeFormation, 3, 0);
 
-        grid.add(new Label("Date début : "), 0, 8);
+        grid.add(new Label("Date début : "), 2, 1);
         datePickerDebut = new DatePicker();
+        datePickerDebut.setMaxWidth(Double.MAX_VALUE);
         GridPane.setHgrow(datePickerDebut, Priority.ALWAYS);
-        grid.add(datePickerDebut, 1, 8);
+        grid.add(datePickerDebut, 3, 1);
 
-        grid.add(new Label("Date fin : "), 0, 9);
+        grid.add(new Label("Date fin : "), 2, 2);
         datePickerFin = new DatePicker();
+        datePickerFin.setMaxWidth(Double.MAX_VALUE);
         GridPane.setHgrow(datePickerFin, Priority.ALWAYS);
-        grid.add(datePickerFin, 1, 9);
+        grid.add(datePickerFin, 3, 2);
 
-        var vBox = new VBox(10);
-        vBox.setPadding(new Insets(20));
-        var hBox = new HBox(10);
-        hBox.setAlignment(Pos.CENTER_RIGHT);
+        // Panneau de formulaire avec en-tête
+        var formCard = new VBox(15);
+        formCard.getStyleClass().add("form-card");
 
-        var btnSave = new Button("Enregistrer");
+        var formHeader = new HBox(10);
+        formHeader.setAlignment(Pos.CENTER_LEFT);
+        formHeader.getStyleClass().add("form-header-box");
+
+        var lblFormTitle = new Label("Configuration de l'Établissement et Paramètres Globaux");
+        lblFormTitle.getStyleClass().add("form-mode-title");
+        formHeader.getChildren().add(lblFormTitle);
+
+        var btnSave = new Button("Enregistrer les modifications");
+        btnSave.getStyleClass().add("btn-action-primary");
         btnSave.setOnAction(actionEvent -> saveForm());
 
-        var btnCancel = new Button("Annuler");
+        var btnCancel = new Button("Rétablir");
+        btnCancel.getStyleClass().add("btn-action-secondary");
         btnCancel.setOnAction(actionEvent -> clearForm());
 
-        hBox.getChildren().addAll(btnSave, btnCancel);
+        var hBox = new HBox(10, btnSave, btnCancel);
+        hBox.setAlignment(Pos.CENTER_RIGHT);
+
+        formCard.getChildren().addAll(formHeader, grid, hBox);
 
         loadData();
-        vBox.getChildren().addAll(formateurTitle, grid, hBox);
+
+        var vBox = new VBox(15);
+        vBox.setPadding(new Insets(15));
+        vBox.getChildren().addAll(formateurTitle, formCard);
         setContent(vBox);
 
     }
@@ -124,11 +138,18 @@ public class EtablissementParametre extends EditorTab {
         txtNom.setText(etablissement.getNom());
         datePickerDebut.setValue(etablissement.getDateDebut());
         datePickerFin.setValue(etablissement.getDateFin());
-        txtMail.setText(etablissement.getUsername());
-        txtPassword.setText(etablissement.getPassword());
     }
 
     private void saveForm() {
+        if (datePickerDebut.getValue() != null && datePickerFin.getValue() != null
+                && datePickerDebut.getValue().isAfter(datePickerFin.getValue())) {
+            NotificationService.showWarning("Dates incohérentes", "La date de début ne peut pas être postérieure à la date de fin.");
+            return;
+        }
+
+        String username = etablissement.getUsername() != null ? etablissement.getUsername() : "";
+        String password = etablissement.getPassword() != null ? etablissement.getPassword() : "";
+
         Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?,username=?,password=?, dateDebut=?, dateFin=? WHERE id=?",
                 txtDirection.getText(),
                 txtComplexe.getText(),
@@ -136,12 +157,13 @@ public class EtablissementParametre extends EditorTab {
                 txtAbreviation.getText(),
                 txtCode.getText(),
                 txtAnneeDeFormation.getText(),
-                txtMail.getText(),
-                txtPassword.getText(),
+                username,
+                password,
                 datePickerDebut.getEditor().getText().isEmpty() ? null : datePickerDebut.getValue().toString(),
                 datePickerFin.getEditor().getText().isEmpty() ? null : datePickerFin.getValue().toString(),
                 String.valueOf(etablissement.getId()));
         loadData();
+        NotificationService.showSuccess("Établissement", "Les paramètres de l'établissement ont été enregistrés avec succès.");
     }
 
     @Override

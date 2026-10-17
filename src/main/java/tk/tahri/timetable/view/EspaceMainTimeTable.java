@@ -26,7 +26,10 @@ public class EspaceMainTimeTable extends MainTimeTableView {
 
     @Override
     protected Seance getDraggedSeance() {
-        return new Seance(LocalTime.of(8, 30), LocalTime.of(11, 0), DayOfWeek.of(1),"FP", groupeTimetable.getGroupe(), formateurTimetable.getFormateur(), espace);
+        var creneaux = Database.getInstance().getCreneaux();
+        LocalTime debut = (creneaux != null && !creneaux.isEmpty()) ? creneaux.get(0).getHeureDebut() : LocalTime.of(8, 0);
+        LocalTime fin = (creneaux != null && !creneaux.isEmpty()) ? creneaux.get(0).getHeureFin() : LocalTime.of(9, 0);
+        return new Seance(debut, fin, DayOfWeek.of(1),"FP", groupeTimetable.getGroupe(), formateurTimetable.getFormateur(), espace);
     }
 
     @Override
