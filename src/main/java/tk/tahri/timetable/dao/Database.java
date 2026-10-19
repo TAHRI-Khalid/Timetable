@@ -150,7 +150,10 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    public Etablissement getEtablissement() {
+        return getItablissment();
     }
 
     public Etablissement getItablissment() {

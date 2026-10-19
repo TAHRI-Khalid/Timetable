@@ -13,4 +13,5 @@ module timetable {
     exports tk.tahri.timetable.print;
     exports tk.tahri.timetable.view;
     exports tk.tahri.timetable.tools;
+    exports tk.tahri.timetable.tools.command;
 }

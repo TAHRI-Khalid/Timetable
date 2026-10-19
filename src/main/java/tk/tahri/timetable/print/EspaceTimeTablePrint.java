@@ -10,22 +10,31 @@ public class EspaceTimeTablePrint extends TimeTablePrint {
     private final Espace espace;
 
     public EspaceTimeTablePrint(Espace espace) {
-        super(15, new EspacePrintTimeTableView(espace));
+        super(10, new EspacePrintTimeTableView(espace));
         this.espace = espace;
-        this.getChildren().addAll(header(), titre(espace.getNom()), info(info1()), body());
+        this.getChildren().addAll(
+                header(),
+                titre(espace != null ? espace.getNom() : ""),
+                info(info1()),
+                body(),
+                footer("Visa de la Direction")
+        );
     }
-
 
     private GridPane info1() {
         var grid = new GridPane();
+        grid.setHgap(5);
+        grid.setVgap(3);
 
         grid.add(new Text("Type"), 0, 0);
         grid.add(new Text("Nom"), 0, 1);
 
-        grid.add(new Text(" : " + espace.getType()), 1, 0);
-        grid.add(new Text(" : " + espace.getNom()), 1, 1);
+        String type = (espace != null && espace.getType() != null) ? espace.getType() : "-";
+        String nom = (espace != null && espace.getNom() != null) ? espace.getNom() : "-";
+
+        grid.add(new Text(" : " + type), 1, 0);
+        grid.add(new Text(" : " + nom), 1, 1);
 
         return grid;
     }
-
 }

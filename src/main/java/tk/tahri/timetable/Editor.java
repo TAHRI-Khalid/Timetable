@@ -23,6 +23,7 @@ public class Editor extends VBox {
 
     private TabPane tabpane;
     private final Menu mFichier = new Menu("Fichier");
+    private final Menu mEdition = new Menu("Édition");
     private final Menu mGroupe = new Menu("Groupes");
     private final Menu mFormateur = new Menu("Formateurs");
     private final Menu mEspace = new Menu("Espaces");
@@ -34,6 +35,16 @@ public class Editor extends VBox {
         createTabpane();
         DashboardTab tab = new DashboardTab("Accueil");
         tabpane.getTabs().add(tab);
+
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.getAccelerators().put(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN), this::undo);
+                newScene.getAccelerators().put(new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN), this::redo);
+                newScene.getAccelerators().put(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), this::redo);
+                newScene.getAccelerators().put(new KeyCodeCombination(KeyCode.DELETE), this::deleteSelected);
+                newScene.getAccelerators().put(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN), this::duplicateSelected);
+            }
+        });
     }
 
     private void createTabpane() {
@@ -47,7 +58,9 @@ public class Editor extends VBox {
 
     private void createMenu() {
         MenuBar menu = new MenuBar();
-        menu.getMenus().addAll(mFichier, mGroupe, mFormateur, mEspace, mParametre);
+        menu.getMenus().addAll(mFichier, mEdition, mGroupe, mFormateur, mEspace, mParametre);
+
+        createEditionMenu();
 
         var mNouveau = new MenuItem("Nouveau");
         var nkeyCombination = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
@@ -59,15 +72,15 @@ public class Editor extends VBox {
         mOuvrir.setAccelerator(okeyCombination);
         mOuvrir.setOnAction(actionEvent -> onMenuOpen());
 
-        var mEnregister = new MenuItem("Enregister");
+        var mEnregistrer = new MenuItem("Enregistrer");
         var skeyCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
-        mEnregister.setAccelerator(skeyCombination);
-        mEnregister.setOnAction(actionEvent -> onMenuSave());
+        mEnregistrer.setAccelerator(skeyCombination);
+        mEnregistrer.setOnAction(actionEvent -> onMenuSave());
 
-        var mEnregisterSous = new MenuItem("Enregister sous ...");
+        var mEnregistrerSous = new MenuItem("Enregistrer sous ...");
         var smkeyCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
-        mEnregisterSous.setAccelerator(smkeyCombination);
-        mEnregisterSous.setOnAction(actionEvent -> onMenuSaveAS());
+        mEnregistrerSous.setAccelerator(smkeyCombination);
+        mEnregistrerSous.setOnAction(actionEvent -> onMenuSaveAS());
 
         var mPrint = new MenuItem("Imprimer");
         var pkeyCombination = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
@@ -87,7 +100,7 @@ public class Editor extends VBox {
         mQuitter.setAccelerator(qkeyCombination);
         mQuitter.setOnAction(event -> ((Stage) this.getScene().getWindow()).close());
 
-        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregister, mEnregisterSous, new SeparatorMenuItem(), mPrint, mPrintCenter, new SeparatorMenuItem(), mQuitter);
+        mFichier.getItems().addAll(mNouveau, mOuvrir, mEnregistrer, mEnregistrerSous, new SeparatorMenuItem(), mPrint, mPrintCenter, new SeparatorMenuItem(), mQuitter);
 
         if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();
@@ -99,7 +112,29 @@ public class Editor extends VBox {
         getChildren().addAll(menu);
     }
 
+    private void createEditionMenu() {
+        mEdition.getItems().clear();
 
+        var mAnnuler = new MenuItem("Annuler");
+        mAnnuler.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
+        mAnnuler.setOnAction(e -> undo());
+        mAnnuler.disableProperty().bind(tk.tahri.timetable.tools.command.UndoManager.getInstance().canUndoProperty().not());
+
+        var mRetablir = new MenuItem("Rétablir");
+        mRetablir.setAccelerator(new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
+        mRetablir.setOnAction(e -> redo());
+        mRetablir.disableProperty().bind(tk.tahri.timetable.tools.command.UndoManager.getInstance().canRedoProperty().not());
+
+        var mSuppr = new MenuItem("Supprimer la séance");
+        mSuppr.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+        mSuppr.setOnAction(e -> deleteSelected());
+
+        var mDupliquer = new MenuItem("Dupliquer la séance");
+        mDupliquer.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        mDupliquer.setOnAction(e -> duplicateSelected());
+
+        mEdition.getItems().addAll(mAnnuler, mRetablir, new SeparatorMenuItem(), mSuppr, mDupliquer);
+    }
 
     private void onMenuNew() {
         try {
@@ -119,6 +154,7 @@ public class Editor extends VBox {
             Config.setProperty("modified", Boolean.TRUE.toString());
 
             Database.getInstance().createDatabase();
+            tk.tahri.timetable.tools.command.UndoManager.getInstance().clear();
             tabpane.getTabs().clear();
             tabpane.getTabs().add(new DashboardTab("Accueil"));
             loadMenuGroupe();
@@ -201,6 +237,7 @@ public class Editor extends VBox {
                 Config.setProperty("temp", dest.toString());
                 Config.setProperty("modified", Boolean.FALSE.toString());
 
+                tk.tahri.timetable.tools.command.UndoManager.getInstance().clear();
                 tabpane.getTabs().clear();
                 tabpane.getTabs().add(new DashboardTab("Accueil"));
 
@@ -313,5 +350,43 @@ public class Editor extends VBox {
 
     public void print() {
         ((EditorTab) tabpane.getSelectionModel().getSelectedItem()).print();
+    }
+
+    public tk.tahri.timetable.view.MainTimeTableView getActiveMainTimeTableView() {
+        Tab selected = tabpane.getSelectionModel().getSelectedItem();
+        if (selected instanceof EditorTab editorTab) {
+            return editorTab.getMainTimeTableView();
+        }
+        return null;
+    }
+
+    public void undo() {
+        if (tk.tahri.timetable.tools.command.UndoManager.getInstance().canUndo()) {
+            String desc = tk.tahri.timetable.tools.command.UndoManager.getInstance().getLastUndoDescription();
+            tk.tahri.timetable.tools.command.UndoManager.getInstance().undo();
+            NotificationService.showInfo("Annuler", "Action annulée : " + (desc.isEmpty() ? "Opération" : desc));
+        }
+    }
+
+    public void redo() {
+        if (tk.tahri.timetable.tools.command.UndoManager.getInstance().canRedo()) {
+            String desc = tk.tahri.timetable.tools.command.UndoManager.getInstance().getLastRedoDescription();
+            tk.tahri.timetable.tools.command.UndoManager.getInstance().redo();
+            NotificationService.showInfo("Rétablir", "Action rétablie : " + (desc.isEmpty() ? "Opération" : desc));
+        }
+    }
+
+    public void deleteSelected() {
+        var view = getActiveMainTimeTableView();
+        if (view != null) {
+            view.deleteSelectedSeance();
+        }
+    }
+
+    public void duplicateSelected() {
+        var view = getActiveMainTimeTableView();
+        if (view != null) {
+            view.duplicateSelectedSeance();
+        }
     }
 }

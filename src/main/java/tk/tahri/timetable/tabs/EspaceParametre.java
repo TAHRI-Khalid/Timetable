@@ -15,14 +15,11 @@ import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.EspaceTimeTablePrint;
-import tk.tahri.timetable.tools.Config;
+import tk.tahri.timetable.print.EspaceTimeTablePrint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import tk.tahri.timetable.tools.FormUtils;
 import tk.tahri.timetable.tools.NotificationService;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Objects;
 
 public class EspaceParametre extends EditorTab {

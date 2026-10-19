@@ -211,6 +211,23 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 1);
 }
 
+/* --- Sélection et Duplication de Séance --- */
+.seance-selected {
+    -fx-border-color: #f59e0b;
+    -fx-border-width: 2.5px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.7), 10, 0.4, 0, 0);
+}
+
+.seance-duplicate-ghost {
+    -fx-opacity: 0.85;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.5), 10, 0.3, 0, 0);
+}
+
 /* --- En-têtes Principaux et Barres de Titre --- */
 .espace-title-main, .groupe-title-main, .formateur-title-main, .creneau-title-main {
     -fx-padding: 10 20 10 20;

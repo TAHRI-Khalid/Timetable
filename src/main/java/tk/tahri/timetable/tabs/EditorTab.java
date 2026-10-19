@@ -12,4 +12,7 @@ public abstract class EditorTab extends Tab {
 
     public abstract void print();
 
+    public tk.tahri.timetable.view.MainTimeTableView getMainTimeTableView() {
+        return null;
+    }
 }

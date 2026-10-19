@@ -10,7 +10,6 @@ import java.time.LocalTime;
 
 public class GroupeMainTimeTable extends MainTimeTableView {
     private Groupe groupe;
-
     private final FormateurSubTimetableView formateurTimetable;
     private final EspaceSubTimetableView espaceTimetable;
 
@@ -23,7 +22,6 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         loadSeanceViews(true);
         this.getTitleToolBar().setTitle("Groupe : " + groupe.getNom());
         this.getTitleToolBar().setMasseHoraire(this.getDuration());
-
     }
 
     @Override
@@ -31,7 +29,26 @@ public class GroupeMainTimeTable extends MainTimeTableView {
         var creneaux = Database.getInstance().getCreneaux();
         LocalTime debut = (creneaux != null && !creneaux.isEmpty()) ? creneaux.get(0).getHeureDebut() : LocalTime.of(8, 0);
         LocalTime fin = (creneaux != null && !creneaux.isEmpty()) ? creneaux.get(0).getHeureFin() : LocalTime.of(9, 0);
-        return new Seance(debut, fin, DayOfWeek.of(1), "FP", groupe, formateurTimetable.getFormateur(), espaceTimetable.getEspace());
+
+        var formateur = formateurTimetable.getFormateur();
+        if (formateur == null) {
+            var formateurs = Database.getInstance().getFormateurs();
+            if (!formateurs.isEmpty()) {
+                formateur = formateurs.get(0);
+                formateurTimetable.setFormateur(formateur);
+            }
+        }
+
+        var espace = espaceTimetable.getEspace();
+        if (espace == null) {
+            var espaces = Database.getInstance().getEspaces();
+            if (!espaces.isEmpty()) {
+                espace = espaces.get(0);
+                espaceTimetable.setEspace(espace);
+            }
+        }
+
+        return new Seance(debut, fin, DayOfWeek.of(1), "FP", groupe, formateur, espace);
     }
 
     @Override
@@ -40,12 +57,16 @@ public class GroupeMainTimeTable extends MainTimeTableView {
     }
 
     @Override
-    protected void refreshView(Seance seance) {
+    public void refreshView(Seance seance) {
         this.getTitleToolBar().setMasseHoraire(this.getDuration());
-        formateurTimetable.setFormateur(seance.getFormateur());
-        formateurTimetable.loadSeanceViews(false);
-        espaceTimetable.setEspace(seance.getEspace());
-        espaceTimetable.loadSeanceViews(false);
+        if (seance.getFormateur() != null) {
+            formateurTimetable.setFormateur(seance.getFormateur());
+            formateurTimetable.loadSeanceViews(false);
+        }
+        if (seance.getEspace() != null) {
+            espaceTimetable.setEspace(seance.getEspace());
+            espaceTimetable.loadSeanceViews(false);
+        }
     }
 
     public Groupe getGroupe() {

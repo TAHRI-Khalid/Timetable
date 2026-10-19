@@ -21,6 +21,12 @@ public abstract class PrintTimeTableView extends TimeTableView {
         super.dayHeaderX = 4;
         super.dayHeaderY = tableY + rowHeight / 2 + 4;
         this.draw();
+
+        double totalW = tableX + (colWidth * totalCols);
+        double totalH = tableY + (rowHeight * 6);
+        this.setPrefSize(totalW, totalH);
+        this.setMinSize(totalW, totalH);
+        this.setMaxSize(totalW, totalH);
     }
 }
 

@@ -2,15 +2,12 @@ package tk.tahri.timetable.view;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import tk.tahri.timetable.Entities.CreneauHoraire;
 import tk.tahri.timetable.Entities.Seance;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
@@ -18,7 +15,6 @@ import tk.tahri.timetable.dao.Database;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -194,10 +190,10 @@ public abstract class TimeTableView extends Pane {
             case FORMATEUR -> "formateur-seance-view";
             case ESPACE -> "espace-seance-view";
         };
-        var chevechementStyle = "chevauchement-seance-view";
+        var chevauchementStyle = "chevauchement-seance-view";
         if (this instanceof SubTimeTableView view) {
             style = "sub-".concat(style);
-            chevechementStyle = "sub-".concat(chevechementStyle);
+            chevauchementStyle = "sub-".concat(chevauchementStyle);
         }
         loadData();
         for (var s1 : seances) {
@@ -217,7 +213,7 @@ public abstract class TimeTableView extends Pane {
                     break;
                 }
             }
-            sv.getStyleClass().add(ch ? chevechementStyle : style);
+            sv.getStyleClass().add(ch ? chevauchementStyle : style);
             this.getChildren().add(sv);
             sv.setTranslateX((((s1.getDebut().toSecondOfDay() - beginTime.toSecondOfDay()) / (60.0 * 15.0)) * colWidth) + tableX);
             sv.setTranslateY(((s1.getJour().getValue() - 1) * rowHeight) + tableY);
@@ -258,5 +254,29 @@ public abstract class TimeTableView extends Pane {
 
     public void setTitleToolBar(TitleToolBar titleToolBar) {
         this.titleToolBar = titleToolBar;
+    }
+
+    public LocalTime getBeginTime() {
+        return beginTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public double getColWidth() {
+        return colWidth;
+    }
+
+    public double getRowHeight() {
+        return rowHeight;
+    }
+
+    public double getTableX() {
+        return tableX;
+    }
+
+    public double getTableY() {
+        return tableY;
     }
 }

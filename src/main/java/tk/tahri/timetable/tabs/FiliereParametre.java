@@ -2,10 +2,6 @@ package tk.tahri.timetable.tabs;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.print.PageLayout;
-import javafx.print.PageOrientation;
-import javafx.print.Paper;
-import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
@@ -16,14 +12,11 @@ import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Filiere;
-import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import tk.tahri.timetable.tools.FormUtils;
 import tk.tahri.timetable.tools.NotificationService;
-
-import java.util.Objects;
 
 public class FiliereParametre extends EditorTab {
 
