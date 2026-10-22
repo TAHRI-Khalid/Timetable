@@ -1,29 +1,41 @@
 package tk.tahri.timetable.view;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.SeanceType;
 import tk.tahri.timetable.dao.Database;
 
 public class EspaceSubTimetableView extends SubTimeTableView {
-    private Espace espace;
+    private final ObjectProperty<Espace> espaceProperty = new SimpleObjectProperty<>();
+
     public EspaceSubTimetableView() {
         super(SeanceType.ESPACE);
     }
 
     @Override
     public void loadData() {
+        var espace = getEspace();
         if (espace != null) {
             seances.addAll(Database.getInstance().getSeances(espace));
-            this.getTitleToolBar().setMasseHoraire(this.getDuration());
+            if (this.getTitleToolBar() != null) {
+                this.getTitleToolBar().setMasseHoraire(this.getDuration());
+            }
         }
     }
 
     public Espace getEspace() {
-        return espace;
+        return espaceProperty.get();
     }
 
     public void setEspace(Espace espace) {
-        this.espace = espace;
-        super.getTitleToolBar().setTitle(espace.toString());
+        this.espaceProperty.set(espace);
+        if (super.getTitleToolBar() != null) {
+            super.getTitleToolBar().setTitle(espace != null ? espace.toString() : "");
+        }
+    }
+
+    public ObjectProperty<Espace> espaceProperty() {
+        return espaceProperty;
     }
 }

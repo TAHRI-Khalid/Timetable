@@ -197,7 +197,6 @@ public class EspaceParametre extends EditorTab {
 
     private void loadData() {
         masterData.setAll(Database.getInstance().getEspaces());
-        editor.loadMenuEspace();
     }
 
     private void clearForm() {

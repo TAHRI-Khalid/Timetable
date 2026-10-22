@@ -7,6 +7,8 @@ import javafx.print.PageOrientation;
 import javafx.print.Paper;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
@@ -75,15 +77,22 @@ public abstract class AbstractTimetableTab extends EditorTab {
         var pane = new TitledPane();
         pane.setText(title);
 
-        var scrollPane = new ScrollPane();
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPadding(new Insets(10));
-        scrollPane.setContent(content);
+        if (content instanceof ListView<?> || content instanceof ComboBox<?>) {
+            var box = new VBox(content);
+            box.setPadding(new Insets(10));
+            pane.setContent(box);
+        } else {
+            var scrollPane = new ScrollPane();
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPadding(new Insets(10));
+            scrollPane.setContent(content);
+            pane.setContent(scrollPane);
+        }
 
-        pane.setContent(scrollPane);
+        pane.setMaxHeight(Double.MAX_VALUE);
         pane.setExpanded(true);
         return pane;
     }

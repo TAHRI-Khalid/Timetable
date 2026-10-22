@@ -247,7 +247,9 @@ public class MatriceTab extends EditorTab {
             var tab = switch (type) {
                 case GROUPE -> new GroupeTab(seance.getGroupes().get(0));
                 case FORMATEUR -> new FormateurTab(seance.getFormateur());
-                case ESPACE -> new EspaceTab(seance.getEspace());
+                case ESPACE -> (seance.getGroupes() != null && !seance.getGroupes().isEmpty())
+                        ? new GroupeTab(seance.getGroupes().get(0))
+                        : new FormateurTab(seance.getFormateur());
             };
             this.getTabPane().getTabs().stream().filter(t -> t.getText().equals(tab.getText())).findFirst().ifPresentOrElse(this.getTabPane().getSelectionModel()::select, () -> {
                 this.getTabPane().getTabs().add(tab);

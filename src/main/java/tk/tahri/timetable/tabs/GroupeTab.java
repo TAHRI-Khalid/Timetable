@@ -1,11 +1,15 @@
 package tk.tahri.timetable.tabs;
 
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
+import tk.tahri.timetable.Entities.Espace;
 import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.print.GroupeTimeTablePrint;
@@ -18,7 +22,7 @@ public class GroupeTab extends AbstractTimetableTab {
     private final FormateurSubTimetableView formateurTimeTable;
     private final EspaceSubTimetableView espaceTimeTable;
     private final VBox formateursVBox = new VBox(5);
-    private final VBox espacesVBox = new VBox(5);
+    private final ComboBox<Espace> espacesComboBox = new ComboBox<>();
 
     public GroupeTab(Groupe groupe) {
         super(groupe.getNom());
@@ -45,13 +49,14 @@ public class GroupeTab extends AbstractTimetableTab {
         espaceToolBar.getStyleClass().add("espace-title-sub");
 
         loadFormateurs();
+        setupEspacesComboBox();
         loadEspaces();
 
-        var sidebar = new VBox();
-        sidebar.getChildren().addAll(
-                createSidebarPane("Formateurs", formateursVBox),
-                createSidebarPane("Espaces", espacesVBox)
-        );
+        var sidebar = new VBox(8);
+        var paneEspaces = createSidebarPane("Espaces", espacesComboBox);
+        var paneFormateurs = createSidebarPane("Formateurs", formateursVBox);
+        VBox.setVgrow(paneFormateurs, Priority.ALWAYS);
+        sidebar.getChildren().addAll(paneEspaces, paneFormateurs);
 
         setupLayout(groupeTimeTable, groupeToolBar,
                 formateurTimeTable, formateurToolBar,
@@ -59,26 +64,99 @@ public class GroupeTab extends AbstractTimetableTab {
                 sidebar);
     }
 
-    private void loadEspaces() {
-        espacesVBox.getChildren().clear();
-        Database.getInstance().getEspaces().forEach(e -> {
-            var espaceView = new EspaceView(e);
-            espaceView.setMaxWidth(Double.MAX_VALUE);
-            espaceView.setOnMousePressed(mouseEvent -> {
-                espaceTimeTable.setEspace(espaceView.getEspace());
-                espaceTimeTable.loadSeanceViews(false);
-            });
-            espaceView.setOnDragDetected(event -> {
-                Dragboard db = espaceView.startDragAndDrop(TransferMode.ANY);
+    private void setupEspacesComboBox() {
+        espacesComboBox.getStyleClass().add("espaces-combo-box");
+        espacesComboBox.setMaxWidth(Double.MAX_VALUE);
+        espacesComboBox.setPromptText("Sélectionner un espace...");
+
+        espacesComboBox.setCellFactory(lv -> new ListCell<>() {
+            private final FontAwesome fontAwesome = new FontAwesome();
+            private final org.controlsfx.glyphfont.Glyph icon = fontAwesome.create(FontAwesome.Glyph.HOME).size(14).color(Color.web("#475569"));
+
+            @Override
+            protected void updateItem(Espace espace, boolean empty) {
+                super.updateItem(espace, empty);
+                if (empty || espace == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(espace.getNom() + (espace.getType() != null && !espace.getType().isEmpty() ? " (" + espace.getType() + ")" : ""));
+                    setGraphic(icon);
+                }
+            }
+        });
+
+        espacesComboBox.setButtonCell(new ListCell<>() {
+            private final FontAwesome fontAwesome = new FontAwesome();
+            private final org.controlsfx.glyphfont.Glyph icon = fontAwesome.create(FontAwesome.Glyph.HOME).size(14).color(Color.web("#475569"));
+
+            @Override
+            protected void updateItem(Espace espace, boolean empty) {
+                super.updateItem(espace, empty);
+                if (empty || espace == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(espace.getNom() + (espace.getType() != null && !espace.getType().isEmpty() ? " (" + espace.getType() + ")" : ""));
+                    setGraphic(icon);
+                }
+            }
+        });
+
+        espacesComboBox.setOnDragDetected(event -> {
+            var selected = espacesComboBox.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                Dragboard db = espacesComboBox.startDragAndDrop(TransferMode.ANY);
                 ClipboardContent content = new ClipboardContent();
                 content.putString("ESPACE");
                 db.setContent(content);
-                espaceTimeTable.setEspace(espaceView.getEspace());
+                espaceTimeTable.setEspace(selected);
                 espaceTimeTable.loadSeanceViews(false);
                 event.consume();
-            });
-            espacesVBox.getChildren().add(espaceView);
+            }
         });
+
+        espacesComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                espaceTimeTable.setEspace(newVal);
+                espaceTimeTable.loadSeanceViews(false);
+            }
+        });
+
+        espaceTimeTable.espaceProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                var current = espacesComboBox.getSelectionModel().getSelectedItem();
+                if (current == null || current.getId() != newVal.getId()) {
+                    for (Espace e : espacesComboBox.getItems()) {
+                        if (e.getId() == newVal.getId()) {
+                            espacesComboBox.getSelectionModel().select(e);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadEspaces() {
+        var currentSelected = espacesComboBox.getSelectionModel().getSelectedItem();
+        if (currentSelected == null) {
+            currentSelected = espaceTimeTable.getEspace();
+        }
+        var espaces = Database.getInstance().getEspaces();
+        espacesComboBox.getItems().setAll(espaces);
+
+        if (currentSelected != null) {
+            for (Espace e : espaces) {
+                if (e.getId() == currentSelected.getId()) {
+                    espacesComboBox.getSelectionModel().select(e);
+                    return;
+                }
+            }
+        }
+        if (!espaces.isEmpty()) {
+            espacesComboBox.getSelectionModel().select(0);
+        }
     }
 
     private void loadFormateurs() {

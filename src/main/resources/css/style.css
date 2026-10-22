@@ -270,6 +270,17 @@
     -fx-background-color: #334155;
 }
 
+/* --- Espaces ComboBox dans la barre latérale --- */
+.espaces-combo-box {
+    -fx-cursor: hand;
+    -fx-font-weight: 500;
+}
+
+.espaces-combo-box .cell {
+    -fx-font-size: 13px;
+    -fx-text-fill: #334155;
+}
+
 .groupe-title-main, .groupe-title-sub, .groupe-seance-view, .sub-groupe-seance-view, .groupe-view {
     -fx-background-color: #1e40af;
 }

@@ -26,7 +26,6 @@ public class Editor extends VBox {
     private final Menu mEdition = new Menu("Édition");
     private final Menu mGroupe = new Menu("Groupes");
     private final Menu mFormateur = new Menu("Formateurs");
-    private final Menu mEspace = new Menu("Espaces");
     private final Menu mParametre = new Menu("Paramètres");
 
     public Editor() {
@@ -58,7 +57,7 @@ public class Editor extends VBox {
 
     private void createMenu() {
         MenuBar menu = new MenuBar();
-        menu.getMenus().addAll(mFichier, mEdition, mGroupe, mFormateur, mEspace, mParametre);
+        menu.getMenus().addAll(mFichier, mEdition, mGroupe, mFormateur, mParametre);
 
         createEditionMenu();
 
@@ -105,7 +104,6 @@ public class Editor extends VBox {
         if (!Config.getProperty("file").trim().isEmpty()) {
             loadMenuGroupe();
             loadMenuFormateur();
-            loadMenuEspace();
             loadMenuParametre();
         }
 
@@ -159,7 +157,6 @@ public class Editor extends VBox {
             tabpane.getTabs().add(new DashboardTab("Accueil"));
             loadMenuGroupe();
             loadMenuFormateur();
-            loadMenuEspace();
             loadMenuParametre();
             NotificationService.showInfo("Nouveau fichier", "Un nouveau projet d'emploi du temps a été initialisé.");
 
@@ -243,7 +240,6 @@ public class Editor extends VBox {
 
                 loadMenuGroupe();
                 loadMenuFormateur();
-                loadMenuEspace();
                 loadMenuParametre();
                 NotificationService.showSuccess("Fichier ouvert", "Le fichier '" + file.getName() + "' a été ouvert avec succès.");
 
@@ -278,23 +274,6 @@ public class Editor extends VBox {
                 if (formateur.getType().equals(type)) {
                     var submenu = new MenuItem(formateur.toString());
                     submenu.setOnAction(event -> loadTab(new FormateurTab(formateur)));
-                    menu.getItems().add(submenu);
-                }
-            }
-        });
-
-    }
-
-    public void loadMenuEspace() {
-        mEspace.getItems().clear();
-        var list = Database.getInstance().getEspaces();
-        list.stream().map(Espace::getType).distinct().forEach(type -> {
-            var menu = new Menu(type);
-            mEspace.getItems().add(menu);
-            for (Espace espace : list) {
-                if (espace.getType().equals(type)) {
-                    var submenu = new MenuItem(espace.getNom());
-                    submenu.setOnAction(event -> loadTab(new EspaceTab(espace)));
                     menu.getItems().add(submenu);
                 }
             }
