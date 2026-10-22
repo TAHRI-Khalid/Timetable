@@ -161,7 +161,40 @@ public class GroupeTab extends AbstractTimetableTab {
 
     private void loadFormateurs() {
         formateursVBox.getChildren().clear();
-        Database.getInstance().getFormateurs().forEach(f -> {
+        var formateurs = Database.getInstance().getFormateursByGroupe(groupe.getId());
+        if (formateurs.isEmpty()) {
+            var emptyBox = new VBox(6);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPadding(new javafx.geometry.Insets(18, 10, 18, 10));
+            emptyBox.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;");
+
+            var lblNone = new javafx.scene.control.Label("Aucun formateur affecté");
+            lblNone.setStyle("-fx-text-fill: #64748b; -fx-font-weight: bold; -fx-font-size: 12px;");
+
+            var lblHint = new javafx.scene.control.Label("Ce groupe n'a aucun formateur attribué.");
+            lblHint.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-text-alignment: center;");
+            lblHint.setWrapText(true);
+
+            var btnManage = new javafx.scene.control.Button("Affecter des formateurs");
+            btnManage.getStyleClass().add("btn-action-primary");
+            btnManage.setStyle("-fx-font-size: 11px; -fx-padding: 4 10 4 10;");
+            btnManage.setOnAction(e -> {
+                var window = (getTabPane() != null && getTabPane().getScene() != null) ? getTabPane().getScene().getWindow() : null;
+                new GroupeFormateursDialog(groupe, window).showAndWait();
+                loadFormateurs();
+                var refreshed = Database.getInstance().getFormateursByGroupe(groupe.getId());
+                if (!refreshed.isEmpty() && (formateurTimeTable.getFormateur() == null || !refreshed.stream().anyMatch(f -> f.getId() == formateurTimeTable.getFormateur().getId()))) {
+                    formateurTimeTable.setFormateur(refreshed.get(0));
+                    formateurTimeTable.loadSeanceViews(false);
+                }
+            });
+
+            emptyBox.getChildren().addAll(lblNone, lblHint, btnManage);
+            formateursVBox.getChildren().add(emptyBox);
+            return;
+        }
+
+        formateurs.forEach(f -> {
             var formateurView = new FormateurView(f);
             formateurView.setMaxWidth(Double.MAX_VALUE);
             formateurView.setOnMousePressed(mouseEvent -> {

@@ -32,7 +32,10 @@ public class FormateurMainTimeTable extends MainTimeTableView {
 
         var groupe = groupeTimetable.getGroupe();
         if (groupe == null) {
-            var groupes = Database.getInstance().getGroupes();
+            var groupes = Database.getInstance().getGroupesByFormateur(formateur.getId());
+            if (groupes.isEmpty()) {
+                groupes = Database.getInstance().getGroupes();
+            }
             if (!groupes.isEmpty()) {
                 groupe = groupes.get(0);
                 groupeTimetable.setGroupe(groupe);

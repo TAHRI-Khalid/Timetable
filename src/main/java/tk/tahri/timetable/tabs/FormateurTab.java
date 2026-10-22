@@ -140,7 +140,40 @@ public class FormateurTab extends AbstractTimetableTab {
 
     private void loadGroupes() {
         groupesVBox.getChildren().clear();
-        Database.getInstance().getGroupes().forEach(g -> {
+        var groupes = Database.getInstance().getGroupesByFormateur(formateur.getId());
+        if (groupes.isEmpty()) {
+            var emptyBox = new VBox(6);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPadding(new javafx.geometry.Insets(18, 10, 18, 10));
+            emptyBox.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 6px; -fx-border-color: #e2e8f0; -fx-border-radius: 6px;");
+
+            var lblNone = new javafx.scene.control.Label("Aucun groupe affecté");
+            lblNone.setStyle("-fx-text-fill: #64748b; -fx-font-weight: bold; -fx-font-size: 12px;");
+
+            var lblHint = new javafx.scene.control.Label("Ce formateur n'a aucun groupe attribué.");
+            lblHint.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-text-alignment: center;");
+            lblHint.setWrapText(true);
+
+            var btnManage = new javafx.scene.control.Button("Affecter des groupes");
+            btnManage.getStyleClass().add("btn-action-primary");
+            btnManage.setStyle("-fx-font-size: 11px; -fx-padding: 4 10 4 10;");
+            btnManage.setOnAction(e -> {
+                var window = (getTabPane() != null && getTabPane().getScene() != null) ? getTabPane().getScene().getWindow() : null;
+                new FormateurGroupesDialog(formateur, window).showAndWait();
+                loadGroupes();
+                var refreshed = Database.getInstance().getGroupesByFormateur(formateur.getId());
+                if (!refreshed.isEmpty() && (groupeTimeTable.getGroupe() == null || !refreshed.stream().anyMatch(g -> g.getId().equals(groupeTimeTable.getGroupe().getId())))) {
+                    groupeTimeTable.setGroupe(refreshed.get(0));
+                    groupeTimeTable.loadSeanceViews(false);
+                }
+            });
+
+            emptyBox.getChildren().addAll(lblNone, lblHint, btnManage);
+            groupesVBox.getChildren().add(emptyBox);
+            return;
+        }
+
+        groupes.forEach(g -> {
             var groupeView = new GroupeView(g);
             groupeView.setMaxWidth(Double.MAX_VALUE);
             groupeView.setOnMousePressed(mouseEvent -> {

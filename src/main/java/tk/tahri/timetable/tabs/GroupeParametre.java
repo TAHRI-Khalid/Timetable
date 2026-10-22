@@ -124,6 +124,27 @@ public class GroupeParametre extends EditorTab {
         var colFiliere = new TableColumn<Groupe, Filiere>("Filiére");
         colFiliere.setCellValueFactory(new PropertyValueFactory<>("filiere"));
 
+        var colFormateurs = new TableColumn<Groupe, Long>("");
+        colFormateurs.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colFormateurs.setPrefWidth(48);
+        colFormateurs.setMaxWidth(55);
+        colFormateurs.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                var btn = new Button();
+                btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.USER).color(Color.WHITE).size(15));
+                btn.getStyleClass().add("btn-affect");
+                btn.setTooltip(new Tooltip("Gérer les formateurs affectés à ce groupe"));
+                setGraphic(btn);
+                btn.setOnAction(event -> openFormateursDialog(item));
+            }
+        });
+
         var colPrint = new TableColumn<Groupe, Long>("");
         colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
         colPrint.setPrefWidth(48);
@@ -187,7 +208,7 @@ public class GroupeParametre extends EditorTab {
             }
         });
 
-        table.getColumns().addAll(colNom, colAnnee, colFiliere, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colAnnee, colFiliere, colFormateurs, colPrint, colUpdate, colDelete);
         loadData();
 
         var vBox = new VBox(15);
@@ -284,10 +305,17 @@ public class GroupeParametre extends EditorTab {
         );
 
         if (confirm) {
+            Database.getInstance().execute("DELETE FROM formateur_groupe WHERE idGroupe = ?", String.valueOf(id));
             Database.getInstance().execute("DELETE FROM groupe WHERE id=?", String.valueOf(id));
             loadData();
             NotificationService.showSuccess("Groupe supprimé", "Le groupe '" + nomGroupe + "' a été supprimé avec succès.");
         }
+    }
+
+    private void openFormateursDialog(Long id) {
+        var opt = masterData.stream().filter(g -> Objects.equals(g.getId(), id)).findFirst();
+        if (opt.isEmpty()) return;
+        new GroupeFormateursDialog(opt.get(), table.getScene().getWindow()).showAndWait();
     }
 
     private void updateForm(long id) {

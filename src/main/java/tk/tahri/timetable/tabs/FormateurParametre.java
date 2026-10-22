@@ -132,6 +132,27 @@ public class FormateurParametre extends Tab {
         var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
+        var colGroupes = new TableColumn<Formateur, Long>("");
+        colGroupes.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colGroupes.setPrefWidth(48);
+        colGroupes.setMaxWidth(55);
+        colGroupes.setCellFactory(param -> new TableCell<>() {
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                var btn = new Button();
+                btn.setGraphic(fontAwesome.create(FontAwesome.Glyph.USERS).color(Color.WHITE).size(15));
+                btn.getStyleClass().add("btn-affect");
+                btn.setTooltip(new Tooltip("Gérer les groupes affectés à ce formateur"));
+                setGraphic(btn);
+                btn.setOnAction(event -> openGroupesDialog(item));
+            }
+        });
+
         var colPrint = new TableColumn<Formateur, Long>("");
         colPrint.setCellValueFactory(new PropertyValueFactory<>("id"));
         colPrint.setPrefWidth(48);
@@ -195,7 +216,7 @@ public class FormateurParametre extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colGroupes, colPrint, colUpdate, colDelete);
         loadData();
 
         var vBox = new VBox(15);
@@ -280,10 +301,17 @@ public class FormateurParametre extends Tab {
         );
 
         if (confirm) {
+            Database.getInstance().execute("DELETE FROM formateur_groupe WHERE idFormateur = ?", String.valueOf(id));
             Database.getInstance().execute("DELETE FROM formateur WHERE id= ?", String.valueOf(id));
             loadData();
             NotificationService.showSuccess("Formateur supprimé", "Le formateur '" + nomFormateur + "' a été supprimé avec succès.");
         }
+    }
+
+    private void openGroupesDialog(Long id) {
+        var opt = masterData.stream().filter(f -> Objects.equals(f.getId(), id)).findFirst();
+        if (opt.isEmpty()) return;
+        new FormateurGroupesDialog(opt.get(), table.getScene().getWindow()).showAndWait();
     }
 
     private void updateForm(long id) {

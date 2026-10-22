@@ -174,7 +174,12 @@ public class SeanceView extends VBox {
             });
 
             var mFormateur = new Menu("Changer le formateur");
-            var listFormateurs = Database.getInstance().getFormateurs();
+            var formateursGroupe = (type == SeanceType.GROUPE && seance.getGroupes() != null && !seance.getGroupes().isEmpty())
+                    ? Database.getInstance().getFormateursByGroupe(seance.getGroupes().get(0).getId())
+                    : Database.getInstance().getFormateurs();
+            final var listFormateurs = formateursGroupe.isEmpty()
+                    ? Database.getInstance().getFormateurs()
+                    : formateursGroupe;
             listFormateurs.stream().map(Formateur::getType).distinct().forEach(typeFormateur -> {
                 var menu = new Menu(typeFormateur);
                 mFormateur.getItems().add(menu);
@@ -186,7 +191,12 @@ public class SeanceView extends VBox {
             });
 
             var mGroupe = new Menu("Changer le groupe");
-            var listGroupes = Database.getInstance().getGroupes();
+            var groupesFormateur = (type == SeanceType.FORMATEUR && seance.getFormateur() != null)
+                    ? Database.getInstance().getGroupesByFormateur(seance.getFormateur().getId())
+                    : Database.getInstance().getGroupes();
+            final var listGroupes = groupesFormateur.isEmpty()
+                    ? Database.getInstance().getGroupes()
+                    : groupesFormateur;
             listGroupes.stream().map(g -> g.getFiliere().getNiveau()).distinct().forEach(niveau -> {
                 var menu = new Menu(niveau);
                 mGroupe.getItems().add(menu);

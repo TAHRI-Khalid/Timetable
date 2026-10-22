@@ -122,6 +122,15 @@ public class Database {
                 ordre integer DEFAULT 1
                 );
                 """;
+        String sql_create_formateur_groupe = """
+                CREATE TABLE IF NOT EXISTS formateur_groupe (
+                idFormateur integer,
+                idGroupe integer,
+                PRIMARY KEY (idFormateur, idGroupe),
+                FOREIGN KEY (idFormateur) REFERENCES formateur(id) ON DELETE CASCADE,
+                FOREIGN KEY (idGroupe) REFERENCES groupe(id) ON DELETE CASCADE
+                );
+                """;
         try (var connection = DriverManager.getConnection(url);
              var statement = connection.createStatement()) {
             statement.execute(sql_create_etablissment);
@@ -145,9 +154,41 @@ public class Database {
             statement.execute(sql_create_seance);
             statement.execute(sql_create_seance_groupe);
             statement.execute(sql_create_creneau);
+            statement.execute(sql_create_formateur_groupe);
             insertDefaultCreneaux(statement);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void ensureFormateurGroupeTable() {
+        String sql = """
+                CREATE TABLE IF NOT EXISTS formateur_groupe (
+                idFormateur integer,
+                idGroupe integer,
+                PRIMARY KEY (idFormateur, idGroupe),
+                FOREIGN KEY (idFormateur) REFERENCES formateur(id) ON DELETE CASCADE,
+                FOREIGN KEY (idGroupe) REFERENCES groupe(id) ON DELETE CASCADE
+                );
+                """;
+        try (var connection = DriverManager.getConnection(url);
+             var statement = connection.createStatement()) {
+            statement.execute(sql);
+
+            // Auto-peuplement si la table de jointure est vide mais que des séances existent déjà
+            try (var rs = statement.executeQuery("SELECT COUNT(*) FROM formateur_groupe")) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    statement.execute("""
+                            INSERT OR IGNORE INTO formateur_groupe (idFormateur, idGroupe)
+                            SELECT DISTINCT s.idFormateur, sg.idGroupe
+                            FROM seance s
+                            INNER JOIN seance_groupe sg ON s.id = sg.idSeance
+                            WHERE s.idFormateur IS NOT NULL AND sg.idGroupe IS NOT NULL;
+                            """);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("ensureFormateurGroupeTable: " + e.getMessage());
         }
     }
 
@@ -304,6 +345,150 @@ public class Database {
         return list;
     }
 
+    public List<Groupe> getGroupesByFormateur(long idFormateur) {
+        String sql = """
+                SELECT g.id, g.nom as gnom, g.annee, g.idFiliere, f.nom as fnom, f.abreviation, f.niveau, f.secteur, f.type
+                FROM groupe g
+                INNER JOIN filiere f ON g.idFiliere = f.id
+                INNER JOIN formateur_groupe fg ON fg.idGroupe = g.id
+                WHERE fg.idFormateur = %d
+                ORDER BY g.nom
+                """.formatted(idFormateur);
+        var list = new ArrayList<Groupe>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                var groupe = new Groupe();
+                groupe.setId(rs.getLong("id"));
+                groupe.setNom(rs.getString("gnom"));
+                groupe.setAnnee(rs.getInt("annee"));
+
+                var filiere = new Filiere();
+                filiere.setId(rs.getLong("idFiliere"));
+                filiere.setNom(rs.getString("fnom"));
+                filiere.setAbreviation(rs.getString("abreviation"));
+                filiere.setNiveau(rs.getString("niveau"));
+                filiere.setSecteur(rs.getString("secteur"));
+                filiere.setType(rs.getString("type"));
+
+                groupe.setFiliere(filiere);
+                list.add(groupe);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public List<Formateur> getFormateursByGroupe(long idGroupe) {
+        String sql = """
+                SELECT f.id, f.nom, f.prenom, f.matricule, f.type
+                FROM formateur f
+                INNER JOIN formateur_groupe fg ON fg.idFormateur = f.id
+                WHERE fg.idGroupe = %d
+                ORDER BY f.nom, f.prenom
+                """.formatted(idGroupe);
+        var list = new ArrayList<Formateur>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                var formateur = new Formateur();
+                formateur.setId(rs.getLong("id"));
+                formateur.setNom(rs.getString("nom"));
+                formateur.setPrenom(rs.getString("prenom"));
+                formateur.setMatricule(rs.getString("matricule"));
+                formateur.setType(rs.getString("type"));
+                list.add(formateur);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public List<Long> getGroupeIdsForFormateur(long idFormateur) {
+        String sql = "SELECT idGroupe FROM formateur_groupe WHERE idFormateur = " + idFormateur;
+        var list = new ArrayList<Long>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(rs.getLong(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public List<Long> getFormateurIdsForGroupe(long idGroupe) {
+        String sql = "SELECT idFormateur FROM formateur_groupe WHERE idGroupe = " + idGroupe;
+        var list = new ArrayList<Long>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(rs.getLong(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public void setGroupesForFormateur(long idFormateur, List<Long> groupeIds) {
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
+            try (Statement delStmt = conn.createStatement();
+                 PreparedStatement insStmt = conn.prepareStatement("INSERT INTO formateur_groupe (idFormateur, idGroupe) VALUES (?, ?)")) {
+                delStmt.executeUpdate("DELETE FROM formateur_groupe WHERE idFormateur = " + idFormateur);
+                if (groupeIds != null) {
+                    for (Long gId : groupeIds) {
+                        insStmt.setLong(1, idFormateur);
+                        insStmt.setLong(2, gId);
+                        insStmt.addBatch();
+                    }
+                    insStmt.executeBatch();
+                }
+                conn.commit();
+                Config.setProperty("modified", Boolean.TRUE.toString());
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            System.out.println("setGroupesForFormateur error: " + e.getMessage());
+        }
+    }
+
+    public void setFormateursForGroupe(long idGroupe, List<Long> formateurIds) {
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
+            try (Statement delStmt = conn.createStatement();
+                 PreparedStatement insStmt = conn.prepareStatement("INSERT INTO formateur_groupe (idFormateur, idGroupe) VALUES (?, ?)")) {
+                delStmt.executeUpdate("DELETE FROM formateur_groupe WHERE idGroupe = " + idGroupe);
+                if (formateurIds != null) {
+                    for (Long fId : formateurIds) {
+                        insStmt.setLong(1, fId);
+                        insStmt.setLong(2, idGroupe);
+                        insStmt.addBatch();
+                    }
+                    insStmt.executeBatch();
+                }
+                conn.commit();
+                Config.setProperty("modified", Boolean.TRUE.toString());
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            System.out.println("setFormateursForGroupe error: " + e.getMessage());
+        }
+    }
 
     public boolean isFiliereHasGroupes(long idFiliere) {
         String sql = "SELECT * FROM groupe WHERE idFiliere=%d".formatted(idFiliere);

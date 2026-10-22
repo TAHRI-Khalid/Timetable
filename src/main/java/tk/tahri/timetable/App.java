@@ -29,6 +29,7 @@ public class App extends Application {
                 Path dest = Files.createTempFile("temp", ".tk");
                 Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
                 Config.setProperty("temp", dest.toString());
+                tk.tahri.timetable.dao.Database.getInstance().ensureFormateurGroupeTable();
             } else {
                 Config.setProperty("file", "");
                 Config.setProperty("temp", "");

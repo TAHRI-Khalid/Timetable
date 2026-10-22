@@ -232,6 +232,7 @@ public class Editor extends VBox {
 
                 Config.setProperty("file", file.getPath());
                 Config.setProperty("temp", dest.toString());
+                Database.getInstance().ensureFormateurGroupeTable();
                 Config.setProperty("modified", Boolean.FALSE.toString());
 
                 tk.tahri.timetable.tools.command.UndoManager.getInstance().clear();
