@@ -1,10 +1,52 @@
 package tk.tahri.timetable.Entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Dashboard {
+
+    public record FormateurMasseHoraire(Formateur formateur, long dureeSecondes) {
+        public String getNomComplet() {
+            return formateur.getNom().toUpperCase() + " " + formateur.getPrenom();
+        }
+        public String getType() {
+            return formateur.getType();
+        }
+        public String getFormattedDuration() {
+            long h = dureeSecondes / 3600;
+            long m = (dureeSecondes % 3600) / 60;
+            return String.format("%02dh %02dmin", h, m);
+        }
+        public double getHeuresDecimales() {
+            return dureeSecondes / 3600.0;
+        }
+    }
+
+    public record GroupeMasseHoraire(Groupe groupe, long dureeSecondes) {
+        public String getNom() {
+            return groupe.getNom();
+        }
+        public String getFiliereAbreviation() {
+            return (groupe.getFiliere() != null && groupe.getFiliere().getAbreviation() != null)
+                    ? groupe.getFiliere().getAbreviation()
+                    : "";
+        }
+        public int getAnnee() {
+            return groupe.getAnnee();
+        }
+        public String getFormattedDuration() {
+            long h = dureeSecondes / 3600;
+            long m = (dureeSecondes % 3600) / 60;
+            return String.format("%02dh %02dmin", h, m);
+        }
+        public double getHeuresDecimales() {
+            return dureeSecondes / 3600.0;
+        }
+    }
+
     private int nombreFormateurs;
     private int nombreFormateursPermanents;
     private int nombreFormateursVacataires;
@@ -20,13 +62,12 @@ public class Dashboard {
     private double moyenneHeuresParFormateur;
     private double tauxOccupationGlobal;
 
-    private int nbFormateursSansGroupe;
-    private int nbGroupesSansFormateur;
-    private int nbGroupesSousDotes;
-
     private final Map<Espace, Long> barChartEspace = new HashMap<>();
     private final Map<String, Double> heuresParFiliere = new LinkedHashMap<>();
     private final Map<String, Double> heuresParJour = new LinkedHashMap<>();
+
+    private final List<FormateurMasseHoraire> masseHoraireFormateurs = new ArrayList<>();
+    private final List<GroupeMasseHoraire> masseHoraireGroupes = new ArrayList<>();
 
     public Map<Espace, Long> getBarChartEspace() {
         return barChartEspace;
@@ -38,6 +79,14 @@ public class Dashboard {
 
     public Map<String, Double> getHeuresParJour() {
         return heuresParJour;
+    }
+
+    public List<FormateurMasseHoraire> getMasseHoraireFormateurs() {
+        return masseHoraireFormateurs;
+    }
+
+    public List<GroupeMasseHoraire> getMasseHoraireGroupes() {
+        return masseHoraireGroupes;
     }
 
     public int getNombreFormateurs() {
@@ -142,29 +191,5 @@ public class Dashboard {
 
     public void setTauxOccupationGlobal(double tauxOccupationGlobal) {
         this.tauxOccupationGlobal = tauxOccupationGlobal;
-    }
-
-    public int getNbFormateursSansGroupe() {
-        return nbFormateursSansGroupe;
-    }
-
-    public void setNbFormateursSansGroupe(int nbFormateursSansGroupe) {
-        this.nbFormateursSansGroupe = nbFormateursSansGroupe;
-    }
-
-    public int getNbGroupesSansFormateur() {
-        return nbGroupesSansFormateur;
-    }
-
-    public void setNbGroupesSansFormateur(int nbGroupesSansFormateur) {
-        this.nbGroupesSansFormateur = nbGroupesSansFormateur;
-    }
-
-    public int getNbGroupesSousDotes() {
-        return nbGroupesSousDotes;
-    }
-
-    public void setNbGroupesSousDotes(int nbGroupesSousDotes) {
-        this.nbGroupesSousDotes = nbGroupesSousDotes;
     }
 }

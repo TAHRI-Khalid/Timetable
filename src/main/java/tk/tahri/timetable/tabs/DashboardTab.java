@@ -1,17 +1,16 @@
 package tk.tahri.timetable.tabs;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
 import tk.tahri.timetable.Entities.Dashboard;
-import tk.tahri.timetable.Entities.Etablissement;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tools.Config;
 
@@ -36,14 +35,17 @@ public class DashboardTab extends EditorTab {
     private BarChart<String, Number> bc;
     private PieChart pc;
 
-    // Alerts container
-    private VBox alertsContainer;
-
     // Institution labels
     private Label lblEtabNom;
     private Label lblEtabSub;
     private Label lblBadgeAnnee;
     private Label lblBadgeFichier;
+
+    // Tables & Badges
+    private final TableView<Dashboard.FormateurMasseHoraire> tableFormateurs = new TableView<>();
+    private final TableView<Dashboard.GroupeMasseHoraire> tableGroupes = new TableView<>();
+    private final Label lblBadgeCountFormateurs = new Label();
+    private final Label lblBadgeCountGroupes = new Label();
 
     public DashboardTab(String nom) {
         super(nom);
@@ -129,74 +131,12 @@ public class DashboardTab extends EditorTab {
             }
         }
 
-        // 5. Alertes & Aide à la décision
-        renderAlerts(d);
-    }
+        // 5. Tables des masses horaires
+        tableFormateurs.getItems().setAll(d.getMasseHoraireFormateurs());
+        lblBadgeCountFormateurs.setText(d.getMasseHoraireFormateurs().size() + " formateurs");
 
-    private void renderAlerts(Dashboard d) {
-        alertsContainer.getChildren().clear();
-        FontAwesome fontAwesome = new FontAwesome();
-
-        int nbAlertes = 0;
-
-        if (d.getNbFormateursSansGroupe() > 0) {
-            nbAlertes++;
-            var chip = createAlertChip(
-                    fontAwesome.create(FontAwesome.Glyph.WARNING).color(Color.web("#d97706")).size(16),
-                    d.getNbFormateursSansGroupe() + " formateur(s) sans aucun groupe affecté",
-                    "Affectez des groupes via 'Paramètres > Formateurs' pour inclure ces intervenants dans l'emploi du temps.",
-                    "alert-chip-warning"
-            );
-            alertsContainer.getChildren().add(chip);
-        }
-
-        if (d.getNbGroupesSansFormateur() > 0) {
-            nbAlertes++;
-            var chip = createAlertChip(
-                    fontAwesome.create(FontAwesome.Glyph.EXCLAMATION_CIRCLE).color(Color.web("#dc2626")).size(16),
-                    d.getNbGroupesSansFormateur() + " groupe(s) sans formateur affecté",
-                    "Ces groupes ne disposent d'aucun formateur rattaché dans la table d'affectations.",
-                    "alert-chip-danger"
-            );
-            alertsContainer.getChildren().add(chip);
-        }
-
-        if (d.getNbGroupesSousDotes() > 0) {
-            nbAlertes++;
-            var chip = createAlertChip(
-                    fontAwesome.create(FontAwesome.Glyph.INFO_CIRCLE).color(Color.web("#2563eb")).size(16),
-                    d.getNbGroupesSousDotes() + " groupe(s) en sous-charge (< 20h planifiées)",
-                    "Certains groupes n'ont pas encore atteint le quota hebdomadaire minimal d'heures dispensées.",
-                    "alert-chip-warning"
-            );
-            alertsContainer.getChildren().add(chip);
-        }
-
-        if (nbAlertes == 0) {
-            var chip = createAlertChip(
-                    fontAwesome.create(FontAwesome.Glyph.CHECK_CIRCLE).color(Color.web("#16a34a")).size(16),
-                    "Emploi du temps équilibré et conforme",
-                    "Tous les groupes et formateurs ont des affectations valides. Aucune anomalie détectée.",
-                    "alert-chip-success"
-            );
-            alertsContainer.getChildren().add(chip);
-        }
-    }
-
-    private HBox createAlertChip(javafx.scene.Node icon, String title, String detail, String styleClass) {
-        var box = new HBox(12);
-        box.setAlignment(Pos.CENTER_LEFT);
-        box.getStyleClass().add(styleClass);
-
-        var v = new VBox(2);
-        var lblT = new Label(title);
-        lblT.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1e293b;");
-        var lblD = new Label(detail);
-        lblD.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b;");
-        v.getChildren().addAll(lblT, lblD);
-
-        box.getChildren().addAll(icon, v);
-        return box;
+        tableGroupes.getItems().setAll(d.getMasseHoraireGroupes());
+        lblBadgeCountGroupes.setText(d.getMasseHoraireGroupes().size() + " groupes");
     }
 
     @Override
@@ -305,7 +245,7 @@ public class DashboardTab extends EditorTab {
 
         var chartContainerLeft = new VBox(bc);
         chartContainerLeft.getStyleClass().add("chart-card");
-        chartContainerLeft.setPrefHeight(340);
+        chartContainerLeft.setPrefHeight(320);
         HBox.setHgrow(chartContainerLeft, Priority.ALWAYS);
 
         // PieChart (Répartition par Filière)
@@ -317,7 +257,7 @@ public class DashboardTab extends EditorTab {
 
         var chartContainerRight = new VBox(pc);
         chartContainerRight.getStyleClass().add("chart-card");
-        chartContainerRight.setPrefHeight(340);
+        chartContainerRight.setPrefHeight(320);
         chartContainerRight.setPrefWidth(420);
         chartContainerRight.setMaxWidth(480);
         HBox.setHgrow(chartContainerRight, Priority.ALWAYS);
@@ -325,24 +265,166 @@ public class DashboardTab extends EditorTab {
         chartsBox.getChildren().addAll(chartContainerLeft, chartContainerRight);
         vBox.getChildren().add(chartsBox);
 
-        // 4. Section Alertes et Décisions de Direction
-        var alertCard = new VBox(10);
-        alertCard.getStyleClass().add("alert-card");
+        // 4. Section Masses Horaires (Listes Formateurs & Groupes)
+        setupFormateursTable();
+        setupGroupesTable();
 
-        var lblAlertHeader = new Label("Pilotage & Alertes Opérationnelles");
-        lblAlertHeader.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
-        lblAlertHeader.setGraphic(fontAwesome.create(FontAwesome.Glyph.BELL).color(Color.web("#3b82f6")).size(16));
-        lblAlertHeader.setGraphicTextGap(10);
+        var tablesBox = new HBox(16);
+        tablesBox.setAlignment(Pos.CENTER);
 
-        alertsContainer = new VBox(8);
-        alertCard.getChildren().addAll(lblAlertHeader, alertsContainer);
-        vBox.getChildren().add(alertCard);
+        var cardFormateurs = createTableCard("Masse horaire des Formateurs", FontAwesome.Glyph.USER, lblBadgeCountFormateurs, tableFormateurs);
+        HBox.setHgrow(cardFormateurs, Priority.ALWAYS);
+
+        var cardGroupes = createTableCard("Masse horaire des Groupes", FontAwesome.Glyph.USERS, lblBadgeCountGroupes, tableGroupes);
+        HBox.setHgrow(cardGroupes, Priority.ALWAYS);
+
+        tablesBox.getChildren().addAll(cardFormateurs, cardGroupes);
+        vBox.getChildren().add(tablesBox);
 
         var scrollPane = new ScrollPane(vBox);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;");
         return scrollPane;
+    }
+
+    private void setupFormateursTable() {
+        tableFormateurs.getColumns().clear();
+
+        var colNom = new TableColumn<Dashboard.FormateurMasseHoraire, String>("Formateur");
+        colNom.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNomComplet()));
+
+        var colType = new TableColumn<Dashboard.FormateurMasseHoraire, String>("Statut");
+        colType.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getType()));
+        colType.setPrefWidth(90);
+        colType.setMaxWidth(110);
+        colType.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
+            {
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(String type, boolean empty) {
+                super.updateItem(type, empty);
+                if (empty || type == null) {
+                    setGraphic(null);
+                } else {
+                    badge.setText(type);
+                    if ("Permanent".equalsIgnoreCase(type)) {
+                        badge.setStyle("-fx-background-color: #ecfdf5; -fx-text-fill: #059669; -fx-padding: 2 8 2 8; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: 600;");
+                    } else {
+                        badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #2563eb; -fx-padding: 2 8 2 8; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: 600;");
+                    }
+                    setGraphic(badge);
+                }
+            }
+        });
+
+        var colDuree = new TableColumn<Dashboard.FormateurMasseHoraire, String>("Masse horaire");
+        colDuree.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDuration()));
+        colDuree.setPrefWidth(120);
+        colDuree.setMaxWidth(140);
+        colDuree.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
+            {
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
+                    badge.setText(item);
+                    if (rowItem != null && rowItem.getHeuresDecimales() == 0) {
+                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #94a3b8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                    } else {
+                        badge.setStyle("-fx-background-color: #ecfdf5; -fx-text-fill: #047857; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                    }
+                    setGraphic(badge);
+                }
+            }
+        });
+
+        tableFormateurs.getColumns().addAll(colNom, colType, colDuree);
+    }
+
+    private void setupGroupesTable() {
+        tableGroupes.getColumns().clear();
+
+        var colNom = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Groupe");
+        colNom.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNom()));
+
+        var colFiliere = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Filière");
+        colFiliere.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFiliereAbreviation()));
+        colFiliere.setPrefWidth(90);
+        colFiliere.setMaxWidth(120);
+
+        var colAnnee = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Année");
+        colAnnee.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAnnee() + "A"));
+        colAnnee.setPrefWidth(60);
+        colAnnee.setMaxWidth(75);
+        colAnnee.setStyle("-fx-alignment: CENTER;");
+
+        var colDuree = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Masse horaire");
+        colDuree.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDuration()));
+        colDuree.setPrefWidth(120);
+        colDuree.setMaxWidth(140);
+        colDuree.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
+            {
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
+                    badge.setText(item);
+                    if (rowItem != null && rowItem.getHeuresDecimales() == 0) {
+                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #94a3b8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                    } else {
+                        badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #1d4ed8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                    }
+                    setGraphic(badge);
+                }
+            }
+        });
+
+        tableGroupes.getColumns().addAll(colNom, colFiliere, colAnnee, colDuree);
+    }
+
+    private VBox createTableCard(String title, FontAwesome.Glyph glyph, Label badge, TableView<?> table) {
+        var card = new VBox(10);
+        card.getStyleClass().add("chart-card");
+        card.setPrefHeight(320);
+
+        var header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        var fontAwesome = new FontAwesome();
+        var icon = fontAwesome.create(glyph).color(Color.web("#2563eb")).size(16);
+
+        var lbl = new Label(title);
+        lbl.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+        lbl.setGraphic(icon);
+        lbl.setGraphicTextGap(10);
+
+        var spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-padding: 3 8 3 8; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: 600;");
+
+        header.getChildren().addAll(lbl, spacer, badge);
+
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(table, Priority.ALWAYS);
+
+        card.getChildren().addAll(header, table);
+        return card;
     }
 
     private VBox createCard(String styleClass, String title, Label lblValue, Label lblSub) {

@@ -824,32 +824,56 @@ public class Database {
                 }
             }
 
-            // Alertes de gestion
+            // Masse horaire des formateurs
             try (ResultSet rs = stmt.executeQuery("""
-                    SELECT COUNT(*) FROM formateur f
-                    WHERE f.id NOT IN (SELECT DISTINCT idFormateur FROM formateur_groupe)
+                    SELECT f.id, f.nom, f.prenom, f.matricule, f.type,
+                           COALESCE(SUM(s.fin - s.debut), 0) as duree
+                    FROM formateur f
+                    LEFT JOIN seance s ON s.idFormateur = f.id
+                    GROUP BY f.id
+                    ORDER BY duree DESC, f.nom, f.prenom
                     """)) {
-                if (rs.next()) dashboard.setNbFormateursSansGroupe(rs.getInt(1));
+                while (rs.next()) {
+                    var f = new Formateur(
+                            rs.getLong("id"),
+                            rs.getString("nom"),
+                            rs.getString("prenom"),
+                            rs.getString("matricule"),
+                            rs.getString("type")
+                    );
+                    dashboard.getMasseHoraireFormateurs().add(
+                            new Dashboard.FormateurMasseHoraire(f, rs.getLong("duree"))
+                    );
+                }
             }
 
+            // Masse horaire des groupes
             try (ResultSet rs = stmt.executeQuery("""
-                    SELECT COUNT(*) FROM groupe g
-                    WHERE g.id NOT IN (SELECT DISTINCT idGroupe FROM formateur_groupe)
+                    SELECT g.id, g.nom as gnom, g.annee, fil.id as fid, fil.nom as fnom, fil.abreviation as fabrev,
+                           COALESCE(SUM(s.fin - s.debut), 0) as duree
+                    FROM groupe g
+                    INNER JOIN filiere fil ON fil.id = g.idFiliere
+                    LEFT JOIN seance_groupe sg ON sg.idGroupe = g.id
+                    LEFT JOIN seance s ON s.id = sg.idSeance
+                    GROUP BY g.id
+                    ORDER BY duree DESC, g.nom
                     """)) {
-                if (rs.next()) dashboard.setNbGroupesSansFormateur(rs.getInt(1));
-            }
+                while (rs.next()) {
+                    var fil = new Filiere();
+                    fil.setId(rs.getLong("fid"));
+                    fil.setNom(rs.getString("fnom"));
+                    fil.setAbreviation(rs.getString("fabrev"));
 
-            try (ResultSet rs = stmt.executeQuery("""
-                    SELECT COUNT(*) FROM (
-                        SELECT g.id, COALESCE(SUM(s.fin - s.debut), 0) as vol
-                        FROM groupe g
-                        LEFT JOIN seance_groupe sg ON g.id = sg.idGroupe
-                        LEFT JOIN seance s ON s.id = sg.idSeance
-                        GROUP BY g.id
-                        HAVING vol < 72000
-                    )
-                    """)) {
-                if (rs.next()) dashboard.setNbGroupesSousDotes(rs.getInt(1));
+                    var g = new Groupe(
+                            rs.getLong("id"),
+                            rs.getString("gnom"),
+                            rs.getInt("annee"),
+                            fil
+                    );
+                    dashboard.getMasseHoraireGroupes().add(
+                            new Dashboard.GroupeMasseHoraire(g, rs.getLong("duree"))
+                    );
+                }
             }
 
         } catch (SQLException e) {
