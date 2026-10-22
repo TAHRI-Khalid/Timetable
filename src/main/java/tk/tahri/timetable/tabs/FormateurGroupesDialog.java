@@ -146,20 +146,34 @@ public class FormateurGroupesDialog extends Stage {
         colCheck.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         colCheck.setCellFactory(col -> new TableCell<>() {
             private final CheckBox checkBox = new CheckBox();
+            private javafx.beans.value.ChangeListener<Boolean> listener;
+            private GroupeItem currentItem;
+
             {
                 checkBox.setAlignment(Pos.CENTER);
                 setAlignment(Pos.CENTER);
+                checkBox.setOnAction(e -> {
+                    if (currentItem != null) {
+                        currentItem.setSelected(checkBox.isSelected());
+                    }
+                });
             }
+
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                if (currentItem != null && listener != null) {
+                    currentItem.selectedProperty().removeListener(listener);
+                }
+
+                if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    currentItem = null;
                     setGraphic(null);
                 } else {
-                    GroupeItem rowItem = getTableRow().getItem();
-                    checkBox.selectedProperty().unbindBidirectional(rowItem.selectedProperty());
-                    checkBox.setSelected(rowItem.isSelected());
-                    checkBox.selectedProperty().bindBidirectional(rowItem.selectedProperty());
+                    currentItem = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(currentItem.isSelected());
+                    listener = (obs, oldVal, newVal) -> checkBox.setSelected(newVal);
+                    currentItem.selectedProperty().addListener(listener);
                     setGraphic(checkBox);
                 }
             }
@@ -189,10 +203,21 @@ public class FormateurGroupesDialog extends Stage {
         table.setRowFactory(tv -> {
             TableRow<GroupeItem> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (!row.isEmpty() && event.getClickCount() == 1 && !(event.getTarget() instanceof CheckBox)) {
-                    GroupeItem item = row.getItem();
-                    if (item != null) {
-                        item.setSelected(!item.isSelected());
+                if (!row.isEmpty() && event.getClickCount() == 1) {
+                    javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+                    boolean isCheckbox = false;
+                    while (target != null && target != row) {
+                        if (target instanceof CheckBox) {
+                            isCheckbox = true;
+                            break;
+                        }
+                        target = target.getParent();
+                    }
+                    if (!isCheckbox) {
+                        GroupeItem item = row.getItem();
+                        if (item != null) {
+                            item.setSelected(!item.isSelected());
+                        }
                     }
                 }
             });
