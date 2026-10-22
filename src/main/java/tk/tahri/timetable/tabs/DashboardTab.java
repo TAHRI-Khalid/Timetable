@@ -214,15 +214,10 @@ public class DashboardTab extends EditorTab {
         cards.getChildren().addAll(card1, card2, card3, card4, card5);
         vBox.getChildren().add(cards);
 
-        // 3. Section Répartition Hebdomadaire par Jour & Totaux
-        setupJoursTable();
-        var cardJours = createTableCard("Répartition par Jour de la Semaine & Totaux", FontAwesome.Glyph.CALENDAR, lblBadgeCountJours, tableJours);
-        cardJours.setPrefHeight(290);
-        vBox.getChildren().add(cardJours);
-
-        // 4. Section Masses Horaires (Plein écran : Listes Formateurs & Groupes)
+        // 3. Section des 3 listes en 3 colonnes : Formateurs, Groupes, Répartition par jour
         setupFormateursTable();
         setupGroupesTable();
+        setupJoursTable();
 
         var tablesBox = new HBox(16);
         tablesBox.setAlignment(Pos.CENTER);
@@ -234,7 +229,10 @@ public class DashboardTab extends EditorTab {
         var cardGroupes = createTableCard("Masse horaire des Groupes", FontAwesome.Glyph.USERS, lblBadgeCountGroupes, tableGroupes);
         HBox.setHgrow(cardGroupes, Priority.ALWAYS);
 
-        tablesBox.getChildren().addAll(cardFormateurs, cardGroupes);
+        var cardJours = createTableCard("Répartition par Jour & Totaux", FontAwesome.Glyph.CALENDAR, lblBadgeCountJours, tableJours);
+        HBox.setHgrow(cardJours, Priority.ALWAYS);
+
+        tablesBox.getChildren().addAll(cardFormateurs, cardGroupes, cardJours);
         vBox.getChildren().add(tablesBox);
 
         var scrollPane = new ScrollPane(vBox);
@@ -247,9 +245,9 @@ public class DashboardTab extends EditorTab {
     private void setupJoursTable() {
         tableJours.getColumns().clear();
 
-        var colJour = new TableColumn<Dashboard.JourStat, String>("Jour de la semaine");
+        var colJour = new TableColumn<Dashboard.JourStat, String>("Jour");
         colJour.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().jourNom()));
-        colJour.setPrefWidth(160);
+        colJour.setPrefWidth(95);
         colJour.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -261,7 +259,7 @@ public class DashboardTab extends EditorTab {
                     setText(item);
                     var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
                     if (rowItem != null && rowItem.isTotal()) {
-                        setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a; -fx-font-size: 13px;");
+                        setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a; -fx-font-size: 12px;");
                     } else {
                         setStyle("-fx-font-weight: 600; -fx-text-fill: #334155;");
                     }
@@ -271,7 +269,7 @@ public class DashboardTab extends EditorTab {
 
         var colDuree = new TableColumn<Dashboard.JourStat, String>("Masse horaire");
         colDuree.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDuration()));
-        colDuree.setPrefWidth(140);
+        colDuree.setPrefWidth(110);
         colDuree.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
@@ -286,27 +284,20 @@ public class DashboardTab extends EditorTab {
                     var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
                     badge.setText(item);
                     if (rowItem != null && rowItem.isTotal()) {
-                        badge.setStyle("-fx-background-color: #ecfdf5; -fx-text-fill: #047857; -fx-padding: 4 12 4 12; -fx-background-radius: 12px; -fx-font-size: 12px; -fx-font-weight: bold;");
+                        badge.setStyle("-fx-background-color: #ecfdf5; -fx-text-fill: #047857; -fx-padding: 3 8 3 8; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: bold;");
                     } else if (rowItem != null && rowItem.getHeuresDecimales() == 0) {
-                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #94a3b8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #94a3b8; -fx-padding: 2 7 2 7; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: 600;");
                     } else {
-                        badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #1d4ed8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: bold;");
+                        badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #1d4ed8; -fx-padding: 2 7 2 7; -fx-background-radius: 10px; -fx-font-size: 11px; -fx-font-weight: 600;");
                     }
                     setGraphic(badge);
                 }
             }
         });
 
-        var colGroupes = new TableColumn<Dashboard.JourStat, String>("Groupes ayant cours");
-        colGroupes.setCellValueFactory(cellData -> {
-            var js = cellData.getValue();
-            if (js.isTotal()) {
-                return new SimpleStringProperty(js.nbGroupes() + " groupes (Total inscrits)");
-            } else {
-                return new SimpleStringProperty(js.nbGroupes() + (js.nbGroupes() > 1 ? " groupes actifs" : " groupe actif"));
-            }
-        });
-        colGroupes.setPrefWidth(180);
+        var colGroupes = new TableColumn<Dashboard.JourStat, String>("Groupes");
+        colGroupes.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().nbGroupes())));
+        colGroupes.setPrefWidth(70);
         colGroupes.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -315,26 +306,20 @@ public class DashboardTab extends EditorTab {
                     setText(null);
                 } else {
                     setText(item);
+                    setAlignment(Pos.CENTER);
                     var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
                     if (rowItem != null && rowItem.isTotal()) {
                         setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a;");
                     } else {
-                        setStyle("-fx-text-fill: #475569;");
+                        setStyle("-fx-text-fill: #334155;");
                     }
                 }
             }
         });
 
         var colSeances = new TableColumn<Dashboard.JourStat, String>("Séances");
-        colSeances.setCellValueFactory(cellData -> {
-            var js = cellData.getValue();
-            if (js.isTotal()) {
-                return new SimpleStringProperty(js.nbSeances() + " séances (Total)");
-            } else {
-                return new SimpleStringProperty(js.nbSeances() + (js.nbSeances() > 1 ? " séances" : " séance"));
-            }
-        });
-        colSeances.setPrefWidth(140);
+        colSeances.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().nbSeances())));
+        colSeances.setPrefWidth(65);
         colSeances.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -343,26 +328,20 @@ public class DashboardTab extends EditorTab {
                     setText(null);
                 } else {
                     setText(item);
+                    setAlignment(Pos.CENTER);
                     var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
                     if (rowItem != null && rowItem.isTotal()) {
                         setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a;");
                     } else {
-                        setStyle("-fx-text-fill: #475569;");
+                        setStyle("-fx-text-fill: #334155;");
                     }
                 }
             }
         });
 
-        var colFormateurs = new TableColumn<Dashboard.JourStat, String>("Formateurs mobilisés");
-        colFormateurs.setCellValueFactory(cellData -> {
-            var js = cellData.getValue();
-            if (js.isTotal()) {
-                return new SimpleStringProperty(js.nbFormateurs() + " formateurs (Total)");
-            } else {
-                return new SimpleStringProperty(js.nbFormateurs() + (js.nbFormateurs() > 1 ? " formateurs" : " formateur"));
-            }
-        });
-        colFormateurs.setPrefWidth(160);
+        var colFormateurs = new TableColumn<Dashboard.JourStat, String>("Formateurs");
+        colFormateurs.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().nbFormateurs())));
+        colFormateurs.setPrefWidth(75);
         colFormateurs.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -371,11 +350,12 @@ public class DashboardTab extends EditorTab {
                     setText(null);
                 } else {
                     setText(item);
+                    setAlignment(Pos.CENTER);
                     var rowItem = getTableRow() != null ? getTableRow().getItem() : null;
                     if (rowItem != null && rowItem.isTotal()) {
                         setStyle("-fx-font-weight: bold; -fx-text-fill: #0f172a;");
                     } else {
-                        setStyle("-fx-text-fill: #475569;");
+                        setStyle("-fx-text-fill: #334155;");
                     }
                 }
             }
