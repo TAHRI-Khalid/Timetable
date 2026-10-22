@@ -6,7 +6,6 @@ import tk.tahri.timetable.tools.Config;
 
 import java.sql.*;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,20 +167,11 @@ public class Database {
                 etab.setDirection(rs.getString("direction"));
                 etab.setComplexe(rs.getString("complexe"));
                 etab.setNom(rs.getString("nom"));
-                etab.setAbreviation(rs.getString("abreviation"));
                 etab.setCode(rs.getString("code"));
                 etab.setUsername(rs.getString("username"));
                 etab.setPassword(rs.getString("password"));
 
                 etab.setAnneeDeFormation(rs.getString("annee"));
-                var d1 = rs.getString("dateDebut");
-                if (d1 != null) {
-                    etab.setDateDebut(LocalDate.parse(d1));
-                }
-                var d2 = rs.getString("dateFin");
-                if (d2 != null) {
-                    etab.setDateFin(LocalDate.parse(d2));
-                }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

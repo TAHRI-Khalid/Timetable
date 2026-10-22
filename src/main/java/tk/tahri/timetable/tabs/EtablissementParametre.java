@@ -20,11 +20,8 @@ public class EtablissementParametre extends EditorTab {
     private final TextField txtDirection;
     private final TextField txtComplexe;
     private final TextField txtNom;
-    private final TextField txtAbreviation;
     private final TextField txtCode;
     private final TextField txtAnneeDeFormation;
-    private final DatePicker datePickerDebut;
-    private final DatePicker datePickerFin;
 
     public EtablissementParametre(Editor editor) {
         super("Etablissement");
@@ -59,36 +56,18 @@ public class EtablissementParametre extends EditorTab {
         GridPane.setHgrow(txtNom, Priority.ALWAYS);
         grid.add(txtNom, 1, 2);
 
-        grid.add(new Label("Abréviation : "), 0, 3);
-        txtAbreviation = new TextField();
-        txtAbreviation.setPromptText("Ex: ISTA, CFP...");
-        GridPane.setHgrow(txtAbreviation, Priority.ALWAYS);
-        grid.add(txtAbreviation, 1, 3);
-
-        grid.add(new Label("Code : "), 0, 4);
+        grid.add(new Label("Code : "), 0, 3);
         txtCode = new TextField();
         txtCode.setPromptText("Code établissement");
         GridPane.setHgrow(txtCode, Priority.ALWAYS);
-        grid.add(txtCode, 1, 4);
+        grid.add(txtCode, 1, 3);
 
-        // Colonne 2 : Année et Période
+        // Colonne 2 : Année de formation
         grid.add(new Label("Année de formation : "), 2, 0);
         txtAnneeDeFormation = new TextField();
         txtAnneeDeFormation.setPromptText("Ex: 2026/2027");
         GridPane.setHgrow(txtAnneeDeFormation, Priority.ALWAYS);
         grid.add(txtAnneeDeFormation, 3, 0);
-
-        grid.add(new Label("Date début : "), 2, 1);
-        datePickerDebut = new DatePicker();
-        datePickerDebut.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(datePickerDebut, Priority.ALWAYS);
-        grid.add(datePickerDebut, 3, 1);
-
-        grid.add(new Label("Date fin : "), 2, 2);
-        datePickerFin = new DatePicker();
-        datePickerFin.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(datePickerFin, Priority.ALWAYS);
-        grid.add(datePickerFin, 3, 2);
 
         // Panneau de formulaire avec en-tête
         var formCard = new VBox(15);
@@ -132,35 +111,24 @@ public class EtablissementParametre extends EditorTab {
     private void clearForm() {
         txtDirection.setText(etablissement.getDirection());
         txtComplexe.setText(etablissement.getComplexe());
-        txtAbreviation.setText(etablissement.getAbreviation());
         txtCode.setText(etablissement.getCode());
         txtAnneeDeFormation.setText(etablissement.getAnneeDeFormation());
         txtNom.setText(etablissement.getNom());
-        datePickerDebut.setValue(etablissement.getDateDebut());
-        datePickerFin.setValue(etablissement.getDateFin());
     }
 
     private void saveForm() {
-        if (datePickerDebut.getValue() != null && datePickerFin.getValue() != null
-                && datePickerDebut.getValue().isAfter(datePickerFin.getValue())) {
-            NotificationService.showWarning("Dates incohérentes", "La date de début ne peut pas être postérieure à la date de fin.");
-            return;
-        }
-
         String username = etablissement.getUsername() != null ? etablissement.getUsername() : "";
         String password = etablissement.getPassword() != null ? etablissement.getPassword() : "";
 
-        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?,username=?,password=?, dateDebut=?, dateFin=? WHERE id=?",
+        Database.getInstance().execute("UPDATE etablissement SET direction=?, complexe=?, nom=?, abreviation=?, code=?, annee=?, username=?, password=? WHERE id=?",
                 txtDirection.getText(),
                 txtComplexe.getText(),
                 txtNom.getText(),
-                txtAbreviation.getText(),
+                "",
                 txtCode.getText(),
                 txtAnneeDeFormation.getText(),
                 username,
                 password,
-                datePickerDebut.getEditor().getText().isEmpty() ? null : datePickerDebut.getValue().toString(),
-                datePickerFin.getEditor().getText().isEmpty() ? null : datePickerFin.getValue().toString(),
                 String.valueOf(etablissement.getId()));
         loadData();
         NotificationService.showSuccess("Établissement", "Les paramètres de l'établissement ont été enregistrés avec succès.");

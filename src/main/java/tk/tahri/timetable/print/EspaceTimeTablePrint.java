@@ -15,9 +15,9 @@ public class EspaceTimeTablePrint extends TimeTablePrint {
         this.getChildren().addAll(
                 header(),
                 titre(espace != null ? espace.getNom() : ""),
-                info(info1()),
+                info(false, 30, info1()),
                 body(),
-                footer("Visa de la Direction")
+                footer()
         );
     }
 

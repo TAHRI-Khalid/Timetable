@@ -33,9 +33,12 @@ public class MatriceTab extends EditorTab {
         type = SeanceType.GROUPE;
 
         var parent = new VBox();
+        parent.setFillWidth(true);
         var body = new ScrollPane();
         body.setFitToWidth(true);
         body.setFitToHeight(true);
+        body.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        VBox.setVgrow(body, Priority.ALWAYS);
         martix = new GridPane();
         body.setContent(martix);
 
@@ -93,7 +96,7 @@ public class MatriceTab extends EditorTab {
         martix.setGridLinesVisible(true);
 
         martix.getColumnConstraints().add(new ColumnConstraints(150));
-        for (int i = 1; i < 1 + (40 * 6); i++) {
+        for (int i = 1; i < 1 + (42 * days.length); i++) {
             ColumnConstraints column = new ColumnConstraints(15);
             martix.getColumnConstraints().add(column);
         }
@@ -193,6 +196,9 @@ public class MatriceTab extends EditorTab {
                 vBox.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
             }
             vBox.setAlignment(Pos.CENTER);
+            vBox.setMinHeight(55);
+            GridPane.setFillHeight(vBox, true);
+            GridPane.setFillWidth(vBox, true);
             martix.add(vBox, 0, i + 2);
 
             var seances = switch (type) {
@@ -228,6 +234,8 @@ public class MatriceTab extends EditorTab {
                     case ESPACE -> "espace-seance-view";
                 };
                 sv.getStyleClass().add(ch ? "chevauchement-seance-view" : style);
+                GridPane.setFillHeight(sv, true);
+                GridPane.setFillWidth(sv, true);
                 martix.add(sv, x, y, span, 1);
             }
         }

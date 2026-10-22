@@ -67,23 +67,23 @@ public abstract class TimeTablePrint extends VBox {
         var hBox = new HBox();
         hBox.setAlignment(Pos.CENTER);
         HBox.setHgrow(hBox, Priority.ALWAYS);
-        var vBox = new VBox(3);
-        vBox.setAlignment(Pos.CENTER);
+        hBox.setPadding(new Insets(10, 0, 10, 0));
         var lblTitle = new Text("EMPLOI DU TEMPS : " + (title != null ? title : ""));
         lblTitle.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 15));
-
-        String annee = (etablissement != null && etablissement.getAnneeDeFormation() != null)
-                ? etablissement.getAnneeDeFormation()
-                : "-";
-        var lblAnneeDeFormation = new Text("ANNEE DE FORMATION : " + annee);
-        lblAnneeDeFormation.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 12));
-        vBox.getChildren().addAll(lblTitle, lblAnneeDeFormation);
-        hBox.getChildren().add(vBox);
+        hBox.getChildren().add(lblTitle);
         return hBox;
     }
 
     protected HBox info(GridPane... gridPane) {
-        var hBox = new HBox(15);
+        return info(true, 15, gridPane);
+    }
+
+    protected HBox info(boolean showEtablissement, GridPane... gridPane) {
+        return info(showEtablissement, showEtablissement ? 15 : 30, gridPane);
+    }
+
+    protected HBox info(boolean showEtablissement, int spacing, GridPane... gridPane) {
+        var hBox = new HBox(spacing);
         HBox.setHgrow(hBox, Priority.ALWAYS);
         hBox.setAlignment(Pos.TOP_CENTER);
 
@@ -93,15 +93,19 @@ public abstract class TimeTablePrint extends VBox {
 
         grid.add(new Text("Direction"), 0, 0);
         grid.add(new Text("Complexe"), 0, 1);
-        grid.add(new Text("Etablissement"), 0, 2);
+        if (showEtablissement) {
+            grid.add(new Text("Etablissement"), 0, 2);
+        }
 
         String direction = (etablissement != null && etablissement.getDirection() != null) ? etablissement.getDirection() : "-";
         String complexe = (etablissement != null && etablissement.getComplexe() != null) ? etablissement.getComplexe() : "-";
-        String abreviation = (etablissement != null && etablissement.getAbreviation() != null) ? etablissement.getAbreviation() : "-";
+        String nomEtab = (etablissement != null && etablissement.getNom() != null) ? etablissement.getNom() : "-";
 
         grid.add(new Text(" : " + direction), 1, 0);
         grid.add(new Text(" : " + complexe), 1, 1);
-        grid.add(new Text(" : " + abreviation), 1, 2);
+        if (showEtablissement) {
+            grid.add(new Text(" : " + nomEtab), 1, 2);
+        }
 
         hBox.getChildren().add(grid);
 
@@ -113,27 +117,22 @@ public abstract class TimeTablePrint extends VBox {
             }
         }
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         var dateGrid = new GridPane();
         dateGrid.setHgap(5);
         dateGrid.setVgap(3);
 
-        dateGrid.add(new Text("Date d'effet"), 0, 0);
-        String dateDebutStr = (etablissement != null && etablissement.getDateDebut() != null)
-                ? dtf.format(etablissement.getDateDebut())
+        int dateRow = 0;
+        dateGrid.add(new Text("Année de formation"), 0, dateRow);
+        String anneeStr = (etablissement != null && etablissement.getAnneeDeFormation() != null)
+                ? etablissement.getAnneeDeFormation()
                 : "-";
-        dateGrid.add(new Text(" : " + dateDebutStr), 1, 0);
+        dateGrid.add(new Text(" : " + anneeStr), 1, dateRow++);
 
-        if (etablissement != null && etablissement.getDateFin() != null) {
-            dateGrid.add(new Text("Date de fin"), 0, 1);
-            dateGrid.add(new Text(" : " + dtf.format(etablissement.getDateFin())), 1, 1);
-        }
         var duration = printTimeTableView.getDuration();
         long hours = duration != null ? duration.toHours() : 0;
         long minutes = duration != null ? duration.toMinutesPart() : 0;
-        dateGrid.add(new Text("Masse horaire"), 0, 2);
-        dateGrid.add(new Text(" : " + hours + "h" + String.format("%02d", minutes) + "min"), 1, 2);
+        dateGrid.add(new Text("Masse horaire"), 0, dateRow);
+        dateGrid.add(new Text(" : " + hours + "h" + String.format("%02d", minutes) + "min"), 1, dateRow);
 
         hBox.getChildren().add(dateGrid);
         return hBox;

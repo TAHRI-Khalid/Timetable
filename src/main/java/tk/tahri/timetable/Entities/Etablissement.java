@@ -1,19 +1,14 @@
 package tk.tahri.timetable.Entities;
 
-import java.time.LocalDate;
-
 public class Etablissement {
     private Long id;
     private String code;
     private String direction;
     private String complexe;
     private String nom;
-    private String abreviation;
     private String anneeDeFormation;
     private String username;
     private String password;
-    private LocalDate dateDebut;
-    private LocalDate dateFin;
 
     public Etablissement() {
     }
@@ -42,14 +37,6 @@ public class Etablissement {
         this.anneeDeFormation = anneeDeFormation;
     }
 
-    public String getAbreviation() {
-        return abreviation;
-    }
-
-    public void setAbreviation(String abreviation) {
-        this.abreviation = abreviation;
-    }
-
     public Long getId() {
         return id;
     }
@@ -74,22 +61,6 @@ public class Etablissement {
         this.nom = nom;
     }
 
-    public LocalDate getDateDebut() {
-        return dateDebut;
-    }
-
-    public void setDateDebut(LocalDate dateDebut) {
-        this.dateDebut = dateDebut;
-    }
-
-    public LocalDate getDateFin() {
-        return dateFin;
-    }
-
-    public void setDateFin(LocalDate dateFin) {
-        this.dateFin = dateFin;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -108,6 +79,6 @@ public class Etablissement {
 
     @Override
     public String toString() {
-        return this.abreviation;
+        return this.nom != null ? this.nom : "";
     }
 }

@@ -13,7 +13,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>25</maven.compiler.release>
     </properties>
 
     <dependencies>
@@ -49,6 +48,13 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
+                <configuration>
+                    <mainClass>timetable/tk.tahri.timetable.App</mainClass>
+                    <options>
+                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--enable-native-access=org.xerial.sqlitejdbc</option>
+                    </options>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-cli</id>
@@ -57,7 +63,7 @@
                             <compress>2</compress>
                             <launcher>timetable</launcher>
                             <jlinkImageName>timetable</jlinkImageName>
-                            <mainClass>tk.tahri.timetable.App</mainClass>
+                            <mainClass>timetable/tk.tahri.timetable.App</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -75,6 +81,8 @@
                     <runtimeImage>target/timetable</runtimeImage>
                     <javaOptions>
                         <option>-Dfile.encoding=UTF-8</option>
+                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--enable-native-access=org.xerial.sqlitejdbc</option>
                     </javaOptions>
                 </configuration>
                 <executions>
