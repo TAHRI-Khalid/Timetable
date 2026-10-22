@@ -695,34 +695,150 @@ public class Database {
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
 
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM formateur");
-            if (rs.next()) dashboard.setNombreFormateurs(rs.getInt(1));
-
-            rs = stmt.executeQuery("SELECT COUNT(*) FROM groupe");
-            if (rs.next()) dashboard.setNombreGroupes(rs.getInt(1));
-
-            rs = stmt.executeQuery("SELECT COUNT(*) FROM espace");
-            if (rs.next()) dashboard.setNombreEspaces(rs.getInt(1));
-
-            rs = stmt.executeQuery("SELECT COUNT(*) FROM seance");
-            if (rs.next()) dashboard.setNombreSeances(rs.getInt(1));
-
-            rs = stmt.executeQuery("""
-                    SELECT  SUM(s.fin-s.debut) as duree, e.id ,e.nom,e.type
-                    FROM espace e
-                    left join seance s on e.id = s.idEspace
-                    group by e.id;
-                    """);
-            while (rs.next()) {
-                var e = new Espace();
-                e.setId(rs.getLong("id"));
-                e.setNom(rs.getString("nom"));
-                e.setType(rs.getString("type"));
-                dashboard.getBarChartEspace().put(e, rs.getLong("duree"));
+            // Formateurs
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM formateur")) {
+                if (rs.next()) dashboard.setNombreFormateurs(rs.getInt(1));
             }
-            rs.close();
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM formateur WHERE type = 'Permanent'")) {
+                if (rs.next()) dashboard.setNombreFormateursPermanents(rs.getInt(1));
+            }
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM formateur WHERE type = 'Vacataire'")) {
+                if (rs.next()) dashboard.setNombreFormateursVacataires(rs.getInt(1));
+            }
+
+            // Groupes, Filières, Espaces, Séances
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM groupe")) {
+                if (rs.next()) dashboard.setNombreGroupes(rs.getInt(1));
+            }
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM filiere")) {
+                if (rs.next()) dashboard.setNombreFilieres(rs.getInt(1));
+            }
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM espace")) {
+                if (rs.next()) dashboard.setNombreEspaces(rs.getInt(1));
+            }
+            try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM seance")) {
+                if (rs.next()) dashboard.setNombreSeances(rs.getInt(1));
+            }
+
+            // Volume horaire total
+            long totalDureeSec = 0;
+            try (ResultSet rs = stmt.executeQuery("SELECT COALESCE(SUM(fin - debut), 0) FROM seance")) {
+                if (rs.next()) {
+                    totalDureeSec = rs.getLong(1);
+                    dashboard.setTotalHeuresPlanifiees(totalDureeSec / 3600.0);
+                }
+            }
+
+            // Répartition des heures par type de formateur
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT f.type, COALESCE(SUM(s.fin - s.debut), 0) as duree
+                    FROM seance s
+                    INNER JOIN formateur f ON f.id = s.idFormateur
+                    GROUP BY f.type
+                    """)) {
+                while (rs.next()) {
+                    String type = rs.getString("type");
+                    double h = rs.getLong("duree") / 3600.0;
+                    if ("Permanent".equalsIgnoreCase(type)) {
+                        dashboard.setHeuresPermanents(h);
+                    } else if ("Vacataire".equalsIgnoreCase(type)) {
+                        dashboard.setHeuresVacataires(h);
+                    }
+                }
+            }
+
+            // Occupation des espaces
+            long totalOccupeEspacesSec = 0;
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT SUM(s.fin-s.debut) as duree, e.id, e.nom, e.type
+                    FROM espace e
+                    LEFT JOIN seance s on e.id = s.idEspace
+                    GROUP BY e.id
+                    """)) {
+                while (rs.next()) {
+                    var e = new Espace();
+                    e.setId(rs.getLong("id"));
+                    e.setNom(rs.getString("nom"));
+                    e.setType(rs.getString("type"));
+                    long duree = rs.getLong("duree");
+                    totalOccupeEspacesSec += duree;
+                    dashboard.getBarChartEspace().put(e, duree);
+                }
+            }
+
+            // Taux d'occupation global (base 48h / semaine / salle : 6 jours * 8h)
+            int nbEspaces = dashboard.getNombreEspaces();
+            double capaciteTotaleSec = (nbEspaces > 0) ? nbEspaces * 48.0 * 3600.0 : 0.0;
+            dashboard.setTauxOccupationGlobal(capaciteTotaleSec > 0 ? (totalOccupeEspacesSec / capaciteTotaleSec) * 100.0 : 0.0);
+
+            // Moyennes
+            int nbGroupes = dashboard.getNombreGroupes();
+            int nbFormateurs = dashboard.getNombreFormateurs();
+            dashboard.setMoyenneHeuresParGroupe(nbGroupes > 0 ? dashboard.getTotalHeuresPlanifiees() / nbGroupes : 0.0);
+            dashboard.setMoyenneHeuresParFormateur(nbFormateurs > 0 ? dashboard.getTotalHeuresPlanifiees() / nbFormateurs : 0.0);
+
+            // Répartition par filière
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT COALESCE(fil.abreviation, fil.nom, 'Autre') as fil_nom,
+                           COALESCE(SUM(s.fin - s.debut), 0) as duree
+                    FROM seance s
+                    INNER JOIN seance_groupe sg ON s.id = sg.idSeance
+                    INNER JOIN groupe g ON g.id = sg.idGroupe
+                    INNER JOIN filiere fil ON fil.id = g.idFiliere
+                    GROUP BY fil.id
+                    ORDER BY duree DESC
+                    """)) {
+                while (rs.next()) {
+                    dashboard.getHeuresParFiliere().put(rs.getString("fil_nom"), rs.getLong("duree") / 3600.0);
+                }
+            }
+
+            // Répartition par jour
+            String[] jours = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT jour, COALESCE(SUM(fin - debut), 0) as duree
+                    FROM seance
+                    GROUP BY jour
+                    ORDER BY jour
+                    """)) {
+                while (rs.next()) {
+                    int j = rs.getInt("jour");
+                    if (j >= 1 && j <= 7) {
+                        dashboard.getHeuresParJour().put(jours[j - 1], rs.getLong("duree") / 3600.0);
+                    }
+                }
+            }
+
+            // Alertes de gestion
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT COUNT(*) FROM formateur f
+                    WHERE f.id NOT IN (SELECT DISTINCT idFormateur FROM formateur_groupe)
+                    """)) {
+                if (rs.next()) dashboard.setNbFormateursSansGroupe(rs.getInt(1));
+            }
+
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT COUNT(*) FROM groupe g
+                    WHERE g.id NOT IN (SELECT DISTINCT idGroupe FROM formateur_groupe)
+                    """)) {
+                if (rs.next()) dashboard.setNbGroupesSansFormateur(rs.getInt(1));
+            }
+
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT COUNT(*) FROM (
+                        SELECT g.id, COALESCE(SUM(s.fin - s.debut), 0) as vol
+                        FROM groupe g
+                        LEFT JOIN seance_groupe sg ON g.id = sg.idGroupe
+                        LEFT JOIN seance s ON s.id = sg.idSeance
+                        GROUP BY g.id
+                        HAVING vol < 72000
+                    )
+                    """)) {
+                if (rs.next()) dashboard.setNbGroupesSousDotes(rs.getInt(1));
+            }
+
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("getDashboard error: " + e.getMessage());
         }
         return dashboard;
     }

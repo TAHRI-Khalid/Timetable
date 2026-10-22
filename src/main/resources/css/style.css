@@ -602,3 +602,70 @@
     -fx-text-fill: #64748b;
     -fx-font-size: 12px;
 }
+
+/* --- Tableau de bord moderne pour la Direction --- */
+.institution-banner {
+    -fx-background-color: linear-gradient(to right, #0f172a, #1e293b, #334155);
+    -fx-background-radius: 10px;
+    -fx-padding: 16px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.12), 10, 0, 0, 3);
+}
+
+.institution-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.institution-subtitle {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+}
+
+.institution-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 12px;
+}
+
+.kpi-subtext {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-font-size: 11px;
+    -fx-font-weight: 500;
+}
+
+.alert-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 14px 18px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.03), 6, 0, 0, 2);
+}
+
+.alert-chip-danger {
+    -fx-background-color: #fef2f2;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
+
+.alert-chip-warning {
+    -fx-background-color: #fffbeb;
+    -fx-border-color: #fde68a;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
+
+.alert-chip-success {
+    -fx-background-color: #f0fdf4;
+    -fx-border-color: #bbf7d0;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
