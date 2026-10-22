@@ -425,6 +425,21 @@ public class Database {
         return list;
     }
 
+    public java.util.Map<Long, Integer> getGroupesCountByFormateur() {
+        String sql = "SELECT idFormateur, COUNT(*) as cnt FROM formateur_groupe GROUP BY idFormateur";
+        var map = new java.util.HashMap<Long, Integer>();
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                map.put(rs.getLong("idFormateur"), rs.getInt("cnt"));
+            }
+        } catch (SQLException e) {
+            System.out.println("getGroupesCountByFormateur error: " + e.getMessage());
+        }
+        return map;
+    }
+
     public List<Long> getFormateurIdsForGroupe(long idGroupe) {
         String sql = "SELECT idFormateur FROM formateur_groupe WHERE idGroupe = " + idGroupe;
         var list = new ArrayList<Long>();

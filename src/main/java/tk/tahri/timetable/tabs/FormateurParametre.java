@@ -29,6 +29,7 @@ public class FormateurParametre extends Tab {
 
     private Formateur formateur;
     private final ObservableList<Formateur> masterData = FXCollections.observableArrayList();
+    private java.util.Map<Long, Integer> groupeCounts = new java.util.HashMap<>();
     private final TableView<Formateur> table;
     private final TextField txtNom;
     private final TextField txtPrenom;
@@ -132,6 +133,35 @@ public class FormateurParametre extends Tab {
         var colType = new TableColumn<Formateur, String>("Type");
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
+        var colNbGroupes = new TableColumn<Formateur, Number>("Groupes affectés");
+        colNbGroupes.setCellValueFactory(cellData -> {
+            long id = cellData.getValue().getId();
+            return new javafx.beans.property.SimpleIntegerProperty(groupeCounts.getOrDefault(id, 0));
+        });
+        colNbGroupes.setPrefWidth(130);
+        colNbGroupes.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
+            {
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(Number count, boolean empty) {
+                super.updateItem(count, empty);
+                if (empty || count == null) {
+                    setGraphic(null);
+                } else {
+                    int val = count.intValue();
+                    badge.setText(val + (val > 1 ? " groupes" : " groupe"));
+                    if (val == 0) {
+                        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #94a3b8; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: 600;");
+                    } else {
+                        badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #2563eb; -fx-padding: 3 10 3 10; -fx-background-radius: 12px; -fx-font-size: 11px; -fx-font-weight: 600;");
+                    }
+                    setGraphic(badge);
+                }
+            }
+        });
+
         var colGroupes = new TableColumn<Formateur, Long>("");
         colGroupes.setCellValueFactory(new PropertyValueFactory<>("id"));
         colGroupes.setPrefWidth(48);
@@ -216,7 +246,7 @@ public class FormateurParametre extends Tab {
             }
         });
 
-        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colGroupes, colPrint, colUpdate, colDelete);
+        table.getColumns().addAll(colNom, colPrenom, colMatricule, colType, colNbGroupes, colGroupes, colPrint, colUpdate, colDelete);
         loadData();
 
         var vBox = new VBox(15);
@@ -244,7 +274,9 @@ public class FormateurParametre extends Tab {
     }
 
     private void loadData() {
+        groupeCounts = Database.getInstance().getGroupesCountByFormateur();
         masterData.setAll(Database.getInstance().getFormateurs());
+        table.refresh();
         editor.loadMenuFormateur();
     }
 
@@ -312,6 +344,7 @@ public class FormateurParametre extends Tab {
         var opt = masterData.stream().filter(f -> Objects.equals(f.getId(), id)).findFirst();
         if (opt.isEmpty()) return;
         new FormateurGroupesDialog(opt.get(), table.getScene().getWindow()).showAndWait();
+        loadData();
     }
 
     private void updateForm(long id) {
