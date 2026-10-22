@@ -8,7 +8,9 @@ import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Database {
     private static Database instance;
@@ -808,21 +810,78 @@ public class Database {
                 }
             }
 
-            // Répartition par jour
+            // Statistiques détaillées par jour de la semaine
             String[] jours = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+            Map<Integer, Long> dureeParJour = new HashMap<>();
+            Map<Integer, Integer> seancesParJour = new HashMap<>();
+            Map<Integer, Integer> formateursParJour = new HashMap<>();
+            Map<Integer, Integer> groupesParJour = new HashMap<>();
+
             try (ResultSet rs = stmt.executeQuery("""
-                    SELECT jour, COALESCE(SUM(fin - debut), 0) as duree
+                    SELECT jour,
+                           COALESCE(SUM(fin - debut), 0) as duree,
+                           COUNT(id) as nbSeances,
+                           COUNT(DISTINCT idFormateur) as nbFormateurs
                     FROM seance
                     GROUP BY jour
-                    ORDER BY jour
                     """)) {
                 while (rs.next()) {
                     int j = rs.getInt("jour");
-                    if (j >= 1 && j <= 7) {
-                        dashboard.getHeuresParJour().put(jours[j - 1], rs.getLong("duree") / 3600.0);
-                    }
+                    dureeParJour.put(j, rs.getLong("duree"));
+                    seancesParJour.put(j, rs.getInt("nbSeances"));
+                    formateursParJour.put(j, rs.getInt("nbFormateurs"));
                 }
             }
+
+            try (ResultSet rs = stmt.executeQuery("""
+                    SELECT s.jour, COUNT(DISTINCT sg.idGroupe) as nbGroupes
+                    FROM seance s
+                    INNER JOIN seance_groupe sg ON s.id = sg.idSeance
+                    GROUP BY s.jour
+                    """)) {
+                while (rs.next()) {
+                    groupesParJour.put(rs.getInt("jour"), rs.getInt("nbGroupes"));
+                }
+            }
+
+            long totalDureeSemaine = 0;
+            int totalSeancesSemaine = 0;
+            int maxJour = (dureeParJour.containsKey(7) && dureeParJour.get(7) > 0) ? 7 : 6;
+
+            for (int j = 1; j <= maxJour; j++) {
+                long dSec = dureeParJour.getOrDefault(j, 0L);
+                int nbG = groupesParJour.getOrDefault(j, 0);
+                int nbS = seancesParJour.getOrDefault(j, 0);
+                int nbF = formateursParJour.getOrDefault(j, 0);
+
+                totalDureeSemaine += dSec;
+                totalSeancesSemaine += nbS;
+
+                if (j <= 7) {
+                    dashboard.getHeuresParJour().put(jours[j - 1], dSec / 3600.0);
+                }
+
+                dashboard.getStatsParJour().add(new Dashboard.JourStat(
+                        j,
+                        jours[j - 1],
+                        dSec,
+                        nbG,
+                        nbS,
+                        nbF,
+                        false
+                ));
+            }
+
+            // Ligne récapitulative des totaux
+            dashboard.getStatsParJour().add(new Dashboard.JourStat(
+                    99,
+                    "TOTAL SEMAINE",
+                    totalDureeSemaine,
+                    dashboard.getNombreGroupes(),
+                    totalSeancesSemaine,
+                    dashboard.getNombreFormateurs(),
+                    true
+            ));
 
             // Masse horaire des formateurs
             try (ResultSet rs = stmt.executeQuery("""

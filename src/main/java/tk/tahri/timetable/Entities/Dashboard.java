@@ -47,6 +47,25 @@ public class Dashboard {
         }
     }
 
+    public record JourStat(
+            int jourIndex,
+            String jourNom,
+            long dureeSecondes,
+            int nbGroupes,
+            int nbSeances,
+            int nbFormateurs,
+            boolean isTotal
+    ) {
+        public String getFormattedDuration() {
+            long h = dureeSecondes / 3600;
+            long m = (dureeSecondes % 3600) / 60;
+            return String.format("%02dh %02dmin", h, m);
+        }
+        public double getHeuresDecimales() {
+            return dureeSecondes / 3600.0;
+        }
+    }
+
     private int nombreFormateurs;
     private int nombreFormateursPermanents;
     private int nombreFormateursVacataires;
@@ -68,6 +87,7 @@ public class Dashboard {
 
     private final List<FormateurMasseHoraire> masseHoraireFormateurs = new ArrayList<>();
     private final List<GroupeMasseHoraire> masseHoraireGroupes = new ArrayList<>();
+    private final List<JourStat> statsParJour = new ArrayList<>();
 
     public Map<Espace, Long> getBarChartEspace() {
         return barChartEspace;
@@ -79,6 +99,10 @@ public class Dashboard {
 
     public Map<String, Double> getHeuresParJour() {
         return heuresParJour;
+    }
+
+    public List<JourStat> getStatsParJour() {
+        return statsParJour;
     }
 
     public List<FormateurMasseHoraire> getMasseHoraireFormateurs() {
