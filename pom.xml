@@ -89,20 +89,73 @@
                     <execution>
                         <id>win</id>
                         <configuration>
-                            <icon>target/classes/images/icon.png</icon>
+                            <type>MSI</type>
+                            <icon>target/classes/images/icon.ico</icon>
                             <winMenu>true</winMenu>
                             <winShortcut>true</winShortcut>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>linux</id>
+                        <id>linux-deb</id>
                         <configuration>
+                            <type>DEB</type>
                             <linuxShortcut>true</linuxShortcut>
                             <linuxDebMaintainer>tahri.tk@gmail.com</linuxDebMaintainer>
                             <linuxPackageName>timetable</linuxPackageName>
                             <linuxAppCategory>Development</linuxAppCategory>
                             <linuxMenuGroup>Development</linuxMenuGroup>
                             <icon>target/classes/images/icon.png</icon>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>linux-rpm</id>
+                        <configuration>
+                            <type>RPM</type>
+                            <linuxShortcut>true</linuxShortcut>
+                            <linuxPackageName>timetable</linuxPackageName>
+                            <linuxAppCategory>Development</linuxAppCategory>
+                            <linuxMenuGroup>Development</linuxMenuGroup>
+                            <icon>target/classes/images/icon.png</icon>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>mac</id>
+                        <configuration>
+                            <type>DMG</type>
+                            <macPackageName>TimeTable</macPackageName>
+                            <icon>target/classes/images/icon.icns</icon>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>all</shadedClassifierName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>tk.tahri.timetable.Launcher</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>

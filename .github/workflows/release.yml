@@ -1,0 +1,179 @@
+name: Build & Release Multi-OS
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ----------------------------------------------------
+  # 1. WINDOWS (x64) -> .msi
+  # ----------------------------------------------------
+  build-windows:
+    name: Windows (x64 MSI)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build JLink Image
+        run: mvn clean compile javafx:jlink
+
+      - name: Build Windows Installer (MSI)
+        run: mvn jpackage:jpackage@win
+
+      - name: Upload Windows MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-windows-msi
+          path: target/dist/*.msi
+
+  # ----------------------------------------------------
+  # 2. LINUX (x64) -> .deb, .rpm & Fat JAR
+  # ----------------------------------------------------
+  build-linux:
+    name: Linux (.deb, .rpm & JAR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install packaging tools (RPM & Fakeroot)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm fakeroot
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build JLink Image
+        run: mvn clean compile javafx:jlink
+
+      - name: Build Linux DEB Package
+        run: mvn jpackage:jpackage@linux-deb
+
+      - name: Build Linux RPM Package
+        run: mvn jpackage:jpackage@linux-rpm
+
+      - name: Build Fat JAR
+        run: mvn package -DskipTests
+
+      - name: Upload Linux Packages & JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-linux-and-jar
+          path: |
+            target/dist/*.deb
+            target/dist/*.rpm
+            target/*-all.jar
+
+  # ----------------------------------------------------
+  # 3. macOS Intel (x86_64) -> .dmg
+  # ----------------------------------------------------
+  build-macos-intel:
+    name: macOS Intel (x86_64 DMG)
+    runs-on: macos-13
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build JLink Image
+        run: mvn clean compile javafx:jlink
+
+      - name: Build macOS DMG
+        run: mvn jpackage:jpackage@mac
+
+      - name: Rename to indicate Intel architecture
+        run: |
+          for f in target/dist/*.dmg; do
+            mv "$f" "${f%.dmg}-macOS-Intel-x64.dmg"
+          done
+
+      - name: Upload macOS Intel DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-macos-intel
+          path: target/dist/*-Intel-x64.dmg
+
+  # ----------------------------------------------------
+  # 4. macOS Apple Silicon (M1/M2/M3/M4 arm64) -> .dmg
+  # ----------------------------------------------------
+  build-macos-apple-silicon:
+    name: macOS Apple Silicon (arm64 DMG)
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build JLink Image
+        run: mvn clean compile javafx:jlink
+
+      - name: Build macOS DMG
+        run: mvn jpackage:jpackage@mac
+
+      - name: Rename to indicate Apple Silicon architecture
+        run: |
+          for f in target/dist/*.dmg; do
+            mv "$f" "${f%.dmg}-macOS-AppleSilicon-arm64.dmg"
+          done
+
+      - name: Upload macOS Apple Silicon DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-macos-arm64
+          path: target/dist/*-AppleSilicon-arm64.dmg
+
+  # ----------------------------------------------------
+  # 5. RELEASE JOB : Publication sur GitHub Releases
+  # ----------------------------------------------------
+  release:
+    name: Create GitHub Release
+    needs: [build-windows, build-linux, build-macos-intel, build-macos-apple-silicon]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-files
+          merge-multiple: true
+
+      - name: List downloaded files
+        run: ls -la release-files
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-files/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
