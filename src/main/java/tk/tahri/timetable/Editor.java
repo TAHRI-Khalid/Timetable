@@ -32,7 +32,7 @@ public class Editor extends VBox {
         setStyle("-fx-background-color: #ffffff;");
         createMenu();
         createTabpane();
-        DashboardTab tab = new DashboardTab("Accueil");
+        DashboardTab tab = new DashboardTab("Accueil", this);
         tabpane.getTabs().add(tab);
 
         this.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -154,7 +154,7 @@ public class Editor extends VBox {
             Database.getInstance().createDatabase();
             tk.tahri.timetable.tools.command.UndoManager.getInstance().clear();
             tabpane.getTabs().clear();
-            tabpane.getTabs().add(new DashboardTab("Accueil"));
+            tabpane.getTabs().add(new DashboardTab("Accueil", this));
             loadMenuGroupe();
             loadMenuFormateur();
             loadMenuParametre();
@@ -237,7 +237,7 @@ public class Editor extends VBox {
 
                 tk.tahri.timetable.tools.command.UndoManager.getInstance().clear();
                 tabpane.getTabs().clear();
-                tabpane.getTabs().add(new DashboardTab("Accueil"));
+                tabpane.getTabs().add(new DashboardTab("Accueil", this));
 
                 loadMenuGroupe();
                 loadMenuFormateur();

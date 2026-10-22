@@ -9,7 +9,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
+import tk.tahri.timetable.Editor;
 import tk.tahri.timetable.Entities.Dashboard;
+import tk.tahri.timetable.Entities.Formateur;
+import tk.tahri.timetable.Entities.Groupe;
 import tk.tahri.timetable.dao.Database;
 import tk.tahri.timetable.tools.Config;
 
@@ -17,6 +20,8 @@ import java.io.File;
 import java.util.Objects;
 
 public class DashboardTab extends EditorTab {
+
+    private Editor editor;
 
     // KPI Labels
     private Label lblVolume;
@@ -45,6 +50,11 @@ public class DashboardTab extends EditorTab {
     public DashboardTab(String nom) {
         super(nom);
         this.setClosable(false);
+    }
+
+    public DashboardTab(String nom, Editor editor) {
+        this(nom);
+        this.editor = editor;
     }
 
     @Override
@@ -229,8 +239,8 @@ public class DashboardTab extends EditorTab {
 
         var colType = new TableColumn<Dashboard.FormateurMasseHoraire, String>("Statut");
         colType.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getType()));
-        colType.setPrefWidth(100);
-        colType.setMaxWidth(120);
+        colType.setPrefWidth(95);
+        colType.setMaxWidth(115);
         colType.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
@@ -255,8 +265,8 @@ public class DashboardTab extends EditorTab {
 
         var colDuree = new TableColumn<Dashboard.FormateurMasseHoraire, String>("Masse horaire");
         colDuree.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDuration()));
-        colDuree.setPrefWidth(130);
-        colDuree.setMaxWidth(150);
+        colDuree.setPrefWidth(125);
+        colDuree.setMaxWidth(140);
         colDuree.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
@@ -280,7 +290,43 @@ public class DashboardTab extends EditorTab {
             }
         });
 
-        tableFormateurs.getColumns().addAll(colNom, colType, colDuree);
+        var colAction = new TableColumn<Dashboard.FormateurMasseHoraire, Void>("");
+        colAction.setPrefWidth(42);
+        colAction.setMaxWidth(48);
+        colAction.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button();
+            private final FontAwesome fa = new FontAwesome();
+            {
+                btn.setGraphic(fa.create(FontAwesome.Glyph.EXTERNAL_LINK).color(Color.web("#2563eb")).size(13));
+                btn.setStyle("-fx-background-color: transparent; -fx-padding: 3; -fx-cursor: hand;");
+                btn.setTooltip(new Tooltip("Ouvrir l'emploi du temps de ce formateur"));
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    btn.setOnAction(e -> openFormateurTab(getTableRow().getItem().formateur()));
+                    setGraphic(btn);
+                }
+            }
+        });
+
+        tableFormateurs.getColumns().addAll(colNom, colType, colDuree, colAction);
+
+        tableFormateurs.setRowFactory(tv -> {
+            TableRow<Dashboard.FormateurMasseHoraire> row = new TableRow<>();
+            row.setCursor(javafx.scene.Cursor.HAND);
+            row.setTooltip(new Tooltip("Cliquer pour ouvrir l'emploi du temps"));
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                    openFormateurTab(row.getItem().formateur());
+                }
+            });
+            return row;
+        });
     }
 
     private void setupGroupesTable() {
@@ -291,19 +337,19 @@ public class DashboardTab extends EditorTab {
 
         var colFiliere = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Filière");
         colFiliere.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFiliereAbreviation()));
-        colFiliere.setPrefWidth(100);
-        colFiliere.setMaxWidth(130);
+        colFiliere.setPrefWidth(95);
+        colFiliere.setMaxWidth(125);
 
         var colAnnee = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Année");
         colAnnee.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAnnee() + "A"));
         colAnnee.setPrefWidth(65);
-        colAnnee.setMaxWidth(80);
+        colAnnee.setMaxWidth(75);
         colAnnee.setStyle("-fx-alignment: CENTER;");
 
         var colDuree = new TableColumn<Dashboard.GroupeMasseHoraire, String>("Masse horaire");
         colDuree.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDuration()));
-        colDuree.setPrefWidth(130);
-        colDuree.setMaxWidth(150);
+        colDuree.setPrefWidth(125);
+        colDuree.setMaxWidth(140);
         colDuree.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
@@ -327,7 +373,77 @@ public class DashboardTab extends EditorTab {
             }
         });
 
-        tableGroupes.getColumns().addAll(colNom, colFiliere, colAnnee, colDuree);
+        var colAction = new TableColumn<Dashboard.GroupeMasseHoraire, Void>("");
+        colAction.setPrefWidth(42);
+        colAction.setMaxWidth(48);
+        colAction.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button();
+            private final FontAwesome fa = new FontAwesome();
+            {
+                btn.setGraphic(fa.create(FontAwesome.Glyph.EXTERNAL_LINK).color(Color.web("#2563eb")).size(13));
+                btn.setStyle("-fx-background-color: transparent; -fx-padding: 3; -fx-cursor: hand;");
+                btn.setTooltip(new Tooltip("Ouvrir l'emploi du temps de ce groupe"));
+                setAlignment(Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    btn.setOnAction(e -> openGroupeTab(getTableRow().getItem().groupe()));
+                    setGraphic(btn);
+                }
+            }
+        });
+
+        tableGroupes.getColumns().addAll(colNom, colFiliere, colAnnee, colDuree, colAction);
+
+        tableGroupes.setRowFactory(tv -> {
+            TableRow<Dashboard.GroupeMasseHoraire> row = new TableRow<>();
+            row.setCursor(javafx.scene.Cursor.HAND);
+            row.setTooltip(new Tooltip("Cliquer pour ouvrir l'emploi du temps"));
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                    openGroupeTab(row.getItem().groupe());
+                }
+            });
+            return row;
+        });
+    }
+
+    private void openFormateurTab(Formateur formateur) {
+        if (formateur == null) return;
+        if (editor != null) {
+            editor.loadTab(new FormateurTab(formateur));
+        } else if (getTabPane() != null) {
+            var tab = new FormateurTab(formateur);
+            getTabPane().getTabs().stream()
+                    .filter(t -> t.getText().equals(tab.getText()))
+                    .findFirst()
+                    .ifPresentOrElse(getTabPane().getSelectionModel()::select,
+                            () -> {
+                                getTabPane().getTabs().add(tab);
+                                getTabPane().getSelectionModel().select(tab);
+                            });
+        }
+    }
+
+    private void openGroupeTab(Groupe groupe) {
+        if (groupe == null) return;
+        if (editor != null) {
+            editor.loadTab(new GroupeTab(groupe));
+        } else if (getTabPane() != null) {
+            var tab = new GroupeTab(groupe);
+            getTabPane().getTabs().stream()
+                    .filter(t -> t.getText().equals(tab.getText()))
+                    .findFirst()
+                    .ifPresentOrElse(getTabPane().getSelectionModel()::select,
+                            () -> {
+                                getTabPane().getTabs().add(tab);
+                                getTabPane().getSelectionModel().select(tab);
+                            });
+        }
     }
 
     private VBox createTableCard(String title, FontAwesome.Glyph glyph, Label badge, TableView<?> table) {
