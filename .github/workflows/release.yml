@@ -70,7 +70,7 @@ jobs:
       - name: Build Linux RPM Package
         run: |
           cd target/dist
-          sudo alien -r -c *.deb
+          sudo alien -r *.deb
           sudo chown -R $USER:$USER .
           ls -la
 
