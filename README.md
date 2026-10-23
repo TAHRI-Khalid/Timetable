@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/JavaFX-27-blue?logo=openjdk" alt="JavaFX 27" />
   <img src="https://img.shields.io/badge/Base_de_donn%C3%A9es-SQLite-003B57?logo=sqlite" alt="SQLite" />
   <img src="https://img.shields.io/badge/Plateformes-Windows%20%7C%20macOS%20%7C%20Linux-brightgreen" alt="Platforms" />
-  <img src="https://img.shields.io/badge/Release-v2.0.0-blueviolet" alt="Version 2.0.0" />
+  <img src="https://img.shields.io/badge/Release-v2.0.1-blueviolet" alt="Version 2.0.1" />
 </p>
 
 ---
@@ -71,7 +71,7 @@ Les installeurs autonomes intégrant un runtime Java optimisé (aucun prérequis
 | **macOS** | Apple Silicon (M1 / M2 / M3 / M4) | `.dmg` (Package Apple Silicon arm64) |
 | **Linux (Debian / Ubuntu / Mint)** | 64-bit (amd64) | `.deb` |
 | **Linux (Fedora / RHEL / openSUSE)** | 64-bit (x86_64) | `.rpm` |
-| **Universel (macOS Intel, Linux, Windows)** | Multi-plateforme | `TimeTable-2.0.0-all.jar` *(requiert Java 25)* |
+| **Universel (macOS Intel, Linux, Windows)** | Multi-plateforme | `TimeTable-2.0.1-all.jar` *(requiert Java 25)* |
 
 ---
 
@@ -102,9 +102,9 @@ Les installeurs autonomes intégrant un runtime Java optimisé (aucun prérequis
 4. **Générer le Fat JAR exécutable** :
    ```bash
    mvn package -DskipTests
-   # Le fichier sera disponible dans target/TimeTable-2.0.0-all.jar
+   # Le fichier sera disponible dans target/TimeTable-2.0.1-all.jar
    # Exécution :
-   java -jar target/TimeTable-2.0.0-all.jar
+   java -jar target/TimeTable-2.0.1-all.jar
    ```
 
 ---
@@ -113,7 +113,7 @@ Les installeurs autonomes intégrant un runtime Java optimisé (aucun prérequis
 
 Le projet intègre un pipeline de publication automatique multi-OS situé dans [`.github/workflows/release.yml`](.github/workflows/release.yml).
 
-À chaque nouveau tag de version (ex: `v2.0.0`) :
+À chaque nouveau tag de version (ex: `v2.0.1`) :
 1. Une matrice compile l'application simultanément sur **Windows Server**, **Ubuntu** et **macOS (Intel & ARM)**.
 2. `jlink` extrait un sous-ensemble minimal de modules Java.
 3. `jpackage` assemble les installeurs natifs (`.msi`, `.deb`, `.rpm`, `.dmg`).
