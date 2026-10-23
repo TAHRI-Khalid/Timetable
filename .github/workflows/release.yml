@@ -1,151 +1,268 @@
-name: Build & Release Multi-OS
+name: Build and Release
 
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version de release (ex: 2.0.1)'
+        required: true
+        default: '2.0.1'
 
 permissions:
   contents: write
 
 jobs:
-  # ----------------------------------------------------
-  # 1. WINDOWS (x64) -> .msi
-  # ----------------------------------------------------
-  build-windows:
-    name: Windows (x64 MSI)
-    runs-on: windows-latest
+  # --------------------------------------------------------------------------
+  # 1. BUILD LINUX (DEB, RPM, Portable & JAR)
+  # --------------------------------------------------------------------------
+  build-linux:
+    name: Build Linux & Jar
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Déterminer la version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
-      - name: Build JLink Image
-        run: mvn clean compile javafx:jlink
-
-      - name: Build Windows Installer (MSI)
-        run: mvn jpackage:jpackage@win
-
-      - name: Upload Windows MSI
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-windows-msi
-          path: target/dist/*.msi
-
-  # ----------------------------------------------------
-  # 2. LINUX (x64) -> .deb, .rpm & Fat JAR
-  # ----------------------------------------------------
-  build-linux:
-    name: Linux (.deb, .rpm & JAR)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install packaging tools (RPM, Alien & Fakeroot)
+      - name: Installer les dépendances d'empaquetage (deb & rpm)
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm fakeroot alien
+          sudo apt-get install -y fakeroot rpm
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Build JLink Image
-        run: mvn clean compile javafx:jlink
-
-      - name: Build Linux DEB Package
-        run: mvn jpackage:jpackage@linux-deb
-
-      - name: Build Linux RPM Package
+      - name: Compiler le JAR universel
         run: |
-          cd target/dist
-          sudo alien -r *.deb
-          sudo chown -R $USER:$USER .
-          ls -la
+          if [ -x "./mvnw" ]; then
+            ./mvnw clean package -DskipTests
+          else
+            mvn clean package -DskipTests
+          fi
 
-      - name: Build Fat JAR
-        run: mvn package -DskipTests
-
-      - name: Collect Linux artifacts into flat directory
+      - name: Préparer le JAR autonome
         run: |
-          mkdir -p linux-dist
-          cp target/dist/*.deb linux-dist/
-          cp target/dist/*.rpm linux-dist/
-          cp target/*-all.jar linux-dist/
-          ls -la linux-dist/
+          mkdir -p release-artifacts
+          JAR_SRC=$(ls target/TimeTable-*-all.jar target/TimeTable-*.jar 2>/dev/null | head -n 1)
+          cp "$JAR_SRC" "release-artifacts/TimeTable-${{ env.VERSION }}-all.jar"
 
-      - name: Upload Linux Packages & JAR
+      - name: Générer les paquets Linux (DEB, RPM, App-Image)
+        env:
+          SKIP_BUILD: "true"
+        run: |
+          chmod +x ./package-native.sh
+          ./package-native.sh deb "${{ env.VERSION }}"
+          ./package-native.sh rpm "${{ env.VERSION }}"
+          ./package-native.sh app-image "${{ env.VERSION }}"
+
+          tar -czf "release-artifacts/TimeTable-linux-x64-${{ env.VERSION }}.tar.gz" -C dist TimeTable
+
+          find dist/ -type f \( -name "*.deb" -o -name "*.rpm" \) -exec cp {} release-artifacts/ \;
+
+      - name: Uploader les artefacts Linux & Jar
         uses: actions/upload-artifact@v4
         with:
-          name: package-linux-and-jar
-          path: linux-dist/*
+          name: linux-artifacts
+          path: release-artifacts/*
 
-  # ----------------------------------------------------
-  # 3. macOS Apple Silicon (M1/M2/M3/M4 arm64) -> .dmg
-  # (Note: GitHub a retiré les runners Intel macos-13 fin 2025)
-  # ----------------------------------------------------
-  build-macos:
-    name: macOS (Apple Silicon DMG)
-    runs-on: macos-14
+  # --------------------------------------------------------------------------
+  # 2. BUILD WINDOWS (MSI & ZIP portable)
+  # --------------------------------------------------------------------------
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Déterminer la version
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: maven
 
-      - name: Build JLink Image
-        run: mvn clean compile javafx:jlink
+      - name: Installer et configurer WiX Toolset
+        shell: powershell
+        run: |
+          $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          if (-not (Test-Path (Join-Path $wixPath "candle.exe"))) {
+            Write-Host "Installation de WiX 3.11 via Chocolatey..."
+            choco install wixtoolset --yes --no-progress
+          }
+          if (Test-Path $wixPath) {
+            echo $wixPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            Write-Host "WiX Toolset configuré dans GITHUB_PATH : $wixPath"
+          }
 
-      - name: Build macOS DMG
-        run: mvn jpackage:jpackage@mac
+      - name: Compiler le projet
+        shell: cmd
+        run: |
+          mvn clean package -DskipTests
 
-      - name: Upload macOS DMG
+      - name: Générer le package Windows Portable (ZIP)
+        shell: powershell
+        run: |
+          .\package-native.ps1 -PackageType app-image -AppVersion "${{ env.VERSION }}"
+          New-Item -ItemType Directory -Path release-artifacts -Force | Out-Null
+          Compress-Archive -Path dist\TimeTable -DestinationPath "release-artifacts\TimeTable-windows-x64-${{ env.VERSION }}.zip" -Force
+
+      - name: Générer le package Windows Installateur (MSI)
+        shell: powershell
+        run: |
+          .\package-native.ps1 -PackageType msi -AppVersion "${{ env.VERSION }}"
+          Get-ChildItem -Path dist\*.msi | Copy-Item -Destination release-artifacts\
+
+      - name: Uploader les artefacts Windows
         uses: actions/upload-artifact@v4
         with:
-          name: package-macos
-          path: target/dist/*.dmg
+          name: windows-artifacts
+          path: release-artifacts/*
 
-  # ----------------------------------------------------
-  # 4. RELEASE JOB : Publication sur GitHub Releases
-  # ----------------------------------------------------
-  release:
-    name: Create GitHub Release
-    needs: [build-windows, build-linux, build-macos]
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+  # --------------------------------------------------------------------------
+  # 3. BUILD macOS Apple Silicon (DMG & TAR.GZ portable)
+  # --------------------------------------------------------------------------
+  build-macos:
+    name: Build macOS (Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Déterminer la version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compiler le projet
+        run: |
+          if [ -x "./mvnw" ]; then
+            ./mvnw clean package -DskipTests
+          else
+            mvn clean package -DskipTests
+          fi
+
+      - name: Générer les packages macOS Apple Silicon
+        env:
+          SKIP_BUILD: "true"
+        run: |
+          set -euo pipefail
+          chmod +x ./package-native.sh
+          mkdir -p release-artifacts
+
+          ./package-native.sh app-image "${{ env.VERSION }}"
+
+          tar -czf \
+            "release-artifacts/TimeTable-macos-arm64-${{ env.VERSION }}.tar.gz" \
+            -C dist TimeTable.app
+
+          ./package-native.sh dmg "${{ env.VERSION }}"
+
+          ARM_DMG="$(find dist/ -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
+          if [ -z "$ARM_DMG" ]; then
+            echo "ERROR: Apple Silicon ARM64 DMG was not created"
+            exit 1
+          fi
+
+          cp "$ARM_DMG" \
+            "release-artifacts/TimeTable-macos-arm64-${{ env.VERSION }}.dmg"
+
+      - name: Uploader les artefacts macOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: release-artifacts/*
+
+  # --------------------------------------------------------------------------
+  # 4. PUBLICATION DE LA RELEASE GITHUB
+  # --------------------------------------------------------------------------
+  publish-release:
+    name: Publish Release on GitHub
+    needs:
+      - build-linux
+      - build-windows
+      - build-macos
     runs-on: ubuntu-latest
     steps:
-      - name: Download all built artifacts
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Déterminer la version et le nom de tag
+        id: get_tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="v${{ github.event.inputs.version }}"
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#v}"
+          fi
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Télécharger tous les artefacts
         uses: actions/download-artifact@v4
         with:
-          path: release-files
-          merge-multiple: true
+          path: all-artifacts
 
-      - name: List and flatten downloaded files
+      - name: Consolider et calculer les sommes de contrôle SHA256
         run: |
-          find release-files -mindepth 2 -type f -exec mv -t release-files {} +
-          find release-files -empty -type d -delete
-          ls -la release-files
+          mkdir -p dist-release
+          find all-artifacts -type f -exec cp {} dist-release/ \;
 
-      - name: Publish GitHub Release
+          cd dist-release
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          cd ..
+
+      - name: Créer ou mettre à jour la Release GitHub
         uses: softprops/action-gh-release@v2
         with:
-          files: release-files/*
+          tag_name: ${{ env.TAG }}
+          name: "TimeTable ${{ env.TAG }}"
           draft: false
           prerelease: false
           generate_release_notes: true
+          files: |
+            dist-release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
