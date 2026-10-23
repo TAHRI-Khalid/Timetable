@@ -77,14 +77,19 @@ jobs:
       - name: Build Fat JAR
         run: mvn package -DskipTests
 
+      - name: Collect Linux artifacts into flat directory
+        run: |
+          mkdir -p linux-dist
+          cp target/dist/*.deb linux-dist/
+          cp target/dist/*.rpm linux-dist/
+          cp target/*-all.jar linux-dist/
+          ls -la linux-dist/
+
       - name: Upload Linux Packages & JAR
         uses: actions/upload-artifact@v4
         with:
           name: package-linux-and-jar
-          path: |
-            target/dist/*.deb
-            target/dist/*.rpm
-            target/*-all.jar
+          path: linux-dist/*
 
   # ----------------------------------------------------
   # 3. macOS Apple Silicon (M1/M2/M3/M4 arm64) -> .dmg
@@ -131,8 +136,11 @@ jobs:
           path: release-files
           merge-multiple: true
 
-      - name: List downloaded files
-        run: ls -la release-files
+      - name: List and flatten downloaded files
+        run: |
+          find release-files -mindepth 2 -type f -exec mv -t release-files {} +
+          find release-files -empty -type d -delete
+          ls -la release-files
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
