@@ -69,10 +69,9 @@ Les installeurs autonomes intégrant un runtime Java optimisé (aucun prérequis
 | :--- | :--- | :--- |
 | **Windows** | 64-bit (x64) | `.msi` (Installateur Windows natif) |
 | **macOS** | Apple Silicon (M1 / M2 / M3 / M4) | `.dmg` (Package Apple Silicon arm64) |
-| **macOS** | Intel (x86_64) | `.dmg` (Package macOS Intel x64) |
 | **Linux (Debian / Ubuntu / Mint)** | 64-bit (amd64) | `.deb` |
 | **Linux (Fedora / RHEL / openSUSE)** | 64-bit (x86_64) | `.rpm` |
-| **Universel (Tout OS)** | Multi-plateforme | `TimeTable-2.0.0-all.jar` *(requiert Java 25)* |
+| **Universel (macOS Intel, Linux, Windows)** | Multi-plateforme | `TimeTable-2.0.0-all.jar` *(requiert Java 25)* |
 
 ---
 
